@@ -408,6 +408,55 @@ if (existsSync(fontsDir)) {
 }
 console.log("");
 
+// 7г. Ліцензії — PLAN.md 61
+console.log("--- 7г. Ліцензійні файли ---");
+const rootDir = resolve(".");
+let licenseErrors = 0;
+
+const licenseFile = join(rootDir, "LICENSE");
+if (!existsSync(licenseFile)) {
+  console.log("  ❌ LICENSE відсутній (ISC для коду)");
+  licenseErrors++;
+  totalErrors++;
+} else {
+  const lc = readFileSync(licenseFile, "utf-8");
+  if (!/ISC/i.test(lc)) {
+    console.log("  ❌ LICENSE без згадки ISC");
+    licenseErrors++;
+    totalErrors++;
+  } else {
+    console.log("  ✅ LICENSE: ISC");
+  }
+}
+
+const copyrightFile = join(rootDir, "COPYRIGHT");
+if (!existsSync(copyrightFile)) {
+  console.log("  ❌ COPYRIGHT відсутній (© для контенту)");
+  licenseErrors++;
+  totalErrors++;
+} else {
+  const cc = readFileSync(copyrightFile, "utf-8");
+  if (!/усі права застережено/i.test(cc)) {
+    console.log("  ❌ COPYRIGHT без формули «Усі права застережено»");
+    licenseErrors++;
+    totalErrors++;
+  } else {
+    console.log("  ✅ COPYRIGHT: усі права застережено");
+  }
+}
+
+// Перехресне посилання: LICENSE має відсилати до COPYRIGHT
+if (existsSync(licenseFile) && existsSync(copyrightFile)) {
+  if (!/COPYRIGHT/.test(readFileSync(licenseFile, "utf-8"))) {
+    console.log("  ❌ LICENSE не посилається на COPYRIGHT");
+    licenseErrors++;
+    totalErrors++;
+  } else {
+    console.log("  ✅ LICENSE → COPYRIGHT (перехресне посилання)");
+  }
+}
+console.log("");
+
 // Допоміжна: чи є хоча б один @font-face у стилях
 function faces0Exists(dir) {
   try {
