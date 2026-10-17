@@ -1,0 +1,20 @@
+# Залежності
+node_modules/
+
+# Збірка
+dist/
+_site/
+
+# Середовище
+.env
+.env.local
+
+# ОС
+.DS_Store
+Thumbs.db
+
+# Редактори
+.vscode/
+.idea/
+*.swp
+*.swo
