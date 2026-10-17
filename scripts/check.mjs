@@ -468,6 +468,57 @@ function faces0Exists(dir) {
   }
 }
 
+// 7д. Політика залежностей — AGENTS.md §3, DECISIONS.md §38.4
+console.log("--- 7д. Політика залежностей ---");
+const pkgPath = join(resolve("."), "package.json");
+if (!existsSync(pkgPath)) {
+  console.log("  ⚠️  package.json не існує. Пропущено (скелет: крок 69).");
+} else {
+  let depErrors = 0;
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+  const deps = Object.keys(pkg.dependencies || {});
+  const devDeps = Object.keys(pkg.devDependencies || {});
+
+  // Єдиний дозволений пакет
+  const allowed = new Set(["@11ty/eleventy"]);
+  for (const dep of [...deps, ...devDeps]) {
+    if (!allowed.has(dep)) {
+      console.log(`  ❌ Недозволена залежність: ${dep} (потрібен [ДОЗВОЛЕНО NPM])`);
+      depErrors++;
+      totalErrors++;
+    }
+  }
+
+  // Точна версія без ^ ~ >= *
+  const versionMap = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+  for (const [name, range] of Object.entries(versionMap)) {
+    if (/[\^~>=*]|\s-\s|latest|next/.test(range)) {
+      console.log(`  ❌ ${name}: «${range}» — версія має бути точною (без ^ ~ >=)`);
+      depErrors++;
+      totalErrors++;
+    }
+  }
+
+  // devDependencies мають бути порожніми (скрипти автономні)
+  if (devDeps.length > 0) {
+    console.log(`  ❌ devDependencies не порожні: ${devDeps.join(", ")}`);
+    depErrors++;
+    totalErrors++;
+  }
+
+  // package-lock.json обов'язковий при наявності package.json
+  if (!existsSync(join(resolve("."), "package-lock.json"))) {
+    console.log("  ❌ package-lock.json відсутній (TECH_STANDARDS §2)");
+    depErrors++;
+    totalErrors++;
+  }
+
+  if (depErrors === 0) {
+    console.log(`  ✅ Залежності: ${deps.length} (${deps.join(", ") || "немає"}), точні версії, lock на місці`);
+  }
+}
+console.log("");
+
 // Підсумок
 console.log("=== ПІДСУМОК ===");
 console.log(`Помилок: ${totalErrors}`);
