@@ -8,4 +8,8 @@
    Самохостинговий woff2 для акцентів — крок 89. */
 :root {
   --font-text: Georgia, "Times New Roman", "Noto Serif", serif;
+
+  /* Службовий стек без засічок: шапка, підвал, мітки.
+     Крок 88. design-system.md §5.5. */
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
