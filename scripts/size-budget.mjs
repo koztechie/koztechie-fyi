@@ -170,6 +170,21 @@ if (feed) {
 }
 console.log("");
 
+// 8. Сайт (dist/ без зображень та feed.xml) ≤ 2 МБ
+// Зображення без обмеження (архів), feed.xml росте необмежено — обидва винятки §1.
+console.log("--- 8. Сайт (без зображень і feed.xml) ≤ 2 МБ ---");
+const siteFiles = files.filter(
+  (f) => !imgFiles.includes(f) && !f.endsWith("feed.xml")
+);
+let siteTotal = 0;
+for (const f of siteFiles) siteTotal += brotliKB(f);
+if (siteTotal > 2048) {
+  fail(`${siteFiles.length} файлів, ${(siteTotal / 1024).toFixed(1)} МБ (бюджет 2 МБ)`);
+} else {
+  ok(`${siteFiles.length} файлів, ${(siteTotal / 1024).toFixed(2)} МБ`);
+}
+console.log("");
+
 // Підсумок
 console.log("=== ПІДСУМКОВО ===");
 console.log(`Помилок бюджету: ${errors}`);
