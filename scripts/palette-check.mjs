@@ -134,6 +134,98 @@ for (const section of sections) {
   console.log("");
 }
 
+// Відповідність документа та src/styles/themes.css (TECH_STANDARDS §4, design-system §4.3.5)
+// Документ — канон. CSS має збігатися з ним рядок у рядок за значеннями.
+const cssPath = resolve("src/styles/themes.css");
+console.log("--- CSS ↔ документ (themes.css) ---");
+if (!existsSync(cssPath)) {
+  console.log("  ⚠️  src/styles/themes.css не існує. Пропущено (крок 85).");
+} else {
+  const css = readFileSync(cssPath, "utf-8");
+
+  // Витягти блок: від селектора до наступного селектора/фінальної фігурної
+  function block(selector) {
+    const start = css.indexOf(selector);
+    if (start === -1) return null;
+    const open = css.indexOf("{", start);
+    if (open === -1) return null;
+    let depth = 0;
+    for (let i = open; i < css.length; i++) {
+      if (css[i] === "{") depth++;
+      if (css[i] === "}") {
+        depth--;
+        if (depth === 0) return css.slice(open, i + 1);
+      }
+    }
+    return null;
+  }
+
+  function vars(blockText) {
+    const out = {};
+    const re = /(--[a-z-]+)\s*:\s*(#[0-9a-fA-F]{6})/g;
+    let m;
+    while ((m = re.exec(blockText)) !== null) out[m[1]] = m[2].toLowerCase();
+    return out;
+  }
+
+  // :root без медіазапиту = ПАПІР. @media dark :root = БУНКЕР
+  const rootBlock = block(":root");
+  const darkMedia = block("@media (prefers-color-scheme: dark)");
+  const cssPalettes = {
+    "ПАПІР": rootBlock ? vars(rootBlock) : {},
+    "БУНКЕР": darkMedia ? vars(darkMedia.replace(/:root/g, "")) : {},
+  };
+
+  let cssErrors = 0;
+  for (const section of sections) {
+    const name = section.replace(/^4\.\d+\. Палітра «/, "").replace(/»$/, "");
+    const docP = extractPalette(section);
+    const fileP = cssPalettes[name];
+    if (!fileP) {
+      console.log(`  ❌ «${name}»: блок у themes.css не знайдено`);
+      errors++;
+      cssErrors++;
+      continue;
+    }
+
+    // 1. Ті самі змінні
+    const docKeys = Object.keys(docP).sort().join(",");
+    const cssKeys = Object.keys(fileP).sort().join(",");
+    if (docKeys !== cssKeys) {
+      console.log(`  ❌ «${name}»: набори змінних різняться`);
+      console.log(`      документ: ${docKeys}`);
+      console.log(`      CSS:      ${cssKeys}`);
+      errors++;
+      cssErrors++;
+      continue;
+    }
+
+    // 2. Ті самі значення
+    const diffs = [];
+    for (const [k, v] of Object.entries(docP)) {
+      if (fileP[k] !== v.toLowerCase()) diffs.push(`${k}: документ ${v}, CSS ${fileP[k]}`);
+    }
+    if (diffs.length > 0) {
+      for (const d of diffs) {
+        console.log(`  ❌ «${name}»: ${d}`);
+        errors++;
+        cssErrors++;
+      }
+    }
+
+    // 3. prefers-color-scheme наявний
+    if (name === "БУНКЕР" && !/prefers-color-scheme:\s*dark/.test(css)) {
+      console.log("  ❌ БУНКЕР без prefers-color-scheme: dark");
+      errors++;
+      cssErrors++;
+    }
+  }
+  if (cssErrors === 0) {
+    console.log("  ✅ themes.css збігається з документом (12 значень, 2 блоки)");
+  }
+}
+console.log("");
+
 console.log("=== ПІДСУМКОВО ===");
 if (errors > 0) {
   console.log(`Помилок: ${errors}`);
