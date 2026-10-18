@@ -108,3 +108,26 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink::after { display: none; }
 }
+
+/* Перемикач мови: «УКР / ENG».
+   Крок 98. design-system.md §8.1.
+   Поточна мова — span (не лінк). Інша — лінк на дзеркало. */
+.lang-switch {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+
+.lang-switch .current {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.lang-switch a {
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+
+.lang-switch a:hover,
+.lang-switch a:focus-visible {
+  color: var(--accent);
+}
