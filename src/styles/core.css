@@ -71,3 +71,21 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/* Мікрогліч на h1: короткий зсув при завантаженні.
+   Крок 95. design-system.md §7.2.
+   150 мс, один раз. Лише transform/opacity. 3D заборонено (§2.5). */
+@keyframes glitch-shift {
+  0%   { transform: translateX(-3px); opacity: 0; }
+  40%  { transform: translateX(2px);  opacity: 1; }
+  70%  { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+h1 {
+  animation: glitch-shift 150ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  h1 { animation: none; }
+}
