@@ -3,6 +3,21 @@
    Порядок завантаження: core → layout → components → themes → print → nichlyst
    TECH_STANDARDS.md §4.1 */
 
+/* Самохостинговий моноширинний шрифт.
+   Крок 89. design-system.md §5.8.
+   JetBrains Mono, OFL-ліцензія. Сабсет: latin + cyrillic + символи системи.
+   Вага: 33,4 КБ (бюджет 60 КБ, AGENTS.md §3). */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Regular-subset.woff2") format("woff2");
+  font-display: optional;
+  font-weight: 400;
+  font-style: normal;
+  unicode-range: U+0020-00FF, U+0100-017F, U+0400-04FF, U+2010-2015,
+    U+2018-201F, U+2026, U+00AB, U+00BB, U+02BC, U+2116, U+2192, U+2248,
+    U+258D, U+25AA;
+}
+
 /* Системний стек тексту із засічками.
    Крок 87. design-system.md §5.1.
    Самохостинговий woff2 для акцентів — крок 89. */
@@ -12,4 +27,8 @@
   /* Службовий стек без засічок: шапка, підвал, мітки.
      Крок 88. design-system.md §5.5. */
   --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* Моноширинний: акценти, код, лінійка запису.
+     Крок 89. design-system.md §5.8. */
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
 }
