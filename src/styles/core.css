@@ -18,10 +18,9 @@
     U+258D, U+25AA;
 }
 
-/* Системний стек тексту із засічками.
-   Крок 87. design-system.md §5.1.
-   Самохостинговий woff2 для акцентів — крок 89. */
 :root {
+  /* Системний стек тексту із засічками.
+     Крок 87. design-system.md §5.1. */
   --font-text: Georgia, "Times New Roman", "Noto Serif", serif;
 
   /* Службовий стек без засічок: шапка, підвал, мітки.
@@ -33,101 +32,15 @@
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
 
   /* Типографічна шкала: ratio 1.25, 5 розмірів.
-     Крок 90. design-system.md §5.9.
-     База 1rem = 16px. Кожен крок × 1.25. */
-  --text-sm: 0.8rem;      /* 12.8px — мітки, підписи, дати */
-  --text-base: 1rem;      /* 16px   — основний текст */
-  --text-lg: 1.25rem;     /* 20px   — лід, h3 */
-  --text-xl: 1.5625rem;   /* 25px   — h2 */
-  --text-xxl: 1.9531rem;  /* 31.3px — h1 */
+     Крок 90. design-system.md §5.9. */
+  --text-sm: 0.8rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-xxl: 1.9531rem;
 
   /* Вертикальний ритм та ширина рядка.
      Крок 91. design-system.md §5.10. */
-  --leading: 1.6;   /* line-height основного тексту */
-  --measure: 68ch;  /* максимум символів у рядку */
-}
-
-/* Буквиця для довгих текстів.
-   Крок 92. design-system.md §5.11.
-   Клас ставить шаблон поста (крок 114). Не для поезії та коротких записів. */
-.dropcap::first-letter {
-  float: left;
-  font-family: var(--font-text);
-  font-size: 3.4em;
-  font-weight: 400;
-  line-height: 0.8;
-  color: var(--ink);
-  padding-right: 0.08em;
-  padding-top: 0.05em;
-}
-
-/* Лінійка запису: мітка з номером entry.
-   Крок 94. design-system.md §7.1.
-   Номер незмінний (content-model.md §3.1). Генерується шаблоном. */
-.entry-line {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--ink-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Мікрогліч на h1: короткий зсув при завантаженні.
-   Крок 95. design-system.md §7.2.
-   150 мс, один раз. Лише transform/opacity. 3D заборонено (§2.5). */
-@keyframes glitch-shift {
-  0%   { transform: translateX(-3px); opacity: 0; }
-  40%  { transform: translateX(2px);  opacity: 1; }
-  70%  { transform: translateX(-1px); }
-  100% { transform: translateX(0); }
-}
-
-h1 {
-  animation: glitch-shift 150ms ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  h1 { animation: none; }
-}
-
-/* Курсор ▍ після маніфесту: миготливий курсор текстового редактора.
-   Крок 96. design-system.md §7.3.
-   Клас ставить шаблон /manifest/ (крок 115+). step-end — не ease. */
-.cursor-blink::after {
-  content: "▍";
-  font-family: var(--font-mono);
-  color: var(--ink);
-  animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cursor-blink::after { display: none; }
-}
-
-/* Перемикач мови: «УКР / ENG».
-   Крок 98. design-system.md §8.1.
-   Поточна мова — span (не лінк). Інша — лінк на дзеркало. */
-.lang-switch {
-  font-family: var(--font-ui);
-  font-size: var(--text-sm);
-}
-
-.lang-switch .current {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.lang-switch a {
-  color: var(--ink-dim);
-  text-decoration: none;
-}
-
-.lang-switch a:hover,
-.lang-switch a:focus-visible {
-  color: var(--accent);
+  --leading: 1.6;
+  --measure: 68ch;
 }

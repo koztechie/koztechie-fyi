@@ -1,0 +1,84 @@
+/* components.css: картки, мітки, лінійки, сигнатурі
+   Канонічне джерело: docs/design-system.md §7, §9
+   Порядок: core → layout → components → themes → print → nichlyst
+   TECH_STANDARDS.md §4.1 */
+
+/* Лінійка запису: мітка з номером entry.
+   Крок 94. design-system.md §7.1. */
+.entry-line {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Буквиця для довгих текстів.
+   Крок 92. design-system.md §5.11. */
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-text);
+  font-size: 3.4em;
+  font-weight: 400;
+  line-height: 0.8;
+  color: var(--ink);
+  padding-right: 0.08em;
+  padding-top: 0.05em;
+}
+
+/* Мікрогліч на h1: короткий зсув при завантаженні.
+   Крок 95. design-system.md §7.2. */
+@keyframes glitch-shift {
+  0%   { transform: translateX(-3px); opacity: 0; }
+  40%  { transform: translateX(2px);  opacity: 1; }
+  70%  { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+h1 {
+  animation: glitch-shift 150ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  h1 { animation: none; }
+}
+
+/* Курсор ▍ після маніфесту.
+   Крок 96. design-system.md §7.3. */
+.cursor-blink::after {
+  content: "▍";
+  font-family: var(--font-mono);
+  color: var(--ink);
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-blink::after { display: none; }
+}
+
+/* Перемикач мови: «УКР / ENG».
+   Крок 98. design-system.md §8.1. */
+.lang-switch {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+
+.lang-switch .current {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.lang-switch a {
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+
+.lang-switch a:hover,
+.lang-switch a:focus-visible {
+  color: var(--accent);
+}

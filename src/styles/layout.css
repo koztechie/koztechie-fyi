@@ -1,0 +1,113 @@
+/* layout.css: сітка, шапка, підвал
+   Канонічне джерело: docs/design-system.md §9
+   Порядок: core → layout → components → themes → print → nichlyst
+   TECH_STANDARDS.md §4.1 */
+
+/* Базова сітка */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Шапка */
+.site-header {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.75rem 1rem;
+}
+
+.site-header__inner {
+  max-width: 72ch;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.site-logo {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.site-nav a {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  color: var(--accent);
+}
+
+.site-nav a[aria-current="page"] {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+.site-nav a[aria-current="page"]::before {
+  content: "[ ";
+}
+
+.site-nav a[aria-current="page"]::after {
+  content: " ]";
+}
+
+/* Підвал */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 1.5rem 1rem;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+}
+
+.site-footer__inner {
+  max-width: 72ch;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.site-footer a {
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible {
+  color: var(--accent);
+}
+
+.footer-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-place {
+  font-style: italic;
+  color: var(--ink-dim);
+}

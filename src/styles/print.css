@@ -1,0 +1,43 @@
+/* print.css: друк — завжди світла тема
+   Канонічне джерело: docs/design-system.md §4
+   Порядок: core → layout → components → themes → print → nichlyst
+   TECH_STANDARDS.md §4.1 */
+
+@media print {
+  /* Примусово світла тема для друку */
+  :root {
+    color-scheme: light;
+
+    --bg: #f7f8fa;
+    --surface: #edeff3;
+    --ink: #14181d;
+    --ink-dim: #434955;
+    --accent: #0a5266;
+    --rule: #6b7482;
+  }
+
+  /* Приховати навігацію та перемикачі */
+  .site-header nav,
+  .site-footer nav,
+  .lang-switch {
+    display: none;
+  }
+
+  /* Спростити лінки */
+  a {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+
+  /* Прибрати анімації */
+  h1,
+  .cursor-blink::after {
+    animation: none;
+  }
+
+  /* Розширити текстовий блок */
+  main {
+    max-width: none;
+    padding: 0;
+  }
+}
