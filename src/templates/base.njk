@@ -2,7 +2,7 @@
     Крок 105. docs/design-system.md §9.
     Мовна схема: DECISIONS.md §19. uk — корінь, en — /en/.
     Блоки для розширення: head, title, description, header, footer.
-    Шапка: паршал header.njk (крок 108). Підвал: крок 109. -#}
+    Шапка: паршал header.njk (крок 108). Підвал: паршал footer.njk (крок 109). -#}
 <!doctype html>
 <html lang="{{ lang | default("uk") }}">
 <head>
@@ -37,7 +37,7 @@
   </main>
 
   <footer class="site-footer">
-    {% block footer %}{% endblock %}
+    {% block footer %}{% include "footer.njk" %}{% endblock %}
   </footer>
 </body>
 </html>
