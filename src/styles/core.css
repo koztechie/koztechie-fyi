@@ -46,3 +46,17 @@
   --leading: 1.6;   /* line-height основного тексту */
   --measure: 68ch;  /* максимум символів у рядку */
 }
+
+/* Буквиця для довгих текстів.
+   Крок 92. design-system.md §5.11.
+   Клас ставить шаблон поста (крок 114). Не для поезії та коротких записів. */
+.dropcap::first-letter {
+  float: left;
+  font-family: var(--font-text);
+  font-size: 3.4em;
+  font-weight: 400;
+  line-height: 0.8;
+  color: var(--ink);
+  padding-right: 0.08em;
+  padding-top: 0.05em;
+}
