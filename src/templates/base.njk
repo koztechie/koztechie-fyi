@@ -1,0 +1,33 @@
+{#- base.njk: базовий шаблон усіх сторінок.
+    Крок 105. docs/design-system.md §9.
+    Мовна схема: DECISIONS.md §19. uk — корінь, en — /en/.
+    Блоки для розширення: head, title, description, header, footer.
+    Паршали шапки/підвалу підключаються з кроків 108–109. -#}
+<!doctype html>
+<html lang="{{ lang | default("uk") }}">
+<head>
+  <meta charset="utf-8">
+  {#- Деталі head: крок 106 (viewport, description, theme-color).
+      hreflang + canonical: крок 112. -#}
+  {% block title %}<title>ВУЗОЛ-0</title>{% endblock %}
+  <link rel="stylesheet" href="/styles/core.css">
+  <link rel="stylesheet" href="/styles/layout.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/themes.css">
+  <link rel="stylesheet" href="/styles/print.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    {% block header %}{% endblock %}
+  </header>
+
+  <main>
+    {% block content %}{{ content | safe }}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    {% block footer %}{% endblock %}
+  </footer>
+</body>
+</html>
