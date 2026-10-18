@@ -2,15 +2,25 @@
     Крок 108. docs/design-system.md §9.6.
     Логотип — текст, не картинка (§9.6.4).
     5 лінків — sitemap.md «Місце: Шапка».
-    Активний розділ (aria-current): крок 110.
+    Активний розділ — aria-current="page" (крок 110, §9.6.3).
+    Дужки [ ] — моно-мітка з CSS layout.css, не в розмітці.
     Перемикач мови: крок 111. -#}
+{#- Нормалізація URL: /en/blog/ → /blog/ (мовна гілка не змінює розділ). -#}
+{% set cur = page.url | default("/") %}
+{%- if cur.indexOf("/en/") === 0 %}{% set cur = cur.slice(3) %}{% endif %}
 <div class="site-header__inner">
   <a class="site-logo" href="/">ВУЗОЛ-0</a>
   <nav class="site-nav" aria-label="Розділи">
-    <a href="/">Головна</a>
-    <a href="/manifest/">Маніфест</a>
-    <a href="/practice/">Практика</a>
-    <a href="/graveyard/">Цвинтар</a>
-    <a href="/blog/">Блог</a>
+    {%- set nav = [
+      { href: "/", label: "Головна" },
+      { href: "/manifest/", label: "Маніфест" },
+      { href: "/practice/", label: "Практика" },
+      { href: "/graveyard/", label: "Цвинтар" },
+      { href: "/blog/", label: "Блог" }
+    ] -%}
+    {%- for item in nav %}
+    {%- set active = cur === item.href or (item.href !== "/" and cur.indexOf(item.href) === 0) %}
+    <a href="{{ item.href }}"{% if active %} aria-current="page"{% endif %}>{{ item.label }}</a>
+    {%- endfor %}
   </nav>
 </div>
