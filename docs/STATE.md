@@ -149,3 +149,4 @@
 | 2026-10-18 | 94 | `src/styles/core.css`, `design-system.md` §7.1 | Лінійка запису: .entry-line, моно, uppercase, незмінний entry |
 | 2026-10-18 | 95 | `src/styles/core.css`, `design-system.md` §7.2 | Мікрогліч h1: 150 мс, transform/opacity, reduced-motion |
 | 2026-10-18 | 96 | `src/styles/core.css`, `design-system.md` §7.3 | Курсор ▍: .cursor-blink, step-end 1s, reduced-motion → none |
+| 2026-10-18 | 97 | `design-system.md` §7.4 | Вичерпний перелік: 3 сигнатурі, четверта заборонена |
