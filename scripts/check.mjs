@@ -84,6 +84,7 @@ const bannedCSS = [
   { pattern: /drop-shadow/gi, name: "drop-shadow" },
   { pattern: /linear-gradient/gi, name: "linear-gradient" },
   { pattern: /radial-gradient/gi, name: "radial-gradient" },
+  { pattern: /conic-gradient/gi, name: "conic-gradient" },
   { pattern: /backdrop-filter/gi, name: "backdrop-filter" },
   { pattern: /border-radius:\s*(\d+)px/gi, name: "border-radius", max: 4 },
 ];
