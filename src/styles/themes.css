@@ -1,0 +1,31 @@
+/* themes.css: палітри ПАПІР і БУНКЕР
+   Канонічне джерело значень: docs/design-system.md §4
+   Перевірка відповідності: npm run palette
+   Тема — лише prefers-color-scheme. Без перемикача. Без збереження.
+   DECISIONS.md §36.2, TECH_STANDARDS.md §5 */
+
+/* ПАПІР (світла) — за замовчуванням */
+:root {
+  color-scheme: light;
+
+  --bg: #f7f8fa;
+  --surface: #edeff3;
+  --ink: #14181d;
+  --ink-dim: #434955;
+  --accent: #0a5266;
+  --rule: #7c8492;
+}
+
+/* БУНКЕР (темна) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --bg: #0e1116;
+    --surface: #161b23;
+    --ink: #e8ebf0;
+    --ink-dim: #a6adba;
+    --accent: #7fd4ec;
+    --rule: #6b7482;
+  }
+}
