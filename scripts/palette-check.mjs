@@ -61,7 +61,8 @@ function extractPalette(sectionTitle) {
 
   const palette = {};
   // Рядки таблиці: | `--змінна` | `#hex` | ...
-  const rowRe = /^\|\s*`(--[a-z-]+)`\s*\|\s*`(#[0-9a-fA-F]{6})`\s*\|/gm;
+  // Ловить #RRGGBB та #RRGGBBAA (альфа — теж колір, §4.4.1)
+  const rowRe = /^\|\s*`(--[a-z-]+)`\s*\|\s*`(#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?)`\s*\|/gm;
   let m;
   while ((m = rowRe.exec(body)) !== null) palette[m[1]] = m[2];
   return palette;
@@ -99,6 +100,18 @@ for (const section of sections) {
   } else {
     console.log(`  ✅ ${count} значень (ліміт 6)`);
   }
+
+  // 2b. Альфа-канал заборонено в палітрі (§4.4.1: прозорість — це колір,
+  //     але вона не рахується в ліміті коректно і ламає розрахунок контрасту)
+  let alphaFail = 0;
+  for (const [k, v] of Object.entries(p)) {
+    if (/^#[0-9a-fA-F]{8}$/.test(v)) {
+      console.log(`  ❌ ${k}: ${v} — альфа-канал у палітрі заборонено (§4.4.1)`);
+      errors++;
+      alphaFail++;
+    }
+  }
+  if (alphaFail === 0) console.log("  ✅ Без альфа-каналу");
 
   // 3. Текстові пари AAA
   let textFail = 0;
