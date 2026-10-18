@@ -49,6 +49,7 @@
 ├── docs/
 ├── scripts/
 │   ├── check.mjs
+│   ├── palette-check.mjs
 │   ├── postbuild.mjs
 │   ├── size-budget.mjs
 │   ├── validate-content.mjs
@@ -289,6 +290,7 @@ LICENSE
     "build": "eleventy && node scripts/postbuild.mjs",
     "check": "node scripts/check.mjs",
     "size": "node scripts/size-budget.mjs",
+    "palette": "node scripts/palette-check.mjs",
     "validate": "node scripts/validate-content.mjs content/"
   },
   "dependencies": {
