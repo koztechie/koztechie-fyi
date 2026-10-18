@@ -31,4 +31,13 @@
   /* Моноширинний: акценти, код, лінійка запису.
      Крок 89. design-system.md §5.8. */
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
+
+  /* Типографічна шкала: ratio 1.25, 5 розмірів.
+     Крок 90. design-system.md §5.9.
+     База 1rem = 16px. Кожен крок × 1.25. */
+  --text-sm: 0.8rem;      /* 12.8px — мітки, підписи, дати */
+  --text-base: 1rem;      /* 16px   — основний текст */
+  --text-lg: 1.25rem;     /* 20px   — лід, h3 */
+  --text-xl: 1.5625rem;   /* 25px   — h2 */
+  --text-xxl: 1.9531rem;  /* 31.3px — h1 */
 }
