@@ -289,7 +289,7 @@ LICENSE
     "validate": "node scripts/validate-content.mjs content/"
   },
   "dependencies": {
-    "@11ty/eleventy": "3.0.0"
+    "@11ty/eleventy": "3.1.7"
   }
 }
 ```
