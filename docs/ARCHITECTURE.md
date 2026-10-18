@@ -50,6 +50,7 @@
 ├── scripts/
 │   ├── check.mjs
 │   ├── postbuild.mjs
+│   ├── size-budget.mjs
 │   ├── validate-content.mjs
 │   ├── plan-lint.mjs
 │   ├── voice-lint.mjs
@@ -287,6 +288,7 @@ LICENSE
     "dev": "eleventy --serve",
     "build": "eleventy && node scripts/postbuild.mjs",
     "check": "node scripts/check.mjs",
+    "size": "node scripts/size-budget.mjs",
     "validate": "node scripts/validate-content.mjs content/"
   },
   "dependencies": {

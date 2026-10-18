@@ -12,6 +12,7 @@
     "dev": "eleventy --serve",
     "build": "eleventy && node scripts/postbuild.mjs",
     "check": "node scripts/check.mjs",
+    "size": "node scripts/size-budget.mjs",
     "validate": "node scripts/validate-content.mjs content/"
   },
   "dependencies": {

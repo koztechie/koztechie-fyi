@@ -113,6 +113,7 @@ draft: true
 node scripts/validate-content.mjs    # поля, дати, slug, consent, entry
 node scripts/voice-lint.mjs          # заборонені слова, UTM
 npm run check                        # бюджети, CSS, h1, alt, DOM
+npm run size                         # вага dist/: сторінка, CSS, шрифти, favicon
 ```
 
 ### 5. Публікуєш
