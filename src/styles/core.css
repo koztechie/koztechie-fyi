@@ -89,3 +89,22 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   h1 { animation: none; }
 }
+
+/* Курсор ▍ після маніфесту: миготливий курсор текстового редактора.
+   Крок 96. design-system.md §7.3.
+   Клас ставить шаблон /manifest/ (крок 115+). step-end — не ease. */
+.cursor-blink::after {
+  content: "▍";
+  font-family: var(--font-mono);
+  color: var(--ink);
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-blink::after { display: none; }
+}

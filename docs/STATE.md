@@ -11,7 +11,7 @@
 | Поле | Значення |
 |------|----------|
 | Фаза | A (Запуск) |
-| Крок | 96–200 (кроки 1–95 виконано, БРАМИ 0–2 пройдено) |
+| Крок | 97–200 (кроки 1–96 виконано, БРАМИ 0–2 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
 | Блокери | Немає |
 
@@ -148,3 +148,4 @@
 | 2026-10-18 | 93 | `design-system.md` §6 | Whitespace ≥ 20%: рахунок від --bg, ручна верифікація |
 | 2026-10-18 | 94 | `src/styles/core.css`, `design-system.md` §7.1 | Лінійка запису: .entry-line, моно, uppercase, незмінний entry |
 | 2026-10-18 | 95 | `src/styles/core.css`, `design-system.md` §7.2 | Мікрогліч h1: 150 мс, transform/opacity, reduced-motion |
+| 2026-10-18 | 96 | `src/styles/core.css`, `design-system.md` §7.3 | Курсор ▍: .cursor-blink, step-end 1s, reduced-motion → none |
