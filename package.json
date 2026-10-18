@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "eleventy --serve",
-    "build": "eleventy",
+    "build": "eleventy && node scripts/postbuild.mjs",
     "check": "node scripts/check.mjs",
     "validate": "node scripts/validate-content.mjs content/"
   },

@@ -49,6 +49,7 @@
 ├── docs/
 ├── scripts/
 │   ├── check.mjs
+│   ├── postbuild.mjs
 │   ├── validate-content.mjs
 │   ├── plan-lint.mjs
 │   ├── voice-lint.mjs
@@ -284,7 +285,7 @@ LICENSE
   "type": "module",
   "scripts": {
     "dev": "eleventy --serve",
-    "build": "eleventy",
+    "build": "eleventy && node scripts/postbuild.mjs",
     "check": "node scripts/check.mjs",
     "validate": "node scripts/validate-content.mjs content/"
   },
