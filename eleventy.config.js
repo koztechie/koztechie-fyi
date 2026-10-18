@@ -34,6 +34,11 @@ export default function (eleventyConfig) {
     return Math.max(1, Math.round(words / 180));
   });
 
+  // Пошук сторінки за URL (перемикач мов: дзеркало або заглушка, крок 111)
+  eleventyConfig.addFilter("findByUrl", (pages, url) =>
+    (pages || []).find((p) => p.url === url)
+  );
+
   // Конфіг
   return {
     dir: {

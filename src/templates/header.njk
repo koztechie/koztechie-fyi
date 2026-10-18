@@ -4,10 +4,16 @@
     5 лінків — sitemap.md «Місце: Шапка».
     Активний розділ — aria-current="page" (крок 110, §9.6.3).
     Дужки [ ] — моно-мітка з CSS layout.css, не в розмітці.
-    Перемикач мови: крок 111. -#}
+    Перемикач мови — §8.1 (крок 111). -#}
 {#- Нормалізація URL: /en/blog/ → /blog/ (мовна гілка не змінює розділ). -#}
-{% set cur = page.url | default("/") %}
-{%- if cur.indexOf("/en/") === 0 %}{% set cur = cur.slice(3) %}{% endif %}
+{%- set raw = page.url | default("/") -%}
+{%- set isEn = raw.indexOf("/en/") === 0 -%}
+{%- if isEn %}{% set cur = raw.slice(3) %}{% set mirror = raw.slice(3) %}{% else %}{% set cur = raw %}{% set mirror = "/en" + raw %}{% endif -%}
+{#- Дзеркало або заглушка (§8.1.1, §19.5): лінк веде на дзеркало, якщо воно
+    існує в збірці; інакше — на заглушку /en/. Від en до uk — завжди дзеркало
+    (оригінал існує за визначенням). -#}
+{%- set mirrorPage = collections.all | findByUrl(mirror) -%}
+{%- if mirrorPage %}{% set otherHref = mirror %}{% elif isEn %}{% set otherHref = "/" %}{% else %}{% set otherHref = "/en/" %}{% endif -%}
 <div class="site-header__inner">
   <a class="site-logo" href="/">ВУЗОЛ-0</a>
   <nav class="site-nav" aria-label="Розділи">
@@ -22,5 +28,18 @@
     {%- set active = cur === item.href or (item.href !== "/" and cur.indexOf(item.href) === 0) %}
     <a href="{{ item.href }}"{% if active %} aria-current="page"{% endif %}>{{ item.label }}</a>
     {%- endfor %}
+  </nav>
+  {#- Мітка «УКР / ENG» (§8.1.2). УКР завжди перша (§8.1.1). Поточна мова —
+      span, не лінк. Розділювач — прихований від скрінрідерів. -#}
+  <nav class="lang-switch" aria-label="Мова">
+    {%- if isEn %}
+    <a href="{{ otherHref }}" hreflang="uk">УКР</a>
+    <span aria-hidden="true">/</span>
+    <span class="current" hreflang="en">ENG</span>
+    {%- else %}
+    <span class="current" hreflang="uk">УКР</span>
+    <span aria-hidden="true">/</span>
+    <a href="{{ otherHref }}" hreflang="en">ENG</a>
+    {%- endif %}
   </nav>
 </div>
