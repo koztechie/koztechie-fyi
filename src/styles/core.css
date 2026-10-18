@@ -1,0 +1,11 @@
+/* core.css: типографічна база
+   Канонічне джерело: docs/design-system.md §5
+   Порядок завантаження: core → layout → components → themes → print → nichlyst
+   TECH_STANDARDS.md §4.1 */
+
+/* Системний стек тексту із засічками.
+   Крок 87. design-system.md §5.1.
+   Самохостинговий woff2 для акцентів — крок 89. */
+:root {
+  --font-text: Georgia, "Times New Roman", "Noto Serif", serif;
+}
