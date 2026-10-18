@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 750" font-family="system-ui, sans-serif">
+  <!-- ВАЙРФРЕЙМ: Кейс (practice) -->
+  <!-- design-system.md §9.3, content-model.md §5.2 -->
+
+  <!-- Шапка -->
+  <rect width="800" height="48" fill="#edeff3" stroke="#6b7482" stroke-width="0.5"/>
+  <text x="20" y="30" font-size="14" font-weight="600" fill="#14181d">ВУЗОЛ-0</text>
+  <text x="200" y="30" font-size="11" fill="#434955">ПРАКТИКА</text>
+  <text x="700" y="30" font-size="11" fill="#0a5266" font-weight="600">УКР</text>
+  <text x="725" y="30" font-size="11" fill="#6b7482">/</text>
+  <text x="735" y="30" font-size="11" fill="#434955">ENG</text>
+
+  <!-- Лінійка запису -->
+  <text x="80" y="85" font-size="10" fill="#6b7482" font-family="monospace" letter-spacing="1">ЗАПИС №57</text>
+
+  <!-- Заголовок -->
+  <text x="80" y="120" font-size="24" font-weight="700" fill="#14181d">Назва кейсу</text>
+
+  <!-- Метадані -->
+  <text x="80" y="148" font-size="11" fill="#434955">18 жовтня 2026 · ≈ 12 хв</text>
+
+  <line x1="80" y1="165" x2="720" y2="165" stroke="#6b7482" stroke-width="0.5"/>
+
+  <!-- Секції кейсу (7 за моделлю) -->
+  <g font-family="Georgia, serif">
+    <!-- Роль -->
+    <text x="80" y="195" font-size="11" fill="#0a5266" font-weight="600" font-family="system-ui">РОЛЬ</text>
+    <text x="80" y="218" font-size="14" fill="#14181d">Frontend-розробник. Команда з 4 осіб.</text>
+
+    <!-- Період -->
+    <text x="80" y="255" font-size="11" fill="#0a5266" font-weight="600" font-family="system-ui">ПЕРІОД</text>
+    <text x="80" y="278" font-size="14" fill="#14181d">Березень — липень 2025 (5 місяців)</text>
+
+    <!-- Задача -->
+    <text x="80" y="315" font-size="11" fill="#0a5266" font-weight="600" font-family="system-ui">ЗАДАЧА</text>
+    <text x="80" y="338" font-size="14" fill="#14181d">Переписати інтерфейс кабінету з jQuery на Vue.</text>
+    <text x="80" y="360" font-size="14" fill="#14181d">Зберегти всі існуючі сценарії без регресій.</text>
+
+    <!-- Рішення -->
+    <text x="80" y="397" font-size="11" fill="#0a5266" font-weight="600" font-family="system-ui">РІШЕННЯ</text>
+    <text x="80" y="420" font-size="14" fill="#14181d">Міграція поетапно: один маршрут за спринт.</text>
+    <text x="80" y="442" font-size="14" fill="#14181d">Старий та новий код працювали паралельно.</text>
+
+    <!-- Що зламалося -->
+    <text x="80" y="479" font-size="11" fill="#0a5266" font-weight="600" font-family="system-ui">ЩО ЗЛАМАЛОСЯ</text>
+    <text x="80" y="502" font-size="14" fill="#14181d">Форми. jQuery-плагіни форм не мали аналогів.</text>
+    <text x="80" y="524" font-size="14" fill="#14181d">Довелося писати власну бібліотеку валідації.</text>
+
+    <!-- Що викинув би -->
+    <text x="80" y="561" font-size="11" fill="#0a5266" font-weight="600" font-family="system-ui">ЩО ВИКИНУВ БИ</text>
+    <text x="80" y="584" font-size="14" fill="#14181d">Автоматизовані тести на кожен компонент.</text>
+    <text x="80" y="606" font-size="14" fill="#14181d">Тільки інтеграційні. Стоїть того.</text>
+
+    <!-- Що це мені дало -->
+    <text x="80" y="643" font-size="11" fill="#0a5266" font-weight="600" font-family="system-ui">ЩО ЦЕ МЕНІ ДАЛО</text>
+    <text x="80" y="666" font-size="14" fill="#14181d">Розуміння, що міграція — це не переписування,</text>
+    <text x="80" y="688" font-size="14" fill="#14181d">а паралельне існування двох систем.</text>
+  </g>
+
+  <!-- Підвал -->
+  <rect y="710" width="800" height="40" fill="#edeff3" stroke="#6b7482" stroke-width="0.5"/>
+  <text x="20" y="735" font-size="10" fill="#434955">© 2026 Eugene Kozlovsky</text>
+
+  <!-- Позначки -->
+  <g font-size="9" font-weight="600">
+    <rect x="12" y="56" width="80" height="18" fill="#0a5266" rx="2"/>
+    <text x="18" y="69" fill="#fff">header.njk</text>
+    <rect x="700" y="73" width="95" height="18" fill="#0a5266" rx="2"/>
+    <text x="706" y="86" fill="#fff">entry-line</text>
+    <rect x="700" y="108" width="90" height="18" fill="#0a5266" rx="2"/>
+    <text x="706" y="121" fill="#fff">h1 (глітч)</text>
+    <rect x="700" y="183" width="60" height="18" fill="#0a5266" rx="2"/>
+    <text x="706" y="196" fill="#fff">7 секцій</text>
+    <rect x="12" y="698" width="75" height="18" fill="#0a5266" rx="2"/>
+    <text x="18" y="711" fill="#fff">footer.njk</text>
+  </g>
+</svg>

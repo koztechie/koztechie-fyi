@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550" font-family="system-ui, sans-serif">
+  <!-- ВАЙРФРЕЙМ: Цвинтар (індекс) -->
+  <!-- design-system.md §9.4, sitemap.md рядок 20 -->
+
+  <!-- Шапка -->
+  <rect width="800" height="48" fill="#edeff3" stroke="#6b7482" stroke-width="0.5"/>
+  <text x="20" y="30" font-size="14" font-weight="600" fill="#14181d">ВУЗОЛ-0</text>
+  <text x="300" y="30" font-size="11" fill="#434955">ЦВИНТАР</text>
+  <text x="700" y="30" font-size="11" fill="#0a5266" font-weight="600">УКР</text>
+  <text x="725" y="30" font-size="11" fill="#6b7482">/</text>
+  <text x="735" y="30" font-size="11" fill="#434955">ENG</text>
+
+  <!-- Заголовок -->
+  <text x="80" y="100" font-size="24" font-weight="700" fill="#14181d">Цвинтар</text>
+  <text x="80" y="128" font-size="13" fill="#434955">Епітафії закритих проєктів. Назва, період, причина, один рядок.</text>
+
+  <line x1="80" y1="150" x2="720" y2="150" stroke="#6b7482" stroke-width="0.5"/>
+
+  <!-- Епітафія 1 -->
+  <text x="80" y="185" font-size="16" font-weight="600" fill="#14181d" font-family="Georgia, serif">Svitlogics</text>
+  <text x="80" y="208" font-size="11" fill="#6b7482">2021–2023</text>
+  <text x="80" y="230" font-size="13" fill="#434955" font-family="Georgia, serif">Закрито: ринок зменшився, підтримка стала дорожчою за дохід.</text>
+  <text x="80" y="252" font-size="12" fill="#6b7482" font-family="Georgia, serif">Найкращий інтерфейс, який я колись робив. Ніхто не побачив.</text>
+
+  <!-- Роздільник -->
+  <line x1="80" y1="275" x2="720" y2="275" stroke="#6b7482" stroke-width="0.5"/>
+
+  <!-- Епітафія 2 -->
+  <text x="80" y="310" font-size="16" font-weight="600" fill="#14181d" font-family="Georgia, serif">Alpha Lindera</text>
+  <text x="80" y="333" font-size="11" fill="#6b7482">2022–2024</text>
+  <text x="80" y="355" font-size="13" fill="#434955" font-family="Georgia, serif">Закрито: зміна фокусу. Проєкт вимагав повної уваги, якої не було.</text>
+  <text x="80" y="377" font-size="12" fill="#6b7482" font-family="Georgia, serif">Починався як хобі. Закінчився як обовʼязок.</text>
+
+  <!-- Роздільник -->
+  <line x1="80" y1="400" x2="720" y2="400" stroke="#6b7482" stroke-width="0.5"/>
+
+  <!-- Епітафія 3 -->
+  <text x="80" y="435" font-size="16" font-weight="600" fill="#14181d" font-family="Georgia, serif">Devlog NICHLYST</text>
+  <text x="80" y="458" font-size="11" fill="#6b7482">2023–2025</text>
+  <text x="80" y="480" font-size="13" fill="#434955" font-family="Georgia, serif">Закрито: гра вийшла. Девлог виконав свою функцію.</text>
+  <text x="80" y="502" font-size="12" fill="#6b7482" font-family="Georgia, serif">Девлог, який пережив гру. Це нормально.</text>
+
+  <!-- Підвал -->
+  <rect y="520" width="800" height="30" fill="#edeff3" stroke="#6b7482" stroke-width="0.5"/>
+  <text x="20" y="540" font-size="10" fill="#434955">© 2026 Eugene Kozlovsky</text>
+
+  <!-- Позначки -->
+  <g font-size="9" font-weight="600">
+    <rect x="12" y="56" width="80" height="18" fill="#0a5266" rx="2"/>
+    <text x="18" y="69" fill="#fff">header.njk</text>
+    <rect x="700" y="88" width="55" height="18" fill="#0a5266" rx="2"/>
+    <text x="706" y="101" fill="#fff">h1</text>
+    <rect x="700" y="173" width="70" height="18" fill="#0a5266" rx="2"/>
+    <text x="706" y="186" fill="#fff">епітафія</text>
+    <rect x="12" y="508" width="75" height="18" fill="#0a5266" rx="2"/>
+    <text x="18" y="521" fill="#fff">footer.njk</text>
+  </g>
+</svg>
