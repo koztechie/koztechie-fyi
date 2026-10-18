@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, h1, alt, href, lang, entry.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, h1, alt, href, lang, entry.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -555,6 +555,60 @@ if (!existsSync(nvmrcPath)) {
   if (nodeErrors === 0) {
     console.log(`  ✅ .nvmrc: ${nvmVersion} = поточна Node = engines.node`);
   }
+}
+console.log("");
+
+// 7ж. Head: сторонні ресурси — TECH_STANDARDS §8, DECISIONS.md §36.1
+console.log("--- 7ж. Head: сторонні ресурси ---");
+if (existsSync(distDir)) {
+  let headErrors = 0;
+  const headHtmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+
+  // Теги, заборонені у head (взаємодія з мережею та документом)
+  const forbiddenInHead = [
+    { re: /<link\b[^>]*rel\s*=\s*["']?(preconnect|dns-prefetch|prefetch|preload)\b[^>]*>/gi, name: "link rel=preconnect/dns-prefetch/prefetch/preload" },
+    { re: /<meta\b[^>]*http-equiv\s*=\s*["']?refresh\b[^>]*>/gi, name: "meta http-equiv=refresh" },
+    { re: /<base\b/gi, name: "<base> тег" },
+    { re: /<(iframe|embed|object|applet)\b/gi, name: "<iframe/embed/object/applet> у head" },
+    { re: /<script\b/gi, name: "<script> тег" },
+    // Protocol-relative: //cdn... (без схеми — обходить https?-перевірку розділу 4)
+    { re: /(?:href|src)\s*=\s*["']\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, name: "protocol-relative URL (//)" },
+    // @import у style-тегах head
+    { re: /<style\b[^>]*>[\s\S]*?@import[\s\S]*?<\/style>/gi, name: "@import у <style>" },
+  ];
+
+  for (const file of headHtmlFiles) {
+    const content = readFileSync(file, "utf-8");
+    const rel = file.replace(distDir + "/", "");
+
+    // Виділяємо head (включно з тегами)
+    const headMatch = content.match(/<head\b[^>]*>[\s\S]*?<\/head>/i);
+    if (!headMatch) continue;
+    const head = headMatch[0];
+
+    for (const { re, name } of forbiddenInHead) {
+      const matches = head.match(re);
+      if (matches) {
+        console.log(`  ❌ ${rel} — ${name} (${matches.length} знайдено)`);
+        headErrors++;
+        totalErrors++;
+      }
+    }
+
+    // Будь-який <link href> на сторонній origin у head
+    const linkMatches = head.match(/<link\b[^>]*href\s*=\s*["']https?:\/\/(?!koztechie\.fyi|localhost|127\.0\.0\.1)[^"']+["'][^>]*>/gi);
+    if (linkMatches) {
+      console.log(`  ❌ ${rel} — <link> на сторонній origin (${linkMatches.length} знайдено)`);
+      headErrors++;
+      totalErrors++;
+    }
+  }
+
+  if (headErrors === 0) {
+    console.log(`  ✅ Head чистий: ${headHtmlFiles.length} HTML, заборонених тегів немає`);
+  }
+} else {
+  console.log("  ⚠️  dist/ не існує. Пропущено.");
 }
 console.log("");
 

@@ -11,7 +11,7 @@
 | Поле | Значення |
 |------|----------|
 | Фаза | A (Запуск) |
-| Крок | 107–200 (кроки 1–106 виконано, БРАМИ 0–3 пройдено) |
+| Крок | 108–200 (кроки 1–107 виконано, БРАМИ 0–3 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
 | Блокери | Немає |
 
@@ -159,3 +159,4 @@
 | 2026-10-18 | 104 | **БРАМА 3** | 6 CSS: core, layout, components, themes, print, nichlyst. 3,4 КБ brotli |
 | 2026-10-18 | 105 | `src/templates/base.njk` | Базовий шаблон: html lang, head, header, main, footer. 6 блоків |
 | 2026-10-18 | 106 | `src/templates/base.njk` | Head: charset, viewport, title, description, theme-color ×2 |
+| 2026-10-18 | 107 | `scripts/check.mjs` 7ж | Head: 7 детекторів сторонніх ресурсів (preconnect, refresh, base, script, //, @import, link) |
