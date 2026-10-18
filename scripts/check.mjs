@@ -519,6 +519,44 @@ if (!existsSync(pkgPath)) {
 }
 console.log("");
 
+// 7е. Узгодженість версії Node — TECH_STANDARDS §2, package.json engines
+console.log("--- 7е. Версія Node ---");
+let nodeErrors = 0;
+const nvmrcPath = join(resolve("."), ".nvmrc");
+if (!existsSync(nvmrcPath)) {
+  console.log("  ❌ .nvmrc відсутній (TECH_STANDARDS §2)");
+  nodeErrors++;
+  totalErrors++;
+} else {
+  const nvmVersion = readFileSync(nvmrcPath, "utf-8").trim();
+  const nvmMajor = parseInt(nvmVersion, 10);
+
+  // Поточна версія
+  const currentMajor = parseInt(process.version.slice(1), 10);
+  if (!isNaN(nvmMajor) && currentMajor !== nvmMajor) {
+    console.log(`  ❌ .nvmrc: ${nvmVersion}, поточна Node: ${process.version.slice(1)}`);
+    nodeErrors++;
+    totalErrors++;
+  }
+
+  // .nvmrc ↔ engines.node
+  if (existsSync(pkgPath)) {
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+    const enginesRange = pkg.engines?.node || "";
+    const enginesMajor = enginesRange.match(/(\d+)/);
+    if (enginesMajor && nvmMajor !== parseInt(enginesMajor[1], 10)) {
+      console.log(`  ❌ .nvmrc: ${nvmMajor}, engines.node: «${enginesRange}»`);
+      nodeErrors++;
+      totalErrors++;
+    }
+  }
+
+  if (nodeErrors === 0) {
+    console.log(`  ✅ .nvmrc: ${nvmVersion} = поточна Node = engines.node`);
+  }
+}
+console.log("");
+
 // Підсумок
 console.log("=== ПІДСУМОК ===");
 console.log(`Помилок: ${totalErrors}`);
