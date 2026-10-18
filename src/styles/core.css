@@ -60,3 +60,14 @@
   padding-right: 0.08em;
   padding-top: 0.05em;
 }
+
+/* Лінійка запису: мітка з номером entry.
+   Крок 94. design-system.md §7.1.
+   Номер незмінний (content-model.md §3.1). Генерується шаблоном. */
+.entry-line {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
