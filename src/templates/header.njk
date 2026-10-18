@@ -1,0 +1,16 @@
+{#- header.njk: паршал шапки.
+    Крок 108. docs/design-system.md §9.6.
+    Логотип — текст, не картинка (§9.6.4).
+    5 лінків — sitemap.md «Місце: Шапка».
+    Активний розділ (aria-current): крок 110.
+    Перемикач мови: крок 111. -#}
+<div class="site-header__inner">
+  <a class="site-logo" href="/">ВУЗОЛ-0</a>
+  <nav class="site-nav" aria-label="Розділи">
+    <a href="/">Головна</a>
+    <a href="/manifest/">Маніфест</a>
+    <a href="/practice/">Практика</a>
+    <a href="/graveyard/">Цвинтар</a>
+    <a href="/blog/">Блог</a>
+  </nav>
+</div>
