@@ -82,3 +82,80 @@ h1 {
 .lang-switch a:focus-visible {
   color: var(--accent);
 }
+
+/* Список записів (лейаут списку, крок 115). */
+.archive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.archive-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.archive-list a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.archive-list a:hover,
+.archive-list a:focus-visible {
+  color: var(--accent);
+}
+
+.archive-list time {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+  margin-left: auto;
+}
+
+/* Пагінація (DECISIONS.md §9.3): «Сторінка 1, 2, 3…». */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: baseline;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  margin-top: 1.5rem;
+}
+
+.pagination a {
+  color: var(--ink-dim);
+  text-decoration: none;
+}
+
+.pagination a:hover,
+.pagination a:focus-visible {
+  color: var(--accent);
+}
+
+.pagination .current {
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.list-count,
+.list-empty {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+  margin-top: 1.5rem;
+}
+
+.list-intro {
+  color: var(--ink-dim);
+  max-width: var(--measure);
+}

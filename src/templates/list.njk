@@ -1,0 +1,68 @@
+{#- list.njk: лейаут списку (індекси розділів).
+    Крок 115. docs/ARCHITECTURE.md (дерево шаблонів).
+    Призначення: /blog/, /practice/, /graveyard/, /poetry/ — індекси.
+    Структура: h1 → intro (опційно) → список → пагінація.
+    Пагінація (DECISIONS.md §9.3): «Сторінка 1, 2, 3…» + лічильник
+    «Всього N записів». Без «∞», без infinite scroll (§9.2).
+    entry-line у списках НЕ виводиться (design-system.md §7.1.2).
+    Дані: pagination.items (Eleventy). -#}
+{% extends "base.njk" %}
+
+{% block title %}<title>{{ title }} — ВУЗОЛ-0</title>{% endblock %}
+
+{% block description %}
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+{% endblock %}
+
+{% block content %}
+<article class="list">
+  <h1>{{ title }}</h1>
+  {%- if intro %}
+  <p class="list-intro">{{ intro }}</p>
+  {%- endif %}
+
+  {%- if pagination and pagination.items.length %}
+  {#- Загальна кількість: конкатенація всіх сторінок (set на атрибут об'єкта
+      nunjucks не компілює). -#}
+  {%- set all = [] -%}
+  {%- for pg in pagination.pages %}{% set all = all.concat(pg) %}{% endfor %}
+  <ul class="archive-list">
+    {%- for item in pagination.items %}
+    <li>
+      <a href="{{ item.url }}">{{ item.data.title }}</a>
+      {%- if item.data.date %}
+      <time datetime="{{ item.data.date.toISOString().slice(0, 10) }}">{{ item.data.date | ukDate }}</time>
+      {%- endif %}
+    </li>
+    {%- endfor %}
+  </ul>
+
+  {%- set totalPages = pagination.pages.length -%}
+  {%- set current = pagination.pageNumber + 1 -%}
+  {%- if totalPages > 1 %}
+  <nav class="pagination" aria-label="Пагінація">
+    {%- if current > 1 %}
+    <a href="{{ pagination.hrefs[current - 2] }}" rel="prev">Попередня</a>
+    {%- endif %}
+    <span class="pagination-pages">
+      {%- for href in pagination.hrefs %}
+      {%- if loop.index === current %}
+      <span class="current" aria-current="page">{{ loop.index }}</span>
+      {%- else %}
+      <a href="{{ href }}">{{ loop.index }}</a>
+      {%- endif %}
+      {%- endfor %}
+    </span>
+    {%- if current < totalPages %}
+    <a href="{{ pagination.hrefs[current] }}" rel="next">Наступна</a>
+    {%- endif %}
+  </nav>
+  {%- endif %}
+  <p class="list-count">Всього {{ all.length }} записів</p>
+  {%- else %}
+  <p class="list-empty">Записів поки немає.</p>
+  {%- endif %}
+</article>
+{% endblock %}
