@@ -3,8 +3,9 @@
 // Перевіряє: обов'язкові поля, ISO-дати, довжини, tags ≤ 5, slug, entry, translation_status, consent.
 // Використання: node scripts/validate-content.mjs content/
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, resolve, basename } from "node:path";
+import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
+import { join, resolve, basename, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const dirPath = process.argv[2];
 
@@ -29,12 +30,35 @@ if (files.length === 0) {
   process.exit(0);
 }
 
+// Словники (крок 119): канонічні списки — єдине джерело правди
+// (content-model.md §3.2: «Заголовки секцій через словники,
+// валідатор перевіряє порядок і наявність»).
+// Fallback — вбудовані значення: валідатор лишається автономним.
+const here = dirname(fileURLToPath(import.meta.url));
+const stringsPath = join(here, "..", "src", "_data", "strings");
+const loadJson = (name) => {
+  const p = join(stringsPath, name);
+  if (!existsSync(p)) return null;
+  try {
+    return JSON.parse(readFileSync(p, "utf-8"));
+  } catch {
+    return null;
+  }
+};
+const stringsUk = loadJson("uk.json");
+const stringsEn = loadJson("en.json");
+const stringsSource = stringsUk ? "словники" : "вбудовані значення";
+
 // Допустимі значення
 const VALID_LANG = ["uk", "en"];
 const VALID_TRANSLATION = ["complete", "partial", "not_planned"];
-const VALID_WARNING = ["війна", "здоровʼя", "травма", "смерть", "залежність"];
+const VALID_WARNING = stringsUk?.post?.warnings
+  ? Object.keys(stringsUk.post.warnings)
+  : ["війна", "здоровʼя", "травма", "смерть", "залежність"];
 const VALID_LAYOUT = ["page.njk", "nichlyst.njk", "post.njk", "poetry.njk"];
-const CASE_SECTIONS = [
+// Секції кейсу за мовою (content-model §3.2): uk-кейс — українські заголовки,
+// en-кейс — англійські. Словники — єдине джерело порядку та складу.
+const FALLBACK_CASE_SECTIONS = [
   "Роль",
   "Період",
   "Задача",
@@ -43,6 +67,8 @@ const CASE_SECTIONS = [
   "Що викинув би",
   "Що це мені дало",
 ];
+const caseSectionsFor = (lang) =>
+  (lang === "en" ? stringsEn?.case_sections : stringsUk?.case_sections) || FALLBACK_CASE_SECTIONS;
 
 let totalErrors = 0;
 let totalWarnings = 0;
@@ -50,6 +76,7 @@ let totalWarnings = 0;
 console.log("=== VALIDATE-CONTENT ===");
 console.log(`Тека: ${absDir}`);
 console.log(`Файлів: ${files.length}`);
+console.log(`Канонічні списки: ${stringsSource}`);
 console.log("");
 
 for (const file of files) {
@@ -148,9 +175,9 @@ for (const file of files) {
     errors.push("Кейс: відсутнє поле consent (письмова згода роботодавця)");
   }
 
-  // 13. Кейс: 7 секцій
+  // 13. Кейс: 7 секцій (за мовою файлу)
   if (type === "case") {
-    for (const section of CASE_SECTIONS) {
+    for (const section of caseSectionsFor(fm.lang)) {
       if (!body.includes(`## ${section}`)) {
         errors.push(`Кейс: відсутня секція «${section}»`);
       }

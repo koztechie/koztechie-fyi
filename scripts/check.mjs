@@ -688,6 +688,42 @@ console.log("--- 7з. UI без хардкоду ---");
     if (hardcodeErrors === 0) {
       console.log(`  ✅ Хардкоду немає: ${tplFiles.length} шаблонів, ${forbidden.length} значень у словниках під контролем`);
     }
+
+    // Парність структури uk ↔ en (крок 119): ключ, забутий в одній мові,
+    // мовчки зламає переклад. Однакова структура — однакові шляхи доступу.
+    const loadObj = (name) => {
+      const p = join(stringsDir, name);
+      if (!existsSync(p)) return null;
+      try {
+        return JSON.parse(readFileSync(p, "utf-8"));
+      } catch {
+        return null;
+      }
+    };
+    const keysOf = (obj, prefix = "") => {
+      const out = [];
+      for (const [k, v] of Object.entries(obj || {})) {
+        if (Array.isArray(v)) out.push(prefix + k + "[]");
+        else if (v && typeof v === "object") out.push(...keysOf(v, prefix + k + "."));
+        else out.push(prefix + k);
+      }
+      return out.sort();
+    };
+    const ukObj = loadObj("uk.json");
+    const enObj = loadObj("en.json");
+    if (ukObj && enObj) {
+      const ku = keysOf(ukObj);
+      const ke = keysOf(enObj);
+      const onlyUk = ku.filter((k) => !ke.includes(k));
+      const onlyEn = ke.filter((k) => !ku.includes(k));
+      if (onlyUk.length || onlyEn.length) {
+        for (const k of onlyUk) console.log(`  ❌ Ключ лише в uk.json: ${k}`);
+        for (const k of onlyEn) console.log(`  ❌ Ключ лише в en.json: ${k}`);
+        totalErrors += onlyUk.length + onlyEn.length;
+      } else {
+        console.log(`  ✅ Парність ключів uk ↔ en: ${ku.length}/${ke.length}`);
+      }
+    }
   } else {
     console.log("  ⚠️  src/_data/strings або src/templates не існують. Пропущено.");
   }
