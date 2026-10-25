@@ -1,0 +1,27 @@
+{#- page.njk: лейаут статичної сторінки.
+    Крок 116. docs/ARCHITECTURE.md, content-model.md §5.5.
+    Призначення: /manifest/, /now/, /colophon/, /contact/, /privacy/.
+    h1 + текст. Без буквиці (§5.11.1: службові сторінки — не література).
+    Без entry-line (немає entry, §7.1.2).
+    Курсор ▍ — лише /manifest/ (§7.3.4): клас ставить цей шаблон, не скрипт. -#}
+{% extends "base.njk" %}
+
+{% block title %}<title>{{ title }} — ВУЗОЛ-0</title>{% endblock %}
+
+{% block description %}
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+{% endblock %}
+
+{% block content %}
+{#- Нормалізація: /en/manifest/ → /manifest/ (мовна гілка не змінює розділ). -#}
+{%- set raw = page.url | default("/") -%}
+{%- set cur = raw.slice(3) if raw.indexOf("/en/") === 0 else raw -%}
+<article class="page">
+  <h1>{{ title }}</h1>
+  <div class="page-body{% if cur === "/manifest/" %} cursor-blink{% endif %}">
+    {{ content | safe }}
+  </div>
+</article>
+{% endblock %}
