@@ -10,8 +10,9 @@
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
 
-// Канонічні зовнішні origin (DECISIONS §277 — github єдине; absolutний домен сайту)
-const ALLOWED_EXTERNAL = [/^https:\/\/koztechie\.fyi\//, /^https:\/\/github\.com\//];
+// Канонічні зовнішні origin: домен сайту, github (§277 — єдиний лінк коду),
+// play.google.com (§290 — магазин застосунку NICHLYST, крок 145)
+const ALLOWED_EXTERNAL = [/^https:\/\/koztechie\.fyi\//, /^https:\/\/github\.com\//, /^https:\/\/play\.google\.com\//];
 
 function walk(dir) {
   const out = [];

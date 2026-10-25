@@ -180,10 +180,11 @@ if (existsSync(distDir)) {
       const unique = [...new Set(matches)];
       for (const m of unique) {
         // Дозволяємо schema.org, w3.org, sitemaps.org (namespace)
-        // та github.com — ЄДИНЕ канонічне зовнішнє посилання сайту
-        // (DECISIONS.md §277, §289: тільки в /colophon/).
+        // та github.com (§277 — єдине посилання коду, /colophon/),
+        // play.google.com (§290 — магазин застосунку NICHLYST).
         if (m.includes("schema.org") || m.includes("w3.org") || m.includes("sitemaps.org")) continue;
         if (m.includes("github.com")) continue;
+        if (m.includes("play.google.com")) continue; // §290 — магазин NICHLYST
         console.log(`  ❌ ${rel} — сторонній origin: ${m}`);
         extErrors++;
         totalErrors++;

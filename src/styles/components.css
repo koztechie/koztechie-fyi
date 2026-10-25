@@ -160,3 +160,17 @@ h1 {
   max-width: var(--measure);
   margin-bottom: 2.5rem;
 }
+
+/* Контент-попередження (DECISIONS.md §32.2, крок 145):
+   під заголовком, перед текстом. Одне речення. */
+.content-warning {
+  border-left: 2px solid var(--accent);
+  padding: 0.5rem 0 0.5rem 1rem;
+  margin: 0 0 1.5rem;
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+}
+
+.content-warning p {
+  margin: 0;
+}
