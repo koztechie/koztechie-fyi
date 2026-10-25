@@ -27,6 +27,36 @@
     </ul>
   </section>
 
+  {#- Блок «Розділи» (крок 141): карта сайту за sitemap (9 розділів,
+      без Головної — читач на ній стоїть). Моно-нумерація — CSS counter
+      decimal-leading-zero (§5.8.3). Лінки мовно-залежні: en-дерево з
+      fallback на uk (як header/footer). -#}
+  <section class="home-sections" aria-labelledby="home-sections-h">
+    <h2 id="home-sections-h">{{ strings.home.sections_title }}</h2>
+    <ol class="home-sections-list">
+      {%- set sectionsNav = [
+        { href: "/manifest/", key: "manifest" },
+        { href: "/practice/", key: "practice" },
+        { href: "/graveyard/", key: "graveyard" },
+        { href: "/blog/", key: "blog" },
+        { href: "/poetry/", key: "poetry" },
+        { href: "/nichlyst/", key: "nichlyst" },
+        { href: "/now/", key: "now" },
+        { href: "/colophon/", key: "colophon" },
+        { href: "/contact/", key: "contact" }
+      ] -%}
+      {%- set sectionsIsEn = (lang | default("uk")) === "en" -%}
+      {%- for item in sectionsNav %}
+      {%- set itemHref = item.href -%}
+      {%- if sectionsIsEn -%}
+        {%- set cand = "/en" + item.href -%}
+        {%- if collections.all | findByUrl(cand) %}{% set itemHref = cand %}{% endif -%}
+      {%- endif -%}
+      <li><a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a></li>
+      {%- endfor %}
+    </ol>
+  </section>
+
   {#- Уривок маніфесту: /manifest/ з колекції all.
       Без сторінки — блок мовчки приховується. -#}
   {%- set manifest = collections.all | findByUrl("/manifest/") -%}

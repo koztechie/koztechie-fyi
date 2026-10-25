@@ -27,7 +27,8 @@
         "title": "Open source",
         "text": "The site's source code lives in a public repository."
       }
-    ]
+    ],
+    "sections_title": "Sections"
   },
   "list": {
     "count": "Total",
