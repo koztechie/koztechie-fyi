@@ -213,8 +213,10 @@ for (const file of files) {
     errors.push(`draft: не boolean («${fm.draft}»)`);
   }
 
-  // 16. Порожній body
-  if (body.trim().length === 0) {
+  // 16. Порожній body — лише для типів, де тіло є контентом.
+  // Лейаут-генеровані сторінки (section, home) та сторінки з секціями
+  // з front matter (page/now) легітимно без тіла — не шумимо.
+  if (body.trim().length === 0 && ["post", "case", "poem", "graveyard", "unknown"].includes(type)) {
     warnings.push("Тіло файлу порожнє");
   }
 
@@ -323,6 +325,7 @@ function detectType(relPath, fm) {
   if (relPath.includes("/blog/")) return "post";
   if (fm.layout === "nichlyst.njk") return "page";
   if (fm.layout === "page.njk") return "page";
+  if (fm.layout === "now.njk") return "page"; // /now/: секції з front matter, тіло опційне
   return "unknown";
 }
 
