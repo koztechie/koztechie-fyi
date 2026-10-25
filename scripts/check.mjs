@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов, таб-навігацію.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -1015,6 +1015,59 @@ console.log("--- 7л. Перемикач мов ---");
     if (swErrors === 0) {
       console.log(`  ✅ Перемикач мов: ${htmlFiles.length} сторінок — current за мовою, лінки цілі, УКР перша`);
     }
+  }
+}
+console.log("");
+
+// 7м. Таб-навігація — крок 134. TECH_STANDARDS §9 (focus 2px accent ≥3:1),
+// AGENTS.md §5 (видимий :focus, клавіатурна навігація).
+console.log("--- 7м. Таб-навігація ---");
+{
+  let tbErrors = 0;
+  const fail = (msg) => {
+    console.log(`  ❌ ${msg}`);
+    tbErrors++;
+    totalErrors++;
+  };
+
+  // 1. Глобальний :focus-visible з 2px outline у CSS
+  const cssFiles = walkDir(stylesDir).filter((f) => f.endsWith(".css"));
+  const cssAll = cssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
+  if (!/\.?[a-z-]*:focus-visible[^{]*\{[^}]*outline\s*:\s*2px\s+solid/.test(cssAll)) {
+    fail("CSS: немає правила :focus-visible з outline 2px solid (TECH_STANDARDS §9)");
+  }
+  // 2. Ніхто не ховає фокус
+  const hidden = cssAll.match(/outline\s*:\s*(none|0)\b/g);
+  if (hidden) fail(`CSS: ховає фокус — ${hidden.join(" та ")} (AGENTS §5 забороняє)`);
+  // 3. Focus-обідок не вимикається через outline-color: transparent
+  if (/outline-color\s*:\s*transparent/.test(cssAll)) fail("CSS: outline-color: transparent ховає фокус");
+
+  if (existsSync(distDir)) {
+    const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+    for (const file of htmlFiles) {
+      const rel = file.slice(distDir.length + 1);
+      const doc = readFileSync(file, "utf-8");
+
+      // 4. Позитивний tabindex ламає природний порядок Tab
+      const positiveTab = doc.match(/\btabindex\s*=\s*"([1-9][0-9]*)"/g);
+      if (positiveTab) fail(`${rel}: позитивний tabindex ${positiveTab.join(", ")} (ламає природний порядок Tab)`);
+
+      // 5. <a> без href не фокусується клавіатурою
+      // (<a id|name> — якір цілі, не лінк — дозволені)
+      const anchors = doc.match(/<a(?=[\s>])[^>]*>/g) || [];
+      const notFocusable = anchors.filter(
+        (t) => !/\bhref\s*=/.test(t) && !/\b(id|name)\s*=/.test(t)
+      );
+      if (notFocusable.length) fail(`${rel}: <a> без href — не фокусується (кладе: ${notFocusable[0]})`);
+
+      // 6. Обробники подій без JS не потрібні — але on*= в HTML вказує на JS-залишок
+      // (заборонений клієнтський JS, перевіряє 7а; тут не дублюємо)
+    }
+    if (tbErrors === 0) {
+      console.log(`  ✅ Таб-навігація: focus 2px accent у CSS, без tabindex/href-прогалин (${htmlFiles.length} сторінок)`);
+    }
+  } else {
+    console.log("  ⚠️  dist/ не існує. Пропущено.");
   }
 }
 console.log("");

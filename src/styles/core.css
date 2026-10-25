@@ -102,3 +102,14 @@ h1 {
 .lang-switch {
   font-family: var(--font-ui);
 }
+
+/* Таб-навігація (TECH_STANDARDS §9, крок 134):
+   видимий фокус для клавіатури — outline 2px accent, контраст ≥3:1
+   (пари перевіряє palette-check). outline-offset — щоб обідок не
+   ховався під сусідніми елементами. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Фокус не ховається ніде (AGENTS §5: видимий :focus обов'язковий). */
