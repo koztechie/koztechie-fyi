@@ -60,7 +60,8 @@
     "footer_sections_label": "Footer sections",
     "lang_label": "Language",
     "lang_current": "ENG",
-    "lang_other": "УКР"
+    "lang_other": "УКР",
+    "skip": "Skip to content"
   },
   "footer": {
     "rss": "RSS",

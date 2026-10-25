@@ -3,6 +3,26 @@
    Порядок: core → layout → components → themes → print → nichlyst
    TECH_STANDARDS.md §4.1 */
 
+/* Skip-link (TECH_STANDARDS §63, крок 135): прихований поки не отримає фокус.
+   position: absolute не впливає на потік; при фокусі фіксується зверху
+   з видимим акцентним обідком (глобальний :focus-visible, core.css). */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--accent);
+}
+
 /* Базова сітка */
 body {
   margin: 0;

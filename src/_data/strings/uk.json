@@ -61,7 +61,8 @@
     "footer_sections_label": "Розділи підвалу",
     "lang_label": "Мова",
     "lang_current": "УКР",
-    "lang_other": "ENG"
+    "lang_other": "ENG",
+    "skip": "До вмісту"
   },
   "footer": {
     "rss": "RSS",

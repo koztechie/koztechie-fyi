@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов, таб-навігацію.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов, таб-навігацію, skip-link.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -1065,6 +1065,61 @@ console.log("--- 7м. Таб-навігація ---");
     }
     if (tbErrors === 0) {
       console.log(`  ✅ Таб-навігація: focus 2px accent у CSS, без tabindex/href-прогалин (${htmlFiles.length} сторінок)`);
+    }
+  } else {
+    console.log("  ⚠️  dist/ не існує. Пропущено.");
+  }
+}
+console.log("");
+
+// 7н. Skip-link — крок 135. TECH_STANDARDS §63: <a href="#main" class="skip-link">,
+// перший елемент, <main id="main">, видимий при фокусі.
+console.log("--- 7н. Skip-link ---");
+{
+  let skErrors = 0;
+  const fail = (msg) => {
+    console.log(`  ❌ ${msg}`);
+    skErrors++;
+    totalErrors++;
+  };
+
+  // CSS: .skip-link:focus має повертати елемент у потік/видимість
+  const cssAll = walkDir(stylesDir)
+    .filter((f) => f.endsWith(".css"))
+    .map((f) => readFileSync(f, "utf-8"))
+    .join("\n");
+  if (!/\.skip-link\b/.test(cssAll)) {
+    fail("CSS: немає правил .skip-link");
+  } else if (!/\.skip-link:focus\b[^{]*\{[^}]*\}/.test(cssAll)) {
+    fail("CSS: немає стану .skip-link:focus — лінк лишиться прихованим назавжди");
+  }
+
+  if (existsSync(distDir)) {
+    const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+    for (const file of htmlFiles) {
+      const rel = file.slice(distDir.length + 1);
+      const doc = readFileSync(file, "utf-8");
+
+      const skip = doc.match(/<a\s+class="skip-link"\s+href="#main"[^>]*>/);
+      if (!skip) {
+        fail(`${rel}: немає skip-link (<a class="skip-link" href="#main">)`);
+        continue;
+      }
+      // Перший <a> документа — саме skip-link (оминання шапки з першого Tab).
+      // Порівнюємо позицію САМОГО тега skip-link, не атрибута class
+      // (клас завжди пізніше за "<a " — інакше хибні спрацювання).
+      const firstAnchor = doc.indexOf("<a ");
+      const skipTagPos = doc.indexOf('<a class="skip-link"');
+      if (firstAnchor !== -1 && skipTagPos !== firstAnchor) {
+        fail(`${rel}: skip-link не перший лінк (порядок Tab починається не з нього)`);
+      }
+      // main id
+      if (!/<main\s+id="main"/.test(doc)) {
+        fail(`${rel}: <main> без id="main" (ціль #main не існує)`);
+      }
+    }
+    if (skErrors === 0) {
+      console.log(`  ✅ Skip-link: ${htmlFiles.length} сторінок — перший лінк, ціль #main, CSS:focus є`);
     }
   } else {
     console.log("  ⚠️  dist/ не існує. Пропущено.");
