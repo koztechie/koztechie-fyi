@@ -1,0 +1,6 @@
+{
+  "lang": "en",
+  "eleventyComputed": {
+    "permalink": "{% if permalink %}{{ permalink }}{% elif page.fileSlug == \"index\" %}/en/graveyard/{% else %}/en/graveyard/{{ page.fileSlug }}/{% endif %}"
+  }
+}

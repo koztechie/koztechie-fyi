@@ -55,7 +55,15 @@ const VALID_TRANSLATION = ["complete", "partial", "not_planned"];
 const VALID_WARNING = stringsUk?.post?.warnings
   ? Object.keys(stringsUk.post.warnings)
   : ["війна", "здоровʼя", "травма", "смерть", "залежність"];
-const VALID_LAYOUT = ["page.njk", "nichlyst.njk", "post.njk", "poetry.njk"];
+const VALID_LAYOUT = [
+  "page.njk",
+  "nichlyst.njk",
+  "post.njk",
+  "poetry.njk",
+  "list.njk",
+  "home.njk",
+  "stub.njk",
+];
 // Секції кейсу за мовою (content-model §3.2): uk-кейс — українські заголовки,
 // en-кейс — англійські. Словники — єдине джерело порядку та складу.
 const FALLBACK_CASE_SECTIONS = [
@@ -97,6 +105,13 @@ for (const file of files) {
   const fm = parseYaml(fmMatch[1]);
   const body = content.slice(fmMatch[0].length);
   const filename = basename(file, ".md");
+
+  // lang зі шляху як fallback: directory data (крок 120) теж виводить мову
+  // з tekи content/{uk,en}/. Валідатор бачить лише front matter.
+  if (!fm.lang) {
+    if (relPath.startsWith("uk/")) fm.lang = "uk";
+    else if (relPath.startsWith("en/")) fm.lang = "en";
+  }
 
   // Визначаємо тип за шляхом
   const type = detectType(relPath, fm);
@@ -296,6 +311,11 @@ function parseYaml(yaml) {
 }
 
 function detectType(relPath, fm) {
+  // Index-файли: головна (корінь мови) та індекси розділів — раніше за тецю
+  // (bo /blog/index.md не є записом).
+  const isIndex = /(^|\/)index\.md$/.test(relPath);
+  if (isIndex && /^uk\/index\.md$|^en\/index\.md$/.test(relPath)) return "home";
+  if (isIndex && /\/(blog|practice|graveyard|poetry)\//.test(relPath)) return "section";
   if (relPath.includes("/graveyard/")) return "graveyard";
   if (relPath.includes("/practice/")) return "case";
   if (relPath.includes("/poetry/")) return "poem";
@@ -318,6 +338,12 @@ function getRequiredFields(type) {
       return [...base, "slug", "entry", "date", "first_published"];
     case "page":
       return [...base, "layout", "updated"];
+    case "section":
+      // content-model §2 (Розділ): title, lang, updated. translation_status — «—».
+      return ["title", "lang", "updated"];
+    case "home":
+      // Головна: тип поза таблицею (§1: шість типів). Мінімум — title + lang.
+      return ["title", "lang"];
     default:
       return base;
   }
