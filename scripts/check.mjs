@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -936,6 +936,85 @@ console.log("--- 7к. Лінки ---");
   }
   if (errors.length === 0) {
     console.log(`  ✅ ${checked} лінків: нуль битих (внутрішні, якорі, sitemap, RSS)`);
+  }
+}
+console.log("");
+
+// 7л. Перемикач мов — крок 133. design-system.md §8.1, DECISIONS.md §19.5.
+// Кожна сторінка: .lang-switch, один span.current відповідної мови,
+// лінк іншої мови (hreflang ≠ мові сторінки) на існуючу ціль,
+// розділювач aria-hidden, УКР завжди перша (§8.1.1), aria-label.
+console.log("--- 7л. Перемикач мов ---");
+{
+  const { resolveInternal } = await import("./linkcheck.mjs");
+  let swErrors = 0;
+
+  if (!existsSync(distDir)) {
+    console.log("  ⚠️  dist/ не існує. Пропущено.");
+  } else {
+    const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+    const fail = (rel, msg) => {
+      console.log(`  ❌ ${rel}: ${msg}`);
+      swErrors++;
+      totalErrors++;
+    };
+
+    for (const file of htmlFiles) {
+      const rel = file.slice(distDir.length + 1);
+      const doc = readFileSync(file, "utf-8");
+
+      const nav = doc.match(/<nav class="lang-switch"([^>]*)>([\s\S]*?)<\/nav>/);
+      if (!nav) {
+        fail(rel, "немає <nav class=\"lang-switch\"> (§8.1.2)");
+        continue;
+      }
+      const attrs = nav[1];
+      const inner = nav[2];
+      const pageLang = (doc.match(/<html[^>]*\blang="([^"]+)"/) || [])[1] || "uk";
+
+      // aria-label на nav (доступність)
+      if (!/aria-label="[^"]+"/.test(attrs)) fail(rel, " перемикач без aria-label");
+
+      // Один поточний span (не лінк, §8.1)
+      const currents = inner.match(/<span class="current"/g) || [];
+      if (currents.length !== 1) {
+        fail(rel, `span.current: ${currents.length} (має бути 1)`);
+      } else {
+        const curText = (inner.match(/<span class="current"[^>]*>([^<]*)<\/span>/) || [])[1]?.trim();
+        const expect = pageLang === "en" ? "ENG" : "УКР";
+        if (curText !== expect) fail(rel, `current «${curText}» ≠ мові сторінки ${pageLang} (очікується ${expect})`);
+        // Поточна мова не є лінком
+        if (new RegExp(`<a[^>]*>${expect}</a>`).test(inner)) fail(rel, `поточна мова «${expect}» — лінк, а не span (§8.1)`);
+      }
+
+      // Лінк іншої мови
+      const other = inner.match(/<a\s+href="([^"]*)"\s+hreflang="(uk|en)"[^>]*>([^<]*)<\/a>/);
+      if (!other) {
+        fail(rel, "немає лінка іншої мови");
+      } else {
+        const [, href, hl, text] = other;
+        if (hl === pageLang) fail(rel, `hreflang лінка «${hl}» збігається з мовою сторінки`);
+        const expectText = pageLang === "en" ? "УКР" : "ENG";
+        if (text.trim() !== expectText) fail(rel, `текст лінка «${text.trim()}» ≠ «${expectText}»`);
+        if (!href.startsWith("/")) fail(rel, `лінк іншої мови не внутрішній: «${href}»`);
+        else if (!resolveInternal(distDir, href)) fail(rel, `лінк іншої мови веде в нікуди: «${href}» (дзеркало або заглушка /en/, §19.5)`);
+      }
+
+      // Розділювач прихований від скрінрідерів
+      if (!/aria-hidden="true"\s*>\s*<span|<span aria-hidden="true">\s*\//.test(inner) && !/<span aria-hidden="true">\/<\/span>/.test(inner)) {
+        fail(rel, "розділювач «/» без aria-hidden (§8.1.2)");
+      }
+
+      // УКР завжди перша (§8.1.1)
+      const ukr = inner.indexOf("УКР");
+      const eng = inner.indexOf("ENG");
+      if (ukr < 0 || eng < 0) fail(rel, "мітки УКР/ENG неповні");
+      else if (ukr > eng) fail(rel, "ENG перед УКР (§8.1.1: УКР завжди перша)");
+    }
+
+    if (swErrors === 0) {
+      console.log(`  ✅ Перемикач мов: ${htmlFiles.length} сторінок — current за мовою, лінки цілі, УКР перша`);
+    }
   }
 }
 console.log("");

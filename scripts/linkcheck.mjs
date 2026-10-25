@@ -28,7 +28,8 @@ function walk(dir) {
 }
 
 // Резолв внутрішнього шляху відносно dist: приймає якісні кандидати.
-function resolveInternal(distDir, path) {
+// Експортується для check.mjs (розділ 7л — перевірка перемикача мов).
+export function resolveInternal(distDir, path) {
   const clean = path.split("#")[0].split("?")[0];
   if (!clean || clean === "/") return existsSync(join(distDir, "index.html"));
   const base = clean.startsWith("/") ? clean.slice(1) : clean;
