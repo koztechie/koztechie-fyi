@@ -5,6 +5,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({"static/fonts": "fonts"});
   eleventyConfig.addPassthroughCopy({"static/img": "img"});
   eleventyConfig.addPassthroughCopy({"src/styles": "styles"});
+  eleventyConfig.addPassthroughCopy({"static/og": "og"});
 
   // Мови фідів (крок 125): два виходи /feed.xml та /en/feed.xml
   eleventyConfig.addGlobalData("feedLangs", ["uk", "en"]);

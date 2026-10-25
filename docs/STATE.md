@@ -11,7 +11,7 @@
 | Поле | Значення |
 |------|----------|
 | Фаза | A (Запуск) |
-| Крок | 148–200 (кроки 1–147 виконано, БРАМИ 0–4 пройдено) |
+| Крок | 149–200 (кроки 1–148 виконано, БРАМИ 0–4 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
 | Блокери | Немає |
 
@@ -201,3 +201,4 @@
 | 2026-10-25 | 145 | `content/{uk,en}/pages/nichlyst.md`, `components.css`, `linkcheck.mjs`, `check.mjs` | Мінімальний /nichlyst: преміса (DT §3.1), контент-попередження (платна покупка) зі стилем .content-warning, Play-лінк (пакет com.koztechie.nichlyst), дисклеймер Google. play.google.com у дозволених origin |
 | 2026-10-25 | 146 | `content/uk/index.md`, `home.njk`, `validate-content.mjs` | Meta description uk: summary головної (96 символів), блок description у home. Валідатор: warning 156–160 (PLAN146 vs §8), error >160. 23/23 ≤155 |
 | 2026-10-25 | 147 | `content/en/index.md` | Meta description en: паралельна до uk (96 символів, 3↔3 речення). Аудит 23/23 ≤155. Голос чистий |
+| 2026-10-25 | 148 | `static/og/home.{svg,png}`, `base.njk`, `home.njk`, `eleventy.config.js` | OG-картинка: SVG-джерело (палітра ПАПІР, типографіка) → PNG 1200×630, 44 КБ/80. OG-теги ×9 (locale uk_UA/en_US, блоки og:title/og:description). Passthrough static/og |

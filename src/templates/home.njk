@@ -14,6 +14,9 @@
 <meta name="description" content="{{ summary | default(strings.site.bio_short) }}">
 {% endblock %}
 
+{#- OG-опис (крок 148) — консистентний з meta description. -#}
+{% block og_description %}{{ summary | default(strings.site.bio_short) }}{% endblock %}
+
 {% block content %}
 <article class="home">
   <h1>{{ strings.site.name }}</h1>
