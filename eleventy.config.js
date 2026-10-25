@@ -87,6 +87,15 @@ export default function (eleventyConfig) {
     (pages || []).find((p) => p.url === url)
   );
 
+  // ISO 8601 для sitemap <lastmod> (DECISIONS.md §17.4, §20).
+  // Приймає Date або ISO-рядок (updated з YAML часто лишається рядком).
+  eleventyConfig.addFilter("isoDate", (value) => {
+    if (!value) return "";
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) return "";
+    return d.toISOString().slice(0, 10);
+  });
+
   // Конфіг
   return {
     dir: {

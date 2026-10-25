@@ -240,17 +240,26 @@ if (existsSync(contentDir)) {
     if (entryMatch) {
       const entry = parseInt(entryMatch[1], 10);
       const rel = file.replace(contentDir + "/", "");
+      // Переклад зберігає той самий entry (design-system §7.1.1,
+      // content-model §6: однаковий slug для uk та en).
+      // Нормалізація: uk/blog/x.md і en/blog/x.md → blog/x.md.
+      const normalized = rel.replace(/^(uk|en)\//, "");
       if (entries.has(entry)) {
-        console.log(`  ❌ entry ${entry}: дублікат (${entries.get(entry)} і ${rel})`);
+        const prev = entries.get(entry);
+        if (prev.normalized === normalized && prev.rel !== rel) {
+          // Це переклад, не дублікат — пропускаємо мовчазно.
+          continue;
+        }
+        console.log(`  ❌ entry ${entry}: дублікат (${prev.rel} і ${rel})`);
         entryErrors++;
         totalErrors++;
       } else {
-        entries.set(entry, rel);
+        entries.set(entry, { rel, normalized });
       }
     }
   }
   if (entryErrors === 0 && entries.size > 0) {
-    console.log(`  ✅ ${entries.size} унікальних entry`);
+    console.log(`  ✅ ${entries.size} унікальних entry (переклади не рахуються)`);
   } else if (entries.size === 0) {
     console.log("  ⚠️  entry не знайдено. Пропущено.");
   }
@@ -619,6 +628,7 @@ console.log("--- 7з. UI без хардкоду ---");
 {
   const stringsDir = resolve("src/_data/strings");
   const templatesDir = resolve("src/templates");
+  const srcDir = resolve("src"); // sitemap.njk, styles.njk лежать поза templates/ (ARCHITECTURE)
   let hardcodeErrors = 0;
 
   const collectValues = (obj, out = []) => {
@@ -647,7 +657,7 @@ console.log("--- 7з. UI без хардкоду ---");
       }
     }
 
-    const tplFiles = walkDir(templatesDir).filter((f) => f.endsWith(".njk"));
+    const tplFiles = walkDir(srcDir).filter((f) => f.endsWith(".njk"));
     const seen = new Set();
     for (const file of tplFiles) {
       let text = readFileSync(file, "utf-8");
@@ -656,7 +666,7 @@ console.log("--- 7з. UI без хардкоду ---");
       text = text.replace(/\{#[\s\S]*?#\}/g, "");
       text = text.replace(/\{\{[\s\S]*?\}\}/g, " ");
       text = text.replace(/\{%[\s\S]*?%\}/g, " ");
-      const rel = file.replace(templatesDir + "/", "");
+      const rel = file.replace(srcDir + "/", "");
 
       // Фаза A: статичний текст між тегами — шукати значення як підрядок,
       // а також перше «велике» слово (ловить «Зроблено в Києві вручну»).

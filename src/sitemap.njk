@@ -1,0 +1,35 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+---
+{#- sitemap.njk: карта сайту обох мов.
+    Крок 121. docs/DECISIONS.md §17.4, ARCHITECTURE.md.
+    Одна сторінка /sitemap.xml містить обидві мови (§19.3).
+    Правила включення:
+    - лише сторінки (URL завершується на /);
+    - без noindex (заглушки «Not translated», ARCHITECTURE §4);
+    - без /404 (§17.4);
+    - без самого sitemap (не HTML-сторінка).
+    lastmod: updated або date, ISO 8601 (§20).
+    Без <priority> та <changefreq> (§17.4). -#}
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{%- set entries = [] -%}
+{%- for item in collections.all -%}
+  {%- set u = item.url | default("") -%}
+  {%- set isPage = u.length > 0 and u.slice(-1) === "/" -%}
+  {%- set excluded = item.data.noindex or u.indexOf("/404") === 0 or u.indexOf("/sitemap") === 0 -%}
+  {%- if isPage and not excluded -%}
+    {%- set mod = item.data.updated or item.data.date -%}
+    {%- set entries = entries.concat([{ url: u, lastmod: mod | isoDate }]) -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- for e in entries %}
+  <url>
+    <loc>https://koztechie.fyi{{ e.url }}</loc>
+    {%- if e.lastmod %}
+    <lastmod>{{ e.lastmod }}</lastmod>
+    {%- endif %}
+  </url>
+{%- endfor %}
+</urlset>
