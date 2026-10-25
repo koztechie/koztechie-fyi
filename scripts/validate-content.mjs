@@ -244,11 +244,19 @@ for (const file of files) {
   const fm = parseYaml(fmMatch[1]);
   if (fm.entry !== undefined) {
     const relPath = file.replace(absDir + "/", "");
+    // Переклад зберігає той самий entry (design-system §7.1.1): uk/blog/x.md
+    // і en/blog/x.md — не дублікат. Нормалізація прибирає мовний префікс.
+    const normalized = relPath.replace(/^(uk|en)\//, "");
     if (entries.has(fm.entry)) {
-      console.log(`❌ entry ${fm.entry}: дублікат (${entries.get(fm.entry)} і ${relPath})`);
-      totalErrors++;
+      const prev = entries.get(fm.entry);
+      if (prev.normalized === normalized && prev.rel !== relPath) {
+        // Це переклад — пропускаємо
+      } else {
+        console.log(`❌ entry ${fm.entry}: дублікат (${prev.rel} і ${relPath})`);
+        totalErrors++;
+      }
     } else {
-      entries.set(fm.entry, relPath);
+      entries.set(fm.entry, { rel: relPath, normalized });
     }
   }
 }
