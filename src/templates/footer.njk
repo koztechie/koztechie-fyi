@@ -18,6 +18,6 @@
     <a href="{{ item.href }}">{{ strings.nav[item.key] }}</a>
     {%- endfor %}
   </nav>
-  <p>{{ strings.footer.copyright }} · <a href="/feed.xml">{{ strings.footer.rss }}</a> · <a href="mailto:{{ strings.footer.email }}">{{ strings.footer.email }}</a></p>
+  <p>{{ strings.footer.copyright }} · <a href="/feed.xml">{{ strings.footer.rss }}</a> · <a href="mailto:{{ strings.footer.email | safe }}">{{ strings.footer.email | safe }}</a></p>
   <p class="footer-place">{{ strings.footer.place }}</p>
 </div>
