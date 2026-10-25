@@ -21,17 +21,34 @@ export default function (eleventyConfig) {
 
   // Фільтри
   eleventyConfig.addFilter("ukDate", (date) => {
-    return new Intl.DateTimeFormat("uk-UA", {
+    // TECH_STANDARDS §9: Intl для uk-UA додає «р.». Прибираємо через formatToParts.
+    const parts = new Intl.DateTimeFormat("uk-UA", {
       day: "numeric",
       month: "long",
       year: "numeric",
       timeZone: "UTC",
-    }).format(date);
+    }).formatToParts(date);
+    return parts
+      .filter((p) => !(p.type === "literal" && p.value.includes("р")))
+      .map((p) => p.value)
+      .join("");
   });
 
   eleventyConfig.addFilter("readingTime", (content) => {
-    const words = content.split(/\s+/).filter(Boolean).length;
+    // 180 слів/хв (TECH_STANDARDS §9). Теги не рахуються.
+    const text = String(content || "").replace(/<[^>]+>/g, " ");
+    const words = text.split(/\s+/).filter(Boolean).length;
     return Math.max(1, Math.round(words / 180));
+  });
+
+  // Буквиця: шаблон перевіряє перший символ (design-system.md §5.11.4).
+  // Літера — так; цифра, лапка, тире, список — ні.
+  eleventyConfig.addFilter("dropcapReady", (html) => {
+    const m = String(html || "").match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+    if (!m) return false;
+    const text = m[1].replace(/<[^>]+>/g, "").trim();
+    if (!text) return false;
+    return /^[a-zа-яіїєґ']/i.test(text);
   });
 
   // Пошук сторінки за URL (перемикач мов: дзеркало або заглушка, крок 111)

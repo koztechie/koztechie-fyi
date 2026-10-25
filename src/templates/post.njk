@@ -1,0 +1,51 @@
+{#- post.njk: лейаут поста.
+    Крок 114. docs/design-system.md §9.2.
+    Порядок (вайрфрейм 02-article.svg):
+    лінійка → h1 → метадані (дата · читання) → тіло → попередження.
+    Сигнатури: .entry-line (§7.1), мікрогліч h1 (§7.2), .dropcap (§5.11).
+    Буквиця — лише коли перший символ літера (§5.11.4, фільтр dropcapReady).
+    Попередження — §32 DECISIONS, опційне, під тілом за вайрфреймом.
+    Тексти — з _data/strings (крок 119). Дефолти — канон §9.2, §32. -#}
+{% extends "base.njk" %}
+
+{% block title %}<title>{{ title }} — ВУЗОЛ-0</title>{% endblock %}
+
+{% block description %}
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+{% endblock %}
+
+{% block content %}
+<article class="entry">
+  {%- if entry %}
+  <p class="entry-line">Запис №{{ entry }}</p>
+  {%- endif %}
+  <h1>{{ title }}</h1>
+  {#- Попередження (§32.2): «Під заголовком. Перед текстом. Над часом читання.»
+      Поле — категорія (content-model §5.1). Текст — канон §32.4. -#}
+  {%- if content_warning %}
+  {%- set warnMap = {
+    "війна": "текст містить опис військових дій",
+    "здоровʼя": "текст містить опис здоров'я",
+    "травма": "текст містить опис травми",
+    "смерть": "текст містить опис смерті",
+    "залежність": "текст містить опис залежності"
+  } %}
+  <aside class="content-warning">
+    <p>Попередження: {{ warnMap[content_warning] or content_warning }}.</p>
+  </aside>
+  {%- endif %}
+  <p class="entry-meta">
+    {%- if date %}
+    <time datetime="{{ date.toISOString().slice(0, 10) }}">{{ date | ukDate }}</time>
+    {%- endif %}
+    {%- if date and content %} · {% endif %}
+    {%- if content %}≈ {{ content | readingTime }} хв{% endif %}
+  </p>
+
+  <div class="entry-body{% if content | dropcapReady %} dropcap{% endif %}">
+    {{ content | safe }}
+  </div>
+</article>
+{% endblock %}
