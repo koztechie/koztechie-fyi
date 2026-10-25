@@ -11,7 +11,7 @@
 | Поле | Значення |
 |------|----------|
 | Фаза | A (Запуск) |
-| Крок | 132–200 (кроки 1–131 виконано, БРАМИ 0–3 пройдено) |
+| Крок | 133–200 (кроки 1–132 виконано, БРАМИ 0–3 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
 | Блокери | Немає |
 
@@ -185,3 +185,4 @@
 | 2026-10-25 | 129 | `content/{uk,en}/pages/privacy.md`, `footer.njk`, `layout.css`, `voice-lint.mjs` | /privacy: канон §17.2 без плейсхолдера (Netlify), розділ NICHLYST/RevenueCat, footer-лінк. Виправлено voice-lint: \b не працює з кирилицею, лапки-назва ≠ заклик |
 | 2026-10-25 | 130 | `content/{uk,en}/pages/colophon.md`, `check.mjs` 4 | /colophon: шрифти/інструменти/залізо (environment.md), кіт «Укроп» останнім (§13, 1 згадка), єдине GitHub-посилання. check4: github.com — канонічне виняток §277 |
 | 2026-10-25 | 131 | 12 нових md, `list.njk`, `header.njk`, `footer.njk`, 10 `*.11tydata.json` | Збірка: 22 сторінки (11 розділів × 2 мови) + службові. Маніфест §14.1+14.2 з курсором. Виправлено: fileSlug для index.md = назва теці; list fallback без pagination; мовна навігація header/footer (en → /en/*) |
+| 2026-10-25 | 132 | `scripts/linkcheck.mjs`, `check.mjs` 7к, `package.json` | linkcheck: 622 лінки, нуль битих (внутрішні, якорі, mailto, sitemap loc, RSS link). 7 негативних тестів. npm run linkcheck + check 7к |

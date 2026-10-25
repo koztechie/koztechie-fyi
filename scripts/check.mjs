@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -921,6 +921,21 @@ console.log("--- 7і. RSS фіди ---");
     if (totalErrors === startErrors) {
       console.log(`  ✅ Фіди валідні: 2 канали (uk/en), ${totalItems} записів, §30.1–30.4 дотримано`);
     }
+  }
+}
+console.log("");
+
+// 7к. Linkcheck — крок 132. Нуль битих лінків (scripts/linkcheck.mjs).
+console.log("--- 7к. Лінки ---");
+{
+  const { runLinkcheck } = await import("./linkcheck.mjs");
+  const { checked, errors } = runLinkcheck(distDir);
+  for (const e of errors) {
+    console.log(`  ❌ ${e}`);
+    totalErrors++;
+  }
+  if (errors.length === 0) {
+    console.log(`  ✅ ${checked} лінків: нуль битих (внутрішні, якорі, sitemap, RSS)`);
   }
 }
 console.log("");
