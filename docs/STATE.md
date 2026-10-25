@@ -11,7 +11,7 @@
 | Поле | Значення |
 |------|----------|
 | Фаза | A (Запуск) |
-| Крок | 123–200 (кроки 1–122 виконано, БРАМИ 0–3 пройдено) |
+| Крок | 124–200 (кроки 1–123 виконано, БРАМИ 0–3 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
 | Блокери | Немає |
 
@@ -175,3 +175,4 @@
 | 2026-10-25 | 120 | 10 `*.11tydata.json`, 2 index.md, `validate-content.mjs` | Маршрути: uk без префікса, en → /en/. Явний permalink пріоритетний. Типи section/home, lang зі шляху |
 | 2026-10-25 | 121 | `src/sitemap.njk`, `eleventy.config.js`, `check.mjs` | sitemap.xml: обидві мови, noindex/404 поза, lastmod ISO. Фільтр isoDate. Переклади не дублікати entry |
 | 2026-10-25 | 122 | `static/root/robots.txt`, `static/root/_headers`, `check.mjs` 7и | ШІ-політика: 16 ботів, Disallow поезії/блогу (+en), Sitemap. Примус: X-Robots-Tag ×4 |
+| 2026-10-25 | 123 | `src/404.njk`, `base.njk` | 404: «Запис відсутній.», шапка обов'язкова, поза sitemap/hreflang. Виправлено баг: порожні title/description з кроку 117 |

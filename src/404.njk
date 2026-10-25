@@ -1,0 +1,38 @@
+---
+permalink: /404.html
+lang: uk
+noindex: true
+eleventyExcludeFromCollections: true
+---
+{#- 404.njk: архівна картка «Запис відсутній.»
+    Крок 123. docs/design-system.md §9.8, DECISIONS.md §17.1.
+    Одна сторінка для обох мов (§9.8.4: мова не має значення;
+    Netlify віддає /404.html для неіснуючих шляхів uk та en).
+    Правила §17.1:
+    - шапка з навігацією обов'язкова (доступність);
+    - без «повернутись на головну» (лінк є в шапці);
+    - без зображень, GIF, жартів;
+    - текст — речення. Точка.
+    Поза sitemap (noindex) та hreflang (блок порожній).
+    HTTP 404 — налаштування хостингу (Netlify). -#}
+{% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
+
+{% block title %}<title>404 — {{ strings.site.name }}</title>{% endblock %}
+
+{#- description: дефолтний блок бази звертається до strings[lang], який
+    перезаписаний set вище — тому перевизначаємо явно. -#}
+{% block description %}
+<meta name="description" content="{{ strings.site.bio_short }}">
+{% endblock %}
+
+{#- noindex: 404 поза індексацією (ARCHITECTURE §4). -#}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block hreflang %}{% endblock %}
+
+{% block content %}
+<article class="page">
+  <h1>{{ strings.page_404.text }}</h1>
+</article>
+{% endblock %}
