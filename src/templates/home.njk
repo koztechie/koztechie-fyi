@@ -25,10 +25,12 @@
   {%- endif %}
 
   {#- Три останні записи: колекція blog (спаджено за датою, крок 69).
+      Мова: лише записи цієї мови (колекція blog глобальна — вміщує uk та en).
       Максимум три — loop.index0 < 3. Сигнатура .entry-line — номер entry. -#}
   {%- set latest = [] -%}
+  {%- set pageLang = lang | default("uk") -%}
   {%- for post in collections.blog -%}
-    {%- if loop.index0 < 3 %}{% set latest = latest.concat([post]) %}{% endif -%}
+    {%- if (post.data.lang | default("uk")) === pageLang and latest.length < 3 %}{% set latest = latest.concat([post]) %}{% endif -%}
   {%- endfor -%}
   {%- if latest.length %}
   <section class="home-latest" aria-labelledby="home-latest-h">
@@ -38,8 +40,8 @@
       <li>
         <span class="entry-line">{{ strings.post.entry_prefix }}{{ post.data.entry }}</span>
         <a href="{{ post.url }}">{{ post.data.title }}</a>
-        {%- if post.data.reading_time %}
-        <span class="entry-meta">≈ {{ post.data.reading_time }} {{ strings.post.reading_time_unit }}</span>
+        {%- if post.templateContent %}
+        <span class="entry-meta">≈ {{ post.templateContent | readingTime }} {{ strings.post.reading_time_unit }}</span>
         {%- endif %}
       </li>
       {%- endfor %}
