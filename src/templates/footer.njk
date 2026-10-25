@@ -20,4 +20,7 @@
   </nav>
   <p>{{ strings.footer.copyright }} · <a href="/feed.xml">{{ strings.footer.rss }}</a> · <a href="mailto:{{ strings.footer.email | safe }}">{{ strings.footer.email | safe }}</a></p>
   <p class="footer-place">{{ strings.footer.place }}</p>
+  {#- Посилання на приватність: поза головним меню, у футері (DECISIONS §17.2).
+      Шлях: uk у корені, en з префіксом (§19.0). -#}
+  <p class="footer-legal"><a href="{% if (lang | default('uk')) === 'en' %}/en/privacy/{% else %}/privacy/{% endif %}">{{ strings.footer.privacy }}</a></p>
 </div>

@@ -168,3 +168,18 @@ main {
   font-style: italic;
   color: var(--ink-dim);
 }
+
+/* Службовий лінк (приватність): дрібніший, не претендує на увагу (§17.2). */
+.footer-legal {
+  font-size: var(--text-sm);
+  margin-top: 0.5rem;
+}
+
+.footer-legal a {
+  color: var(--ink-dim);
+}
+
+.footer-legal a:hover,
+.footer-legal a:focus-visible {
+  color: var(--accent);
+}

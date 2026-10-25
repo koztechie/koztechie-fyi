@@ -78,17 +78,25 @@ if (emojiMatches) {
 }
 
 // 4. Заклики (DECISIONS.md §33.2)
+// Назва функції в лапках («Поділитися») — це НЕ заклик: канонічний перелік
+// /privacy/ (§17.2) описує заборонені елементи, не закликає до них.
+// \b не працює з кирилицею в JS (кириличні літери — не \w) — прибрано.
 const ctaPatterns = [
-  { name: "«тисни»", regex: /\bтисни\b/gi },
+  { name: "«тисни»", regex: /тисни/gi },
   { name: "«натисни сюди»", regex: /натисни сюди/gi },
-  { name: "«поділитися»", regex: /поділитися|поділіться/gi },
+  { name: "«поділитися»", regex: /поділитися|поділіться/gi, skipQuoted: true },
   { name: "«підпишись»", regex: /підпишись|підпишіться/gi },
   { name: "«лайкніть»", regex: /лайкніть|лайкни/gi },
   { name: "«дізнайся більше»", regex: /дізнайся більше/gi },
 ];
 
-for (const { name, regex } of ctaPatterns) {
-  const matches = body.match(regex);
+for (const { name, regex, skipQuoted } of ctaPatterns) {
+  let hay = body;
+  if (skipQuoted) {
+    // Прибираємо назву в лапках: «поділитися» / «поділіться»
+    hay = hay.replace(/«поділитися»|«поділіться»/gi, "");
+  }
+  const matches = hay.match(regex);
   if (matches) {
     errors.push(`Заклик ${name}: ${matches.length} згадок`);
   }
