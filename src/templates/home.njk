@@ -93,5 +93,17 @@
     </ul>
   </section>
   {%- endif %}
+
+  {#- Блок NICHLYST (крок 143): один рядок + лінк. Канон: §1.4 (гра —
+      головний проєкт, архів — допоміжний), §21.1 (анкор «NICHLYST»,
+      без голого URL), §21.3 (/nichlyst/ — єдиний міст). -#}
+  {%- set nichlystHref = "/nichlyst/" -%}
+  {%- if (lang | default("uk")) === "en" -%}
+    {%- set nichlystCand = "/en/nichlyst/" -%}
+    {%- if collections.all | findByUrl(nichlystCand) %}{% set nichlystHref = nichlystCand %}{% endif -%}
+  {%- endif -%}
+  <section class="home-nichlyst">
+    <p>{{ strings.home.nichlyst_lead }} <a href="{{ nichlystHref }}">{{ strings.nav.nichlyst }}</a>.</p>
+  </section>
 </article>
 {% endblock %}

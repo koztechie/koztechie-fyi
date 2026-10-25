@@ -53,8 +53,24 @@ main {
 }
 
 .home-manifest,
-.home-latest {
+.home-latest,
+.home-nichlyst {
   margin-bottom: 2.5rem;
+}
+
+/* Блок NICHLYST (крок 143): один рядок + лінк (§21.1). */
+.home-nichlyst p {
+  margin: 0;
+}
+
+.home-nichlyst a {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.home-nichlyst a:hover,
+.home-nichlyst a:focus-visible {
+  color: var(--accent);
 }
 
 /* Блок «Що це» (крок 140): три пункти суті. */
