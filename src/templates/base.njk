@@ -20,6 +20,26 @@
       Два теги з media queries — тема визначається системою, без JS. -#}
   <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+  {#- Крок 112. hreflang + canonical (TECH_STANDARDS §9): взаємні, абсолютні,
+      з self-reference. x-default — українська (коренева) версія, для головної
+      це https://koztechie.fyi/ (DECISIONS.md §19.0).
+      hreflang="en" НЕ вказує на noindex-заглушку «Not translated»:
+      умова enPage.noindex (контракт для i18n, крок 117).
+      404 перевизначає блок порожнім (§17.1: поза sitemap та hreflang). -#}
+  {% block hreflang %}
+  {%- set rawUrl = page.url | default("/") -%}
+  {%- set isEn = rawUrl.indexOf("/en/") === 0 -%}
+  {%- set ukPath = rawUrl.slice(3) if isEn else rawUrl -%}
+  {%- set enPath = "/en" + ukPath -%}
+  {%- set site = "https://koztechie.fyi" -%}
+  {%- set enPage = collections.all | findByUrl(enPath) -%}
+  <link rel="canonical" href="{{ site + rawUrl }}">
+  <link rel="alternate" hreflang="uk" href="{{ site + ukPath }}">
+  {%- if enPage and not enPage.data.noindex %}
+  <link rel="alternate" hreflang="en" href="{{ site + enPath }}">
+  {%- endif %}
+  <link rel="alternate" hreflang="x-default" href="{{ site + ukPath }}">
+  {% endblock %}
   <link rel="stylesheet" href="/styles/core.css">
   <link rel="stylesheet" href="/styles/layout.css">
   <link rel="stylesheet" href="/styles/components.css">
