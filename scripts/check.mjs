@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов, таб-навігацію, skip-link, JSON-LD.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов, таб-навігацію, skip-link, JSON-LD, canonical.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -1218,6 +1218,73 @@ console.log("--- 7о. JSON-LD ---");
 
     if (ldErrors === 0) {
       console.log(`  ✅ JSON-LD валідний: ${blocks} блок(и) у ${htmlFiles.length} HTML — Person/WebSite за §9`);
+    }
+  }
+}
+console.log("");
+
+// 7п. Канонічний URL — крок 153. TECH_STANDARDS §9: rel="canonical" на кожній
+// сторінці, абсолютний, self-reference. 404 — поза canonical (§9.8.4: поза
+// sitemap і hreflang). Дублікати canonical двох сторінок — помилка.
+console.log("--- 7п. Канонічний URL ---");
+{
+  let caErrors = 0;
+  const fail = (msg) => {
+    console.log(`  ❌ ${msg}`);
+    caErrors++;
+    totalErrors++;
+  };
+
+  if (!existsSync(distDir)) {
+    console.log("  ⚠️  dist/ не існує. Пропущено.");
+  } else {
+    const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+    const seen = new Map();
+
+    for (const file of htmlFiles) {
+      const rel = file.slice(distDir.length + 1);
+      const content = readFileSync(file, "utf-8");
+      const is404 = rel === "404.html";
+      const found = [...content.matchAll(/<link\b[^>]*rel\s*=\s*["']canonical["'][^>]*href\s*=\s*["']([^"']+)["']/gi)]
+        .concat([...content.matchAll(/<link\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*rel\s*=\s*["']canonical["']/gi)]);
+
+      if (is404) {
+        if (found.length) fail(`${rel}: canonical присутній (404 — поза canonical/sitemap, §9.8.4)`);
+        continue;
+      }
+
+      if (found.length === 0) {
+        fail(`${rel}: немає rel="canonical"`);
+        continue;
+      }
+      if (found.length > 1) fail(`${rel}: ${found.length} canonical (має бути 1)`);
+
+      const href = found[0][1];
+      if (!href.startsWith("https://koztechie.fyi/")) {
+        fail(`${rel}: canonical не абсолютний домен — «${href}»`);
+        continue;
+      }
+      // Self-reference: canonical = URL цієї сторінки
+      const path =
+        rel === "index.html"
+          ? "/"
+          : rel.endsWith("/index.html")
+            ? "/" + rel.slice(0, -"index.html".length)
+            : "/" + rel;
+      const expected = "https://koztechie.fyi" + path;
+      if (href !== expected) {
+        fail(`${rel}: canonical ≠ self (очікував «${expected}», отримав «${href}»)`);
+      }
+      // Унікальність: одна адреса не може бути canonical двох сторінок
+      if (seen.has(href)) {
+        fail(`${rel}: canonical дублює ${seen.get(href)} («${href}»)`);
+      } else {
+        seen.set(href, rel);
+      }
+    }
+
+    if (caErrors === 0) {
+      console.log(`  ✅ Canonical: ${seen.size} сторінок — абсолютні, self-reference, унікальні; 404 поза`);
     }
   }
 }
