@@ -40,6 +40,12 @@ main {
 }
 
 /* Секції лейаутів (design-system.md §6.3: відступи між секціями — робота лейаутів). */
+.home-tagline {
+  font-size: var(--text-lg);
+  color: var(--ink);
+  margin: 0 0 0.75rem;
+}
+
 .home-lead {
   font-size: var(--text-lg);
   color: var(--ink-dim);
