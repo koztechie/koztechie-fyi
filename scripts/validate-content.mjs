@@ -169,6 +169,11 @@ for (const file of files) {
   }
   if (fm.summary && fm.summary.length > 160) {
     errors.push(`summary: занадто довгий (${fm.summary.length} символів, максимум 160)`);
+  } else if (fm.summary && fm.summary.length > 155) {
+    // PLAN 146: meta description ≤ 155. content-model §8 дозволяє 160 для
+    // summary — перевищення 155–160 валідне за моделлю, але ламає бюджет
+    // meta description. Попередження, не помилка.
+    warnings.push(`summary: ${fm.summary.length} символів — більше 155 для meta description (PLAN 146)`);
   }
 
   // 9. tags ≤ 5
