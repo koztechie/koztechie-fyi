@@ -11,7 +11,7 @@
 | Поле | Значення |
 |------|----------|
 | Фаза | A (Запуск) |
-| Крок | 130–200 (кроки 1–129 виконано, БРАМИ 0–3 пройдено) |
+| Крок | 131–200 (кроки 1–130 виконано, БРАМИ 0–3 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
 | Блокери | Немає |
 
@@ -183,3 +183,4 @@
 | 2026-10-25 | 127 | `now.njk`, `content/{uk,en}/pages/now.md`, `validate-content.mjs`, `strings` | /now: шаблон з секціями (season/working_on/reading/energy), перший зміст з HIGH-фактів. En-версія. Валідатор: now.njk у VALID_LAYOUT. 52/52 ключі |
 | 2026-10-25 | 128 | `content/{uk,en}/pages/contact.md`, `strings`, `footer.njk`, `docs/infra-email.md` | /contact: entity-захист email скрізь (0 plain у dist), без форм/дзвінків/JS. Виявлено: md декодує entity у тексті — текст лінка без патерну, читабельна адреса з footer. Proton-налаштування задокументовано |
 | 2026-10-25 | 129 | `content/{uk,en}/pages/privacy.md`, `footer.njk`, `layout.css`, `voice-lint.mjs` | /privacy: канон §17.2 без плейсхолдера (Netlify), розділ NICHLYST/RevenueCat, footer-лінк. Виправлено voice-lint: \b не працює з кирилицею, лапки-назва ≠ заклик |
+| 2026-10-25 | 130 | `content/{uk,en}/pages/colophon.md`, `check.mjs` 4 | /colophon: шрифти/інструменти/залізо (environment.md), кіт «Укроп» останнім (§13, 1 згадка), єдине GitHub-посилання. check4: github.com — канонічне виняток §277 |

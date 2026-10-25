@@ -179,8 +179,11 @@ if (existsSync(distDir)) {
     if (matches) {
       const unique = [...new Set(matches)];
       for (const m of unique) {
-        // Дозволяємо schema.org, w3.org (namespace)
+        // Дозволяємо schema.org, w3.org, sitemaps.org (namespace)
+        // та github.com — ЄДИНЕ канонічне зовнішнє посилання сайту
+        // (DECISIONS.md §277, §289: тільки в /colophon/).
         if (m.includes("schema.org") || m.includes("w3.org") || m.includes("sitemaps.org")) continue;
+        if (m.includes("github.com")) continue;
         console.log(`  ❌ ${rel} — сторонній origin: ${m}`);
         extErrors++;
         totalErrors++;
