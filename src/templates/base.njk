@@ -13,11 +13,11 @@
   {#- Крок 106. viewport без maximum-scale/user-scalable=no
       (доступність, TECH_STANDARDS §9). -#}
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  {% block title %}<title>ВУЗОЛ-0</title>{% endblock %}
+  {% block title %}<title>{{ (strings[lang] | default(strings.uk)).site.name }}</title>{% endblock %}
   {#- Опис за замовчуванням: коротка версія біо (DECISIONS.md §10, ~85 символів).
       Сторінки перевизначають блок description. -#}
   {% block description %}
-  <meta name="description" content="Київ. Кодинг на старому «залізі». Текст фіксує факти. Читач — не клієнт. koztechie.fyi">
+  <meta name="description" content="{{ (strings[lang] | default(strings.uk)).site.bio_short }}">
   {% endblock %}
   {#- theme-color: ПАПІР #f7f8fa, БУНКЕР #0e1116 (§4.2).
       Два теги з media queries — тема визначається системою, без JS. -#}

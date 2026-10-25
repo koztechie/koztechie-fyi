@@ -5,11 +5,12 @@
     Пагінація (DECISIONS.md §9.3): «Сторінка 1, 2, 3…» + лічильник
     «Всього N записів». Без «∞», без infinite scroll (§9.2).
     entry-line у списках НЕ виводиться (design-system.md §7.1.2).
+    Тексти — зі словників (кроки 117–119). Хардкод заборонено (крок 118).
     Дані: pagination.items (Eleventy). -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
 
-{% block title %}<title>{{ title }} — ВУЗОЛ-0</title>{% endblock %}
+{% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
 
 {% block description %}
 {%- if summary %}
@@ -43,9 +44,9 @@
   {%- set totalPages = pagination.pages.length -%}
   {%- set current = pagination.pageNumber + 1 -%}
   {%- if totalPages > 1 %}
-  <nav class="pagination" aria-label="Пагінація">
+  <nav class="pagination" aria-label="{{ strings.list.pagination_label }}">
     {%- if current > 1 %}
-    <a href="{{ pagination.hrefs[current - 2] }}" rel="prev">Попередня</a>
+    <a href="{{ pagination.hrefs[current - 2] }}" rel="prev">{{ strings.list.prev }}</a>
     {%- endif %}
     <span class="pagination-pages">
       {%- for href in pagination.hrefs %}
@@ -57,13 +58,13 @@
       {%- endfor %}
     </span>
     {%- if current < totalPages %}
-    <a href="{{ pagination.hrefs[current] }}" rel="next">Наступна</a>
+    <a href="{{ pagination.hrefs[current] }}" rel="next">{{ strings.list.next }}</a>
     {%- endif %}
   </nav>
   {%- endif %}
-  <p class="list-count">Всього {{ all.length }} записів</p>
+  <p class="list-count">{{ strings.list.count }} {{ all.length }} {{ all.length | plural(strings.list.count_unit) }}</p>
   {%- else %}
-  <p class="list-empty">Записів поки немає.</p>
+  <p class="list-empty">{{ strings.list.empty }}</p>
   {%- endif %}
 </article>
 {% endblock %}

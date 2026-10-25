@@ -65,6 +65,23 @@ export default function (eleventyConfig) {
     return /^[a-zа-яіїєґ']/i.test(text);
   });
 
+  // Множина для лічильника (крок 118): uk — 3 форми, en — 2.
+  // Визначення мови — за довжиною масиву форм у словнику.
+  eleventyConfig.addFilter("plural", (n, forms) => {
+    if (!Array.isArray(forms) || forms.length === 0) return "";
+    const num = Math.abs(Number(n)) || 0;
+    if (forms.length === 2) {
+      // en: entry / entries
+      return num === 1 ? forms[0] : forms[1];
+    }
+    // uk: запис / запису / записів
+    const m10 = num % 10;
+    const m100 = num % 100;
+    if (m10 === 1 && m100 !== 11) return forms[0];
+    if (m10 >= 2 && m10 <= 4 && !(m100 >= 12 && m100 <= 14)) return forms[1];
+    return forms[2];
+  });
+
   // Пошук сторінки за URL (перемикач мов: дзеркало або заглушка, крок 111)
   eleventyConfig.addFilter("findByUrl", (pages, url) =>
     (pages || []).find((p) => p.url === url)

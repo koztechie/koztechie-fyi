@@ -15,7 +15,7 @@
   },
   "list": {
     "count": "Всього",
-    "count_unit": "записів",
+    "count_unit": ["запис", "записи", "записів"],
     "empty": "Записів поки немає.",
     "prev": "Попередня",
     "next": "Наступна",
@@ -62,7 +62,9 @@
   "footer": {
     "rss": "RSS",
     "place": "Зроблено в Києві. Під час сирен.",
-    "made_in": "Зроблено в Києві"
+    "made_in": "Зроблено в Києві",
+    "copyright": "© 2026 Eugene Kozlovsky",
+    "email": "hello@koztechie.fyi"
   },
   "stub": {
     "title": "Not translated",

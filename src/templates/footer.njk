@@ -2,15 +2,22 @@
     Крок 109. docs/design-system.md §9.7.
     Порядок (§9.7.3): навігація → копірайт · RSS · email → місце.
     Навігація перша: підвал починається з корисного, не з копірайту.
-    5 лінків — sitemap.md «Місце: Підвал». -#}
+    5 лінків — sitemap.md «Місце: Підвал».
+    Тексти — зі словників (кроки 117, 118). Хардкод заборонено. -#}
+{%- set strings = strings[lang] | default(strings.uk) -%}
 <div class="site-footer__inner">
-  <nav class="footer-nav" aria-label="Розділи підвалу">
-    <a href="/poetry/">Поезія</a>
-    <a href="/nichlyst/">NICHLYST</a>
-    <a href="/now/">Стан</a>
-    <a href="/colophon/">Колофон</a>
-    <a href="/contact/">Контакт</a>
+  <nav class="footer-nav" aria-label="{{ strings.nav.footer_sections_label }}">
+    {%- set nav = [
+      { href: "/poetry/", key: "poetry" },
+      { href: "/nichlyst/", key: "nichlyst" },
+      { href: "/now/", key: "now" },
+      { href: "/colophon/", key: "colophon" },
+      { href: "/contact/", key: "contact" }
+    ] -%}
+    {%- for item in nav %}
+    <a href="{{ item.href }}">{{ strings.nav[item.key] }}</a>
+    {%- endfor %}
   </nav>
-  <p>© 2026 Eugene Kozlovsky · <a href="/feed.xml">RSS</a> · <a href="mailto:hello@koztechie.fyi">hello@koztechie.fyi</a></p>
-  <p class="footer-place">Зроблено в Києві. Під час сирен.</p>
+  <p>{{ strings.footer.copyright }} · <a href="/feed.xml">{{ strings.footer.rss }}</a> · <a href="mailto:{{ strings.footer.email }}">{{ strings.footer.email }}</a></p>
+  <p class="footer-place">{{ strings.footer.place }}</p>
 </div>

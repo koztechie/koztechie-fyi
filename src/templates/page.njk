@@ -7,7 +7,7 @@
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
 
-{% block title %}<title>{{ title }} — ВУЗОЛ-0</title>{% endblock %}
+{% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
 
 {% block description %}
 {%- if summary %}

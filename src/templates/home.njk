@@ -3,24 +3,24 @@
     Головна — обкладинка книги. Не стрічка. Не плитка.
     Три останніх записи — максимум. Решта — у /blog/.
     Сигнатури: мікрогліч на h1 (§7.2), .entry-line (§7.1).
-    Тексти — з _data/strings (крок 119). Тимчасові дефолти — канон §9.1, §10.
+    Тексти — зі словників (кроки 117–119). Хардкод заборонено (крок 118).
     Колекції: blog (крок 69), manifest — через findByUrl (крок 111). -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
 
 {% block content %}
 <article class="home">
-  <h1>ВУЗОЛ-0</h1>
-  <p class="home-lead">{{ strings.home.lead | default("Архівний вузол. Текст без прикрас.") }}</p>
+  <h1>{{ strings.site.name }}</h1>
+  <p class="home-lead">{{ strings.home.lead }}</p>
 
   {#- Уривок маніфесту: /manifest/ з колекції all.
       Без сторінки — блок мовчки приховується. -#}
   {%- set manifest = collections.all | findByUrl("/manifest/") -%}
   {%- if manifest %}
   <section class="home-manifest" aria-labelledby="home-manifest-h">
-    <h2 id="home-manifest-h">{{ strings.home.manifest_title | default("Маніфест") }}</h2>
-    <p>{{ manifest.data.summary or strings.home.manifest_lead | default("Перелік того, чим цей сайт ніколи не буде.") }}</p>
-    <p><a href="/manifest/">{{ strings.home.manifest_link | default("→ /manifest/") }}</a></p>
+    <h2 id="home-manifest-h">{{ strings.home.manifest_title }}</h2>
+    <p>{{ manifest.data.summary or strings.home.manifest_lead }}</p>
+    <p><a href="/manifest/">{{ strings.home.manifest_link }}</a></p>
   </section>
   {%- endif %}
 
@@ -32,14 +32,14 @@
   {%- endfor -%}
   {%- if latest.length %}
   <section class="home-latest" aria-labelledby="home-latest-h">
-    <h2 id="home-latest-h">{{ strings.home.latest_title | default("Останні записи") }}</h2>
+    <h2 id="home-latest-h">{{ strings.home.latest_title }}</h2>
     <ul class="archive-list">
       {%- for post in latest %}
       <li>
-        <span class="entry-line">Запис №{{ post.data.entry }}</span>
+        <span class="entry-line">{{ strings.post.entry_prefix }}{{ post.data.entry }}</span>
         <a href="{{ post.url }}">{{ post.data.title }}</a>
         {%- if post.data.reading_time %}
-        <span class="entry-meta">≈ {{ post.data.reading_time }} хв</span>
+        <span class="entry-meta">≈ {{ post.data.reading_time }} {{ strings.post.reading_time_unit }}</span>
         {%- endif %}
       </li>
       {%- endfor %}

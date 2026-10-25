@@ -15,7 +15,7 @@
   },
   "list": {
     "count": "Total",
-    "count_unit": "entries",
+    "count_unit": ["entry", "entries"],
     "empty": "No entries yet.",
     "prev": "Previous",
     "next": "Next",
@@ -62,7 +62,9 @@
   "footer": {
     "rss": "RSS",
     "place": "Made in Kyiv. During air raids.",
-    "made_in": "Made in Kyiv"
+    "made_in": "Made in Kyiv",
+    "copyright": "© 2026 Eugene Kozlovsky",
+    "email": "hello@koztechie.fyi"
   },
   "stub": {
     "title": "Not translated",

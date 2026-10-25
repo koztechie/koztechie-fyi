@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, h1, alt, href, lang, entry.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -609,6 +609,88 @@ if (existsSync(distDir)) {
   }
 } else {
   console.log("  ⚠️  dist/ не існує. Пропущено.");
+}
+console.log("");
+
+// 7з. UI без хардкоду — крок 118. Значення словників не мають бути
+// в розмітці шаблонів (поза коментарями). Джерело істини — самі словники:
+// оновив JSON, ти автоматично оновив правило.
+console.log("--- 7з. UI без хардкоду ---");
+{
+  const stringsDir = resolve("src/_data/strings");
+  const templatesDir = resolve("src/templates");
+  let hardcodeErrors = 0;
+
+  const collectValues = (obj, out = []) => {
+    for (const v of Object.values(obj)) {
+      if (typeof v === "string") out.push(v);
+      else if (Array.isArray(v)) v.forEach((x) => typeof x === "string" && out.push(x));
+      else if (v && typeof v === "object") collectValues(v, out);
+    }
+    return out;
+  };
+
+  if (existsSync(stringsDir) && existsSync(templatesDir)) {
+    // Значення з літерами, довжиною ≥ 3 — односимвольні та цифри не рахуємо
+    const forbidden = [];
+    for (const f of ["uk.json", "en.json"]) {
+      const p = join(stringsDir, f);
+      if (!existsSync(p)) continue;
+      try {
+        const data = JSON.parse(readFileSync(p, "utf-8"));
+        for (const val of collectValues(data)) {
+          if (val.length >= 3 && /\p{L}/u.test(val)) forbidden.push({ val, src: f });
+        }
+      } catch {
+        console.log(`  ❌ ${f} — не JSON`);
+        totalErrors++;
+      }
+    }
+
+    const tplFiles = walkDir(templatesDir).filter((f) => f.endsWith(".njk"));
+    const seen = new Set();
+    for (const file of tplFiles) {
+      let text = readFileSync(file, "utf-8");
+      // Прибираємо коментарі (документують правила, не розмітка) та вирази njk
+      // ({{ strings.* }}, {% set %}) — хардкодом є лише статичний текст і атрибути.
+      text = text.replace(/\{#[\s\S]*?#\}/g, "");
+      text = text.replace(/\{\{[\s\S]*?\}\}/g, " ");
+      text = text.replace(/\{%[\s\S]*?%\}/g, " ");
+      const rel = file.replace(templatesDir + "/", "");
+
+      // Фаза A: статичний текст між тегами — шукати значення як підрядок,
+      // а також перше «велике» слово (ловить «Зроблено в Києві вручну»).
+      const textNodes = [...text.matchAll(/>([^<>]+)</g)].map((m) => m[1]).join("\n");
+      // Фаза B: LIШЕ текстові атрибути (aria-label, alt, title, placeholder) —
+      // точний збіг. class="entry" — CSS-клас, не UI-текст, не перевіряється.
+      const attrValues = [...text.matchAll(/\b(?:aria-label|alt|title|placeholder)\s*=\s*(["'])([^"']+)\1/g)].map(
+        (m) => m[2]
+      );
+
+      for (const { val, src } of forbidden) {
+        const key = rel + "\u0000" + val;
+        if (seen.has(key)) continue;
+        const firstWord = val.split(/\s+/)[0];
+        const hit =
+          textNodes.includes(val) ||
+          (firstWord.length >= 4 && textNodes.includes(firstWord)) ||
+          attrValues.includes(val);
+        if (hit) {
+          const why = textNodes.includes(val) ? "текст" : attrValues.includes(val) ? "атрибут" : "перше слово";
+          console.log(`  ❌ ${rel} — хардкод «${val}» (${why}, зі словника ${src})`);
+          seen.add(key);
+          hardcodeErrors++;
+          totalErrors++;
+        }
+      }
+    }
+
+    if (hardcodeErrors === 0) {
+      console.log(`  ✅ Хардкоду немає: ${tplFiles.length} шаблонів, ${forbidden.length} значень у словниках під контролем`);
+    }
+  } else {
+    console.log("  ⚠️  src/_data/strings або src/templates не існують. Пропущено.");
+  }
 }
 console.log("");
 
