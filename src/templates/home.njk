@@ -17,6 +17,33 @@
 {#- OG-опис (крок 148) — консистентний з meta description. -#}
 {% block og_description %}{{ summary | default(strings.site.bio_short) }}{% endblock %}
 
+{#- JSON-LD (крок 151, TECH_STANDARDS §9): Person + WebSite.
+      Person.name — одне; решта форм в alternateName; sameAs — лише GitHub.
+      Дані: _data/schema.json (DT: F-01 імʼя, F-02 псевдонім koztechie).
+      Не виконуваний контент (type=application/ld+json) — check 7а робить
+      виняток. -#}
+{% block head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "name": {{ schema.person.name | json | safe }},
+      "alternateName": {{ schema.person.alternateName | json | safe }},
+      "sameAs": {{ schema.person.sameAs | json | safe }}
+    },
+    {
+      "@type": "WebSite",
+      "name": {{ strings.site.name | json | safe }},
+      "url": {{ schema.siteUrl | json | safe }},
+      "description": {{ strings.site.title | json | safe }}
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <article class="home">
   <h1>{{ strings.site.name }}</h1>

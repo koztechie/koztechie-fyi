@@ -92,6 +92,9 @@ export default function (eleventyConfig) {
     (pages || []).find((p) => p.url === url)
   );
 
+  // JSON для JSON-LD (крок 151). autoescape njk ламає лапки — у парі з | safe.
+  eleventyConfig.addFilter("json", (v) => JSON.stringify(v));
+
   // ISO 8601 для sitemap <lastmod> (DECISIONS.md §17.4, §20).
   // Приймає Date або ISO-рядок (updated з YAML часто лишається рядком).
   eleventyConfig.addFilter("isoDate", (value) => {

@@ -11,7 +11,7 @@
 | Поле | Значення |
 |------|----------|
 | Фаза | A (Запуск) |
-| Крок | 151–200 (кроки 1–150 виконано, БРАМИ 0–4 пройдено) |
+| Крок | 152–200 (кроки 1–151 виконано, БРАМИ 0–4 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
 | Блокери | Немає |
 
@@ -204,3 +204,4 @@
 | 2026-10-25 | 148 | `static/og/home.{svg,png}`, `base.njk`, `home.njk`, `eleventy.config.js` | OG-картинка: SVG-джерело (палітра ПАПІР, типографіка) → PNG 1200×630, 44 КБ/80. OG-теги ×9 (locale uk_UA/en_US, блоки og:title/og:description). Passthrough static/og |
 | 2026-10-25 | 149 | `check.mjs` 5 | Один h1: посилено на «рівно 1» (ловить і 0, і дубль). 23/23 h1, 0 порожніх лінків у 26 файлах. 4 негативи |
 | 2026-10-25 | 150 | `home.njk`, `footer.njk` | En-головна: маніфест-секція мовно-залежна (/en/manifest/ + en summary), footer RSS → /en/feed.xml. 0 uk-слів у контенті en |
+| 2026-10-25 | 151 | `schema.json`, `home.njk`, `eleventy.config.js`, `check.mjs` | JSON-LD Person+WebSite (@graph): name одне, alternateName ×3 (DT F-01/F-02), sameAs лише GitHub. Фільтр json. check: stripJsonLd у 7а/7ж — ld+json дозволений, звичайні скрипти ловляться |

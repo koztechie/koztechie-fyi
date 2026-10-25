@@ -17,6 +17,13 @@ console.log("=== CHECK (ВУЗОЛ-0) ===");
 console.log(`dist: ${distDir}`);
 console.log("");
 
+// JSON-LD (type=application/ld+json) — специфікація Schema.org, не виконуваний
+// JavaScript. Дозволений TECH_STANDARDS §9 (крок 151). Прибирається перед
+// перевірками JS: 7а (скрипти) та 7ж (head).
+function stripJsonLd(html) {
+  return html.replace(/<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi, "");
+}
+
 // 1. Бюджети
 console.log("--- 1. Бюджети (після brotli) ---");
 if (existsSync(distDir)) {
@@ -344,9 +351,11 @@ if (existsSync(distDir)) {
   }
 
   // <script>, on*= обробники, javascript: у HTML
+  // JSON-LD (type=application/ld+json) — не виконуваний контент, дозволений
+  // TECH_STANDARDS §9 (крок 151) — прибираємо перед перевіркою JS.
   const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
   for (const file of htmlFiles) {
-    const content = readFileSync(file, "utf-8");
+    const content = stripJsonLd(readFileSync(file, "utf-8"));
     const rel = file.replace(distDir + "/", "");
     const patterns = [
       { re: /<script\b/gi, name: "<script> тег" },
@@ -610,7 +619,8 @@ if (existsSync(distDir)) {
   ];
 
   for (const file of headHtmlFiles) {
-    const content = readFileSync(file, "utf-8");
+    // JSON-LD прибрано: дозволений TECH_STANDARDS §9, не JS (крок 151)
+    const content = stripJsonLd(readFileSync(file, "utf-8"));
     const rel = file.replace(distDir + "/", "");
 
     // Виділяємо head (включно з тегами)
