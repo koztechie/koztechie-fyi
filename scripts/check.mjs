@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -800,6 +800,105 @@ console.log("--- 7и. robots.txt і _headers ---");
 
   if (policyErrors === 0) {
     console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 4 Disallow, Sitemap) + _headers (X-Robots-Tag ×4)");
+  }
+}
+console.log("");
+
+// 7і. RSS фіди — крок 126. Валідація за DECISIONS.md §30 (RSS 2.0, повні тексти).
+console.log("--- 7і. RSS фіди ---");
+{
+  const feedErrors = (msg) => {
+    console.log(`  ❌ ${msg}`);
+    totalErrors++;
+  };
+  const RFC822 = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), (0[1-9]|[12][0-9]|3[01]) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4} \d{2}:\d{2}:\d{2} GMT$/;
+  const FORBIDDEN = [/читати далі/i, /read more/i, /continue reading/i, /utm_/i, /поділіться/i, /підпишіться/i, /share this/i];
+
+  if (!existsSync(distDir)) {
+    console.log("  ⚠️  dist/ не існує. Пропущено (спочатку npm run build).");
+  } else {
+    const startErrors = totalErrors;
+    let totalItems = 0;
+    const feeds = [
+      { path: join(distDir, "feed.xml"), lang: "uk", root: "https://koztechie.fyi/" },
+      { path: join(distDir, "en", "feed.xml"), lang: "en", root: "https://koztechie.fyi/en/" },
+    ];
+
+    for (const feed of feeds) {
+      const label = feed.lang === "uk" ? "/feed.xml" : "/en/feed.xml";
+      if (!existsSync(feed.path)) {
+        feedErrors(`${label}: файл відсутній після збірки`);
+        continue;
+      }
+      const xml = readFileSync(feed.path, "utf-8");
+
+      // XML-каркас RSS 2.0
+      if (!xml.includes('<?xml version="1.0" encoding="UTF-8"?>')) feedErrors(`${label}: немає XML-декларації UTF-8`);
+      if (!/<rss\b[^>]*\bversion="2\.0"/.test(xml)) feedErrors(`${label}: немає <rss version="2.0">`);
+      if ((xml.match(/<rss\b/g) || []).length !== (xml.match(/<\/rss>/g) || []).length) feedErrors(`${label} незбалансований <rss>`);
+      if ((xml.match(/<channel>/g) || []).length !== (xml.match(/<\/channel>/g) || []).length) feedErrors(`${label} незбалансований <channel>`);
+      const openItems = (xml.match(/<item>/g) || []).length;
+      const closeItems = (xml.match(/<\/item>/g) || []).length;
+      if (openItems !== closeItems) feedErrors(`${label}: незбалансовані <item> (${openItems} ≠ ${closeItems})`);
+      if ((xml.match(/<!\[CDATA\[/g) || []).length !== (xml.match(/\]\]>/g) || []).length) feedErrors(`${label} незакритий CDATA`);
+
+      // Канал: обов'язкові за §17.3
+      const channel = xml.match(/<channel>([\s\S]*?)<\/channel>/)?.[1] || "";
+      const channelItem = channel.indexOf("<item>");
+      const channelHead = channelItem >= 0 ? channel.slice(0, channelItem) : channel;
+      if (!/<title>[^\s<][\s\S]*?<\/title>/.test(channelHead)) feedErrors(`${label}: канал без <title>`);
+      if (!/<link>https:\/\/koztechie\.fyi[^<]*<\/link>/.test(channelHead)) feedErrors(`${label}: канал без <link>`);
+      if (!/<description>[^\s<][\s\S]*?<\/description>/.test(channelHead)) feedErrors(`${label}: канал без <description>`);
+      if (!new RegExp(`<language>${feed.lang}<\\/language>`).test(channelHead)) feedErrors(`${label}: <language> ≠ ${feed.lang}`);
+      const chanLink = channelHead.match(/<link>([^<]*)<\/link>/)?.[1];
+      if (chanLink !== feed.root) feedErrors(`${label}: link каналу «${chanLink}» ≠ «${feed.root}»`);
+
+      // Items (§30.4)
+      const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map((m) => m[1]);
+      totalItems += items.length;
+      if (items.length === 0) console.log(`  ⚠️  ${label}: 0 записів (контент ще не створено)`);
+
+      const guids = new Set();
+      for (const [i, it] of items.entries()) {
+        const n = `item ${i + 1} (${label})`;
+        const title = it.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.trim();
+        const link = it.match(/<link>([^<]*)<\/link>/)?.[1];
+        const guid = it.match(/<guid[^>]*>([^<]*)<\/guid>/)?.[1];
+        const pub = it.match(/<pubDate>([^<]*)<\/pubDate>/)?.[1];
+        const desc = it.match(/<description>([\s\S]*?)<\/description>/)?.[1]?.trim();
+
+        if (!title) feedErrors(`${n}: без <title>`);
+        if (!link) feedErrors(`${n}: без <link>`);
+        if (!desc) feedErrors(`${n}: без <description>`);
+        else if (desc.length < 10) feedErrors(`${n}: description занадто короткий — повний текст? (§30.1)`);
+
+        // guid = link, абсолютний (§30.4)
+        if (!guid) feedErrors(`${n}: без <guid>`);
+        else {
+          if (guid !== link) feedErrors(`${n}: guid ≠ link (§30.4)`);
+          if (!/^https:\/\/koztechie\.fyi\//.test(guid)) feedErrors(`${n}: guid не абсолютний https://koztechie.fyi`);
+          if (guids.has(guid)) feedErrors(`${n}: дублікат guid «${guid}»`);
+          guids.add(guid);
+        }
+
+        // pubDate RFC 822 (§30.4)
+        if (!pub) feedErrors(`${n}: без <pubDate>`);
+        else if (!RFC822.test(pub.trim())) feedErrors(`${n}: pubDate не RFC 822: «${pub}»`);
+
+        // Абсолютний лінк на сайт
+        if (link && !/^https:\/\/koztechie\.fyi\//.test(link)) feedErrors(`${n}: link не абсолютний: «${link}»`);
+
+        // Заборони §30.3
+        const whole = (title || "") + " " + (desc || "");
+        for (const re of FORBIDDEN) {
+          if (re.test(whole)) feedErrors(`${n}: заборонено за §30.3 — знайдено «${re.source}»`);
+        }
+      }
+    }
+
+    if (totalErrors === startErrors) {
+      console.log(`  ✅ Фіди валідні: 2 канали (uk/en), ${totalItems} записів, §30.1–30.4 дотримано`);
+    }
   }
 }
 console.log("");
