@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -736,6 +736,70 @@ console.log("--- 7з. UI без хардкоду ---");
     }
   } else {
     console.log("  ⚠️  src/_data/strings або src/templates не існують. Пропущено.");
+  }
+}
+console.log("");
+
+// 7и. robots.txt і _headers: політика ШІ-краулерів — PLAN 122, 313.
+console.log("--- 7и. robots.txt і _headers ---");
+{
+  let policyErrors = 0;
+  const rootDir = resolve("static/root");
+  const robotsPath = join(rootDir, "robots.txt");
+  const headersPath = join(rootDir, "_headers");
+
+  if (!existsSync(robotsPath)) {
+    console.log("  ❌ static/root/robots.txt відсутній");
+    policyErrors++;
+    totalErrors++;
+  } else {
+    const robots = readFileSync(robotsPath, "utf-8");
+    // Посилання на sitemap (крок 121)
+    if (!/Sitemap:\s*https:\/\/koztechie\.fyi\/sitemap\.xml/.test(robots)) {
+      console.log("  ❌ robots.txt: немає Sitemap: https://koztechie.fyi/sitemap.xml");
+      policyErrors++;
+      totalErrors++;
+    }
+    // ШІ-політика: бот + заборона поезії та авторських текстів
+    const aiBots = /User-agent:\s*(GPTBot|ClaudeBot|CCBot|Google-Extended|Bytespider|PerplexityBot)/.test(robots);
+    if (!aiBots) {
+      console.log("  ❌ robots.txt: немає ШІ-краулерів (GPTBot/ClaudeBot/CCBot/...)");
+      policyErrors++;
+      totalErrors++;
+    }
+    const disallows = ["/poetry/", "/blog/", "/en/poetry/", "/en/blog/"];
+    for (const d of disallows) {
+      if (!robots.includes(`Disallow: ${d}`)) {
+        console.log(`  ❌ robots.txt: немає «Disallow: ${d}»`);
+        policyErrors++;
+        totalErrors++;
+      }
+    }
+  }
+
+  if (!existsSync(headersPath)) {
+    console.log("  ❌ static/root/_headers відсутній (примусова заборона, PLAN 122)");
+    policyErrors++;
+    totalErrors++;
+  } else {
+    const headers = readFileSync(headersPath, "utf-8");
+    if (!headers.includes("X-Robots-Tag: noai")) {
+      console.log("  ❌ _headers: немає X-Robots-Tag: noai");
+      policyErrors++;
+      totalErrors++;
+    }
+    // Примус тих самих шляхів, що й robots.txt
+    for (const p of ["/poetry/*", "/blog/*", "/en/poetry/*", "/en/blog/*"]) {
+      if (!headers.includes(p)) {
+        console.log(`  ❌ _headers: немає секції ${p}`);
+        policyErrors++;
+        totalErrors++;
+      }
+    }
+  }
+
+  if (policyErrors === 0) {
+    console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 4 Disallow, Sitemap) + _headers (X-Robots-Tag ×4)");
   }
 }
 console.log("");
