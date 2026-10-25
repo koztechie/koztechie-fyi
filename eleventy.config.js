@@ -19,6 +19,20 @@ export default function (eleventyConfig) {
     api.getFilteredByGlob("content/*/poetry/*.md").sort((a, b) => b.data.entry - a.data.entry)
   );
 
+  // Мовні колекції (крок 117): контент за мовою для sitemap/RSS/hreflang.
+  // Спаджений за датою спадно; сторінки без дати — в кінець.
+  const byDateDesc = (a, b) => {
+    const da = a.data.date ? new Date(a.data.date).getTime() : 0;
+    const db = b.data.date ? new Date(b.data.date).getTime() : 0;
+    return db - da;
+  };
+  eleventyConfig.addCollection("uk", (api) =>
+    api.getFilteredByGlob("content/uk/**/*").sort(byDateDesc)
+  );
+  eleventyConfig.addCollection("en", (api) =>
+    api.getFilteredByGlob("content/en/**/*").sort(byDateDesc)
+  );
+
   // Фільтри
   eleventyConfig.addFilter("ukDate", (date) => {
     // TECH_STANDARDS §9: Intl для uk-UA додає «р.». Прибираємо через formatToParts.

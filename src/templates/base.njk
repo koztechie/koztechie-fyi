@@ -1,6 +1,9 @@
 {#- base.njk: базовий шаблон усіх сторінок.
     Крок 105. docs/design-system.md §9.
     Мовна схема: DECISIONS.md §19. uk — корінь, en — /en/.
+    Вибір словника (крок 117): {% set strings = strings[lang] | default(strings.uk) %}
+    — КОЖЕН дочірній шаблон робить цей set після extends (set у батька
+    не видимий у блоці дитини в Eleventy).
     Блоки для розширення: head, title, description, header, footer.
     Шапка: паршал header.njk (крок 108). Підвал: паршал footer.njk (крок 109). -#}
 <!doctype html>

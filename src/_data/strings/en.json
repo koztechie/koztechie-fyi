@@ -1,0 +1,74 @@
+{
+  "site": {
+    "name": "NODE-0",
+    "name_en": "ВУЗОЛ-0",
+    "title": "Text without ornament.",
+    "lead": "An archive node. Text without ornament.",
+    "bio_short": "Kyiv. Coding on old hardware. The text fixes facts. The reader is not a client. koztechie.fyi"
+  },
+  "home": {
+    "lead": "An archive node. Text without ornament.",
+    "manifest_title": "Manifesto",
+    "manifest_lead": "A list of what this site will never be.",
+    "manifest_link": "→ /en/manifest/",
+    "latest_title": "Latest entries"
+  },
+  "list": {
+    "count": "Total",
+    "count_unit": "entries",
+    "empty": "No entries yet.",
+    "prev": "Previous",
+    "next": "Next",
+    "pagination_label": "Pagination"
+  },
+  "post": {
+    "entry_prefix": "Entry №",
+    "reading_time_unit": "min",
+    "warning_prefix": "Warning:",
+    "warnings": {
+      "війна": "the text contains descriptions of military action",
+      "здоровʼя": "the text contains descriptions of health issues",
+      "травма": "the text contains descriptions of trauma",
+      "смерть": "the text contains descriptions of death",
+      "залежність": "the text contains descriptions of addiction"
+    }
+  },
+  "case_sections": [
+    "Role",
+    "Period",
+    "Task",
+    "Solution",
+    "What broke",
+    "What I would throw away",
+    "What it gave me"
+  ],
+  "nav": {
+    "home": "Home",
+    "manifest": "Manifesto",
+    "practice": "Practice",
+    "graveyard": "Graveyard",
+    "blog": "Blog",
+    "poetry": "Poetry",
+    "nichlyst": "NICHLYST",
+    "now": "Now",
+    "colophon": "Colophon",
+    "contact": "Contact",
+    "sections_label": "Sections",
+    "footer_sections_label": "Footer sections",
+    "lang_label": "Language",
+    "lang_current": "ENG",
+    "lang_other": "УКР"
+  },
+  "footer": {
+    "rss": "RSS",
+    "place": "Made in Kyiv. During air raids.",
+    "made_in": "Made in Kyiv"
+  },
+  "stub": {
+    "title": "Not translated",
+    "lead": "Read the original in Ukrainian →"
+  },
+  "page_404": {
+    "text": "Entry not found."
+  }
+}

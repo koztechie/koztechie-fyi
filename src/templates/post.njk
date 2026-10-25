@@ -7,6 +7,7 @@
     Попередження — §32 DECISIONS, опційне, під тілом за вайрфреймом.
     Тексти — з _data/strings (крок 119). Дефолти — канон §9.2, §32. -#}
 {% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
 
 {% block title %}<title>{{ title }} — ВУЗОЛ-0</title>{% endblock %}
 

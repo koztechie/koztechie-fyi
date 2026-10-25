@@ -6,6 +6,7 @@
     Тексти — з _data/strings (крок 119). Тимчасові дефолти — канон §9.1, §10.
     Колекції: blog (крок 69), manifest — через findByUrl (крок 111). -#}
 {% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
 
 {% block content %}
 <article class="home">

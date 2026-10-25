@@ -5,6 +5,7 @@
     Без entry-line (немає entry, §7.1.2).
     Курсор ▍ — лише /manifest/ (§7.3.4): клас ставить цей шаблон, не скрипт. -#}
 {% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
 
 {% block title %}<title>{{ title }} — ВУЗОЛ-0</title>{% endblock %}
 
