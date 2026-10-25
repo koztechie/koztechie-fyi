@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // check.mjs: автономний чекліст ВУЗОЛ-0 (без залежностей)
-// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов, таб-навігацію, skip-link.
+// Перевіряє: бюджети, CSS-патерни, hex, сторонні origin, head, UI-хардкод, h1, alt, href, lang, entry, ШІ-політику, RSS-фіди, лінки, перемикач мов, таб-навігацію, skip-link, JSON-LD.
 // Використання: node scripts/check.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
@@ -1139,6 +1139,86 @@ console.log("--- 7н. Skip-link ---");
     }
   } else {
     console.log("  ⚠️  dist/ не існує. Пропущено.");
+  }
+}
+console.log("");
+
+// 7о. JSON-LD — крок 152. TECH_STANDARDS §9, PLAN 151:
+// валідний JSON, @context, @graph; Person (name одне, решта в alternateName,
+// sameAs — лише GitHub), WebSite (name/url/description).
+console.log("--- 7о. JSON-LD ---");
+{
+  let ldErrors = 0;
+  const fail = (msg) => {
+    console.log(`  ❌ ${msg}`);
+    ldErrors++;
+    totalErrors++;
+  };
+
+  if (!existsSync(distDir)) {
+    console.log("  ⚠️  dist/ не існує. Пропущено.");
+  } else {
+    const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+    let blocks = 0;
+
+    for (const file of htmlFiles) {
+      const rel = file.slice(distDir.length + 1);
+      const content = readFileSync(file, "utf-8");
+      const matches = [...content.matchAll(/<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+
+      for (const m of matches) {
+        blocks++;
+        let data;
+        try {
+          data = JSON.parse(m[1]);
+        } catch (e) {
+          fail(`${rel}: JSON-LD не парситься (${e.message})`);
+          continue;
+        }
+        if (data["@context"] !== "https://schema.org") {
+          fail(`${rel}: @context ≠ https://schema.org (отримано «${data["@context"]}»)`);
+        }
+        const graph = Array.isArray(data["@graph"]) ? data["@graph"] : data["@type"] ? [data] : null;
+        if (!graph) {
+          fail(`${rel}: немає ні @graph, ні @type`);
+          continue;
+        }
+
+        for (const node of graph) {
+          if (node["@type"] === "Person") {
+            if (typeof node.name !== "string" || !node.name.trim()) fail(`${rel}: Person.name порожній`);
+            const alt = node.alternateName;
+            if (!Array.isArray(alt) || alt.length === 0) {
+              fail(`${rel}: Person.alternateName не масив або порожній (решта форм — сюди, §9)`);
+            } else {
+              if (alt.includes(node.name)) fail(`${rel}: Person.name дублюється в alternateName (name має бути одним)`);
+              for (const a of alt) {
+                if (typeof a !== "string" || !a.trim()) fail(`${rel}: порожній елемент alternateName`);
+              }
+            }
+            const same = node.sameAs;
+            if (!Array.isArray(same) || same.length === 0) {
+              fail(`${rel}: Person.sameAs не масив або порожній`);
+            } else {
+              for (const u of same) {
+                if (!/^https:\/\/github\.com\//.test(u)) fail(`${rel}: sameAs не GitHub (§9: лише GitHub) — «${u}»`);
+              }
+            }
+          }
+          if (node["@type"] === "WebSite") {
+            if (typeof node.name !== "string" || !node.name.trim()) fail(`${rel}: WebSite.name порожній`);
+            if (typeof node.url !== "string" || !/^https:\/\/koztechie\.fyi\//.test(node.url)) {
+              fail(`${rel}: WebSite.url ≠ https://koztechie.fyi/ — «${node.url}»`);
+            }
+            if (typeof node.description !== "string" || !node.description.trim()) fail(`${rel}: WebSite.description порожній`);
+          }
+        }
+      }
+    }
+
+    if (ldErrors === 0) {
+      console.log(`  ✅ JSON-LD валідний: ${blocks} блок(и) у ${htmlFiles.length} HTML — Person/WebSite за §9`);
+    }
   }
 }
 console.log("");

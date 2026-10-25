@@ -11,7 +11,7 @@
 | Поле | Значення |
 |------|----------|
 | Фаза | A (Запуск) |
-| Крок | 152–200 (кроки 1–151 виконано, БРАМИ 0–4 пройдено) |
+| Крок | 153–200 (кроки 1–152 виконано, БРАМИ 0–4 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
 | Блокери | Немає |
 
@@ -205,3 +205,4 @@
 | 2026-10-25 | 149 | `check.mjs` 5 | Один h1: посилено на «рівно 1» (ловить і 0, і дубль). 23/23 h1, 0 порожніх лінків у 26 файлах. 4 негативи |
 | 2026-10-25 | 150 | `home.njk`, `footer.njk` | En-головна: маніфест-секція мовно-залежна (/en/manifest/ + en summary), footer RSS → /en/feed.xml. 0 uk-слів у контенті en |
 | 2026-10-25 | 151 | `schema.json`, `home.njk`, `eleventy.config.js`, `check.mjs` | JSON-LD Person+WebSite (@graph): name одне, alternateName ×3 (DT F-01/F-02), sameAs лише GitHub. Фільтр json. check: stripJsonLd у 7а/7ж — ld+json дозволений, звичайні скрипти ловляться |
+| 2026-10-25 | 152 | `check.mjs` 7о | Валідація JSON-LD: JSON-parse, @context, @graph, Person (name/alternateName/sameAs тільки GitHub), WebSite (name/url koztechie.fyi/description). 4 негативи → 7 помилок |
