@@ -208,10 +208,10 @@ if (existsSync(distDir)) {
     const content = readFileSync(file, "utf-8");
     const rel = file.replace(distDir + "/", "");
 
-    // Один h1
+    // Один h1: рівно один (канон — і відсутність, і дубль це порушення)
     const h1Count = (content.match(/<h1[\s>]/g) || []).length;
-    if (h1Count > 1) {
-      console.log(`  ❌ ${rel} — ${h1Count} тегів h1 (має бути 1)`);
+    if (h1Count !== 1) {
+      console.log(`  ❌ ${rel} — ${h1Count} тегів h1 (має бути рівно 1)`);
       htmlErrors++;
       totalErrors++;
     }
