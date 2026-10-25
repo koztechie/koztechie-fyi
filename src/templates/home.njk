@@ -66,14 +66,17 @@
     </ol>
   </section>
 
-  {#- Уривок маніфесту: /manifest/ з колекції all.
-      Без сторінки — блок мовчки приховується. -#}
-  {%- set manifest = collections.all | findByUrl("/manifest/") -%}
+  {#- Уривок маніфесту: мовне дзеркало /manifest/ або /en/manifest/ (крок 150).
+      Без потрібної мовної версії — блок мовчки приховується (не ведемо
+      en-читача на uk-сторінку). -#}
+  {%- set homeIsEn = (lang | default("uk")) === "en" -%}
+  {%- set manifestPath = "/en/manifest/" if homeIsEn else "/manifest/" -%}
+  {%- set manifest = collections.all | findByUrl(manifestPath) -%}
   {%- if manifest %}
   <section class="home-manifest" aria-labelledby="home-manifest-h">
     <h2 id="home-manifest-h">{{ strings.home.manifest_title }}</h2>
     <p>{{ manifest.data.summary or strings.home.manifest_lead }}</p>
-    <p><a href="/manifest/">{{ strings.home.manifest_link }}</a></p>
+    <p><a href="{{ manifestPath }}">{{ strings.home.manifest_link }}</a></p>
   </section>
   {%- endif %}
 

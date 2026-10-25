@@ -26,7 +26,7 @@
     <a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a>
     {%- endfor %}
   </nav>
-  <p>{{ strings.footer.copyright }} · <a href="/feed.xml">{{ strings.footer.rss }}</a> · <a href="mailto:{{ strings.footer.email | safe }}">{{ strings.footer.email | safe }}</a></p>
+  <p>{{ strings.footer.copyright }} · <a href="{% if isEnPage %}/en/feed.xml{% else %}/feed.xml{% endif %}">{{ strings.footer.rss }}</a> · <a href="mailto:{{ strings.footer.email | safe }}">{{ strings.footer.email | safe }}</a></p>
   <p class="footer-place">{{ strings.footer.place }}</p>
   {#- Посилання на приватність: поза головним меню, у футері (DECISIONS §17.2).
       Шлях: uk у корені, en з префіксом (§19.0). -#}
