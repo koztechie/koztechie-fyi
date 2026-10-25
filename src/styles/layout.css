@@ -57,6 +57,40 @@ main {
   margin-bottom: 2.5rem;
 }
 
+/* Блок «Що це» (крок 140): три пункти суті. */
+.home-what {
+  margin-bottom: 2.5rem;
+}
+
+.home-what h2 {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-dim);
+  margin: 0 0 0.75rem;
+}
+
+.home-what-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-what-list li {
+  margin-bottom: 0.75rem;
+  max-width: var(--measure);
+}
+
+.home-what-list li:last-child {
+  margin-bottom: 0;
+}
+
+.home-what-list strong {
+  font-weight: 700;
+}
+
 .entry-meta {
   font-size: var(--text-sm);
   color: var(--ink-dim);

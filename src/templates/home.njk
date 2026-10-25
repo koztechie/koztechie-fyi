@@ -16,6 +16,17 @@
   <p class="home-tagline">{{ strings.home.tagline }}</p>
   <p class="home-lead">{{ strings.home.lead }}</p>
 
+  {#- Блок «Що це» (крок 140): три пункти суті — автор, мови, код.
+      Не дублює лід (правила) та маніфест (принципи) — §18. -#}
+  <section class="home-what" aria-labelledby="home-what-h">
+    <h2 id="home-what-h">{{ strings.home.what_title }}</h2>
+    <ul class="home-what-list">
+      {%- for item in strings.home.what_is %}
+      <li><strong>{{ item.title }}.</strong> {{ item.text }}</li>
+      {%- endfor %}
+    </ul>
+  </section>
+
   {#- Уривок маніфесту: /manifest/ з колекції all.
       Без сторінки — блок мовчки приховується. -#}
   {%- set manifest = collections.all | findByUrl("/manifest/") -%}
@@ -28,12 +39,13 @@
   {%- endif %}
 
   {#- Три останні записи: колекція blog (спаджено за датою, крок 69).
-      Мова: лише записи цієї мови (колекція blog глобальна — вміщує uk та en).
-      Максимум три — loop.index0 < 3. Сигнатура .entry-line — номер entry. -#}
+      Фільтри: лише цієї мови (колекція глобальна), лише з date
+      (індекси розділів index.md в колекції, але не є записами — крок 140).
+      Максимум три — latest.length < 3. Сигнатура .entry-line — номер entry. -#}
   {%- set latest = [] -%}
   {%- set pageLang = lang | default("uk") -%}
   {%- for post in collections.blog -%}
-    {%- if (post.data.lang | default("uk")) === pageLang and latest.length < 3 %}{% set latest = latest.concat([post]) %}{% endif -%}
+    {%- if post.data.date and (post.data.lang | default("uk")) === pageLang and latest.length < 3 %}{% set latest = latest.concat([post]) %}{% endif -%}
   {%- endfor -%}
   {%- if latest.length %}
   <section class="home-latest" aria-labelledby="home-latest-h">

@@ -12,7 +12,22 @@
     "manifest_lead": "A list of what this site will never be.",
     "manifest_link": "→ /en/manifest/",
     "latest_title": "Latest entries",
-    "tagline": "An archive of testimonies, code, and observations."
+    "tagline": "An archive of testimonies, code, and observations.",
+    "what_title": "What this is",
+    "what_is": [
+      {
+        "title": "One author",
+        "text": "A personal archive with no editorial board and no commissioned content."
+      },
+      {
+        "title": "Two languages",
+        "text": "Every text exists in Ukrainian and English in parallel, not as a pick-your-language translation."
+      },
+      {
+        "title": "Open source",
+        "text": "The site's source code lives in a public repository."
+      }
+    ]
   },
   "list": {
     "count": "Total",

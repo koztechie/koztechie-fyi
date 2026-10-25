@@ -656,7 +656,12 @@ console.log("--- 7з. UI без хардкоду ---");
   const collectValues = (obj, out = []) => {
     for (const v of Object.values(obj)) {
       if (typeof v === "string") out.push(v);
-      else if (Array.isArray(v)) v.forEach((x) => typeof x === "string" && out.push(x));
+      // Масиви: рядки напряму, об'єкти — рекурсією (напр. what_is: [{title,text}]).
+      else if (Array.isArray(v))
+        v.forEach((x) => {
+          if (typeof x === "string") out.push(x);
+          else if (x && typeof x === "object") collectValues(x, out);
+        });
       else if (v && typeof v === "object") collectValues(v, out);
     }
     return out;
