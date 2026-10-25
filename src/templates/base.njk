@@ -26,6 +26,10 @@
       Два теги з media queries — тема визначається системою, без JS. -#}
   <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+  {#- RSS auto-discovery для обох фідів (TECH_STANDARDS §9, крок 125).
+      Назва фіда — з самого каналу (<title>), не з атрибута лінка. -#}
+  <link rel="alternate" type="application/rss+xml" href="https://koztechie.fyi/feed.xml">
+  <link rel="alternate" type="application/rss+xml" href="https://koztechie.fyi/en/feed.xml">
   {#- Крок 112. hreflang + canonical (TECH_STANDARDS §9): взаємні, абсолютні,
       з self-reference. x-default — українська (коренева) версія, для головної
       це https://koztechie.fyi/ (DECISIONS.md §19.0).

@@ -5,6 +5,9 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("static/img");
   eleventyConfig.addPassthroughCopy("src/styles");
 
+  // Мови фідів (крок 125): два виходи /feed.xml та /en/feed.xml
+  eleventyConfig.addGlobalData("feedLangs", ["uk", "en"]);
+
   // Колекції
   eleventyConfig.addCollection("blog", (api) =>
     api.getFilteredByGlob("content/*/blog/*.md").sort((a, b) => b.data.date - a.data.date)
@@ -94,6 +97,22 @@ export default function (eleventyConfig) {
     const d = value instanceof Date ? value : new Date(value);
     if (isNaN(d.getTime())) return "";
     return d.toISOString().slice(0, 10);
+  });
+
+  // RFC 822 для RSS <pubDate> (DECISIONS.md §30.4).
+  // toUTCString() → «Fri, 16 Oct 2026 00:00:00 GMT» — валідний RFC 1123/822
+  // з англійськими токенами (локалізовані дні ламають валідацію фідів, крок 126).
+  eleventyConfig.addFilter("rfc822Date", (value) => {
+    if (!value) return "";
+    const d = value instanceof Date ? value : new Date(value);
+    if (isNaN(d.getTime())) return "";
+    return d.toUTCString();
+  });
+
+  // Спаджений за датою для RSS (крок 125): новіші першими.
+  eleventyConfig.addFilter("sortByDateDesc", (items) => {
+    const toTime = (v) => (v instanceof Date ? v.getTime() : v ? new Date(v).getTime() : 0);
+    return [...(items || [])].sort((a, b) => toTime(b.data?.date) - toTime(a.data?.date));
   });
 
   // Конфіг
