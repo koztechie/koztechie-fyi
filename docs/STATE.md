@@ -179,3 +179,4 @@
 | 2026-10-25 | 124 | `src/templates/home.njk` | Час читання 180 слів/хв: 13 тестів фільтра, uk «хв»/en «min». Виправлено: home на templateContent (поле reading_time не існувало), мовна ізоляція, ліміт за відібраними |
 | 2026-10-25 | 125 | `src/feed.njk`, `eleventy.config.js`, `base.njk` | RSS 2.0 два фіди: повні тексти в CDATA, guid=link, RFC 822. Авто-discovery ×2. Вбудований масив pagination.data не працює — глобальні feedLangs |
 | 2026-10-25 | 126 | `scripts/check.mjs` 7і | Валідація фідів: XML-каркас, канал, guid=link, RFC 822, §30.3 заборони. 6 негативних тестів |
+| 2026-10-25 | виправлення | `eleventy.config.js`, `core.css`, `layout.css`, `components.css`, `check.mjs` 1d | Перегляд у браузері виявив 2 баги: (1) passthrough клав ассети в dist/src/ та dist/static/ → усі CSS/шрифти 404; (2) типографічна база (body/h1 шкала) ніколи не була написана. Виправлено + перевірка 1d |

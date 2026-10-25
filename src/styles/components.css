@@ -158,4 +158,5 @@ h1 {
 .list-intro {
   color: var(--ink-dim);
   max-width: var(--measure);
+  margin-bottom: 2.5rem;
 }

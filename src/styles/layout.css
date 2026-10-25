@@ -19,6 +19,28 @@ main {
   padding: 2rem 1rem;
 }
 
+/* Секції лейаутів (design-system.md §6.3: відступи між секціями — робота лейаутів). */
+.home-lead {
+  font-size: var(--text-lg);
+  color: var(--ink-dim);
+  margin: 0 0 2.5rem;
+}
+
+.home-manifest,
+.home-latest {
+  margin-bottom: 2.5rem;
+}
+
+.entry-meta {
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+  margin: 0 0 1.5rem;
+}
+
+.entry-body {
+  max-width: var(--measure);
+}
+
 /* Шапка */
 .site-header {
   border-bottom: 1px solid var(--rule);

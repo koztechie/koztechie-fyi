@@ -44,3 +44,61 @@
   --leading: 1.6;
   --measure: 68ch;
 }
+
+/* Типографічна база (design-system.md §5).
+   Змінні визначені вище; кольори --bg/--ink — у themes.css (порядок не важливий
+   для var(), резолв у computed time). */
+body {
+  font-family: var(--font-text);
+  font-size: var(--text-base);
+  line-height: var(--leading);
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* Шкала 1.25: заголовки за кроками (§5.9). */
+h1 {
+  font-size: var(--text-xxl);
+}
+h2 {
+  font-size: var(--text-xl);
+}
+h3 {
+  font-size: var(--text-lg);
+}
+h4,
+h5,
+h6 {
+  font-size: var(--text-base);
+}
+
+/* Ритм абзаців та списків (§5.10, §6.3). */
+p,
+ul,
+ol,
+blockquote,
+pre {
+  margin: 0 0 1em;
+}
+
+/* Заголовки: простір перед/після (§6.3). */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 1.5em 0 0.5em;
+  line-height: 1.2;
+}
+h1 {
+  margin-top: 0;
+}
+
+/* Службовий стек для UI-елементів (§5.5): шапка, підвал, мітки. */
+.site-header,
+.site-footer,
+.entry-meta,
+.lang-switch {
+  font-family: var(--font-ui);
+}

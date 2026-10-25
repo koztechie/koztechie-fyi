@@ -1,9 +1,10 @@
 export default function (eleventyConfig) {
-  // Passthrough
+  // Passthrough. Явні мапи: input = "." → прості шляхи зберігали б структуру
+  // (src/styles → dist/src/styles), але розмітка шукає /styles/, /fonts/, /img/.
   eleventyConfig.addPassthroughCopy({"static/root": "/"});
-  eleventyConfig.addPassthroughCopy("static/fonts");
-  eleventyConfig.addPassthroughCopy("static/img");
-  eleventyConfig.addPassthroughCopy("src/styles");
+  eleventyConfig.addPassthroughCopy({"static/fonts": "fonts"});
+  eleventyConfig.addPassthroughCopy({"static/img": "img"});
+  eleventyConfig.addPassthroughCopy({"src/styles": "styles"});
 
   // Мови фідів (крок 125): два виходи /feed.xml та /en/feed.xml
   eleventyConfig.addGlobalData("feedLangs", ["uk", "en"]);

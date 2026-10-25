@@ -71,6 +71,25 @@ if (existsSync(distDir)) {
   if (styleAttrErrors === 0) {
     console.log(`  ✅ Без style= атрибутів у HTML`);
   }
+
+  // 1d. Passthrough: ассети мають бути ПО правильних шляхах (розмітка шукає
+  // /styles/, /fonts/). Простий passthrough з input="." кладе їх у dist/src/...,
+  // dist/static/... — і сайт рендериться без стилів (виявлено при перегляді).
+  const requiredAssets = [
+    ...["core", "layout", "components", "themes", "print"].map((n) => `styles/${n}.css`),
+    "fonts/JetBrainsMono-Regular-subset.woff2",
+  ];
+  let assetErrors = 0;
+  for (const rel of requiredAssets) {
+    if (!existsSync(join(distDir, rel))) {
+      console.log(`  ❌ dist/${rel} відсутній (passthrough? розмітка шукає /${rel})`);
+      assetErrors++;
+      totalErrors++;
+    }
+  }
+  if (assetErrors === 0) {
+    console.log(`  ✅ Ассети на місці: 5 CSS + 1 woff2 (${requiredAssets.length} шляхів)`);
+  }
 } else {
   console.log("  ⚠️  dist/ не існує. Пропущено.");
 }
