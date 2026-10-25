@@ -2,9 +2,9 @@
 title: "Блог"
 lang: uk
 updated: 2026-10-25
-permalink: /blog/
+summary: "Архів дописів."
+intro: "Архів дописів."
+draft: false
 layout: list.njk
-pagination:
-  data: collections.blog
-  size: 10
+section: blog
 ---

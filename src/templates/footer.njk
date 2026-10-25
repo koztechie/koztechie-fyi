@@ -5,6 +5,9 @@
     5 лінків — sitemap.md «Місце: Підвал».
     Тексти — зі словників (кроки 117, 118). Хардкод заборонено. -#}
 {%- set strings = strings[lang] | default(strings.uk) -%}
+{#- Мовна навігація (крок 131): en-дерево з fallback на uk. -#}
+{%- set isEnPage = (lang | default("uk")) === "en" -%}
+{%- set navPrefix = "/en" if isEnPage else "" -%}
 <div class="site-footer__inner">
   <nav class="footer-nav" aria-label="{{ strings.nav.footer_sections_label }}">
     {%- set nav = [
@@ -15,7 +18,12 @@
       { href: "/contact/", key: "contact" }
     ] -%}
     {%- for item in nav %}
-    <a href="{{ item.href }}">{{ strings.nav[item.key] }}</a>
+    {%- set itemHref = item.href -%}
+    {%- if isEnPage -%}
+      {%- set cand = "/en" + item.href -%}
+      {%- if collections.all | findByUrl(cand) %}{% set itemHref = cand %}{% endif -%}
+    {%- endif -%}
+    <a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a>
     {%- endfor %}
   </nav>
   <p>{{ strings.footer.copyright }} · <a href="/feed.xml">{{ strings.footer.rss }}</a> · <a href="mailto:{{ strings.footer.email | safe }}">{{ strings.footer.email | safe }}</a></p>

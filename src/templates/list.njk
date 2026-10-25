@@ -6,7 +6,12 @@
     «Всього N записів». Без «∞», без infinite scroll (§9.2).
     entry-line у списках НЕ виводиться (design-system.md §7.1.2).
     Тексти — зі словників (кроки 117–119). Хардкод заборонено (крок 118).
-    Дані: pagination.items (Eleventy). -#}
+    Джерела елементів (крок 131):
+    - pagination.items — коли задана пагінація (Eleventy);
+    - collections[section] — коли pagination немає. Порожня колекція НЕ
+      блокує генерацію сторінки (пагінація на порожніх даних не пише
+      вихідний файл — виявлено на кроці 131).
+    Мовна ізоляція: лише записи цієї мови. -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
 
@@ -19,19 +24,35 @@
 {% endblock %}
 
 {% block content %}
+{%- set pageLang = lang | default("uk") -%}
+{%- set items = [] -%}
+{%- if pagination and pagination.items.length -%}
+  {%- set items = pagination.items -%}
+{%- elif section and collections[section] -%}
+  {%- for it in collections[section] -%}
+    {%- if (it.data.lang | default("uk")) === pageLang and it.data.date -%}
+      {%- set items = items.concat([it]) -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
 <article class="list">
   <h1>{{ title }}</h1>
   {%- if intro %}
   <p class="list-intro">{{ intro }}</p>
   {%- endif %}
 
-  {%- if pagination and pagination.items.length %}
-  {#- Загальна кількість: конкатенація всіх сторінок (set на атрибут об'єкта
-      nunjucks не компілює). -#}
+  {%- if items.length %}
+  {#- Загальна кількість: конкатенація всіх сторінок пагінації
+      (set на атрибут об'єкта nunjucks не компілює).
+      Без пагінації all = items. -#}
   {%- set all = [] -%}
-  {%- for pg in pagination.pages %}{% set all = all.concat(pg) %}{% endfor %}
+  {%- if pagination -%}
+    {%- for pg in pagination.pages %}{% set all = all.concat(pg) %}{% endfor %}
+  {%- else -%}
+    {%- set all = items -%}
+  {%- endif -%}
   <ul class="archive-list">
-    {%- for item in pagination.items %}
+    {%- for item in items %}
     <li>
       <a href="{{ item.url }}">{{ item.data.title }}</a>
       {%- if item.data.date %}
@@ -41,6 +62,7 @@
     {%- endfor %}
   </ul>
 
+  {%- if pagination %}
   {%- set totalPages = pagination.pages.length -%}
   {%- set current = pagination.pageNumber + 1 -%}
   {%- if totalPages > 1 %}
@@ -61,6 +83,7 @@
     <a href="{{ pagination.hrefs[current] }}" rel="next">{{ strings.list.next }}</a>
     {%- endif %}
   </nav>
+  {%- endif %}
   {%- endif %}
   <p class="list-count">{{ strings.list.count }} {{ all.length }} {{ all.length | plural(strings.list.count_unit) }}</p>
   {%- else %}

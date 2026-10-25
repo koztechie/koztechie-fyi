@@ -16,8 +16,12 @@
     (оригінал існує за визначенням). -#}
 {%- set mirrorPage = collections.all | findByUrl(mirror) -%}
 {%- if mirrorPage %}{% set otherHref = mirror %}{% elif isEn %}{% set otherHref = "/" %}{% else %}{% set otherHref = "/en/" %}{% endif -%}
+{#- Мовна навігація (крок 131): на en-сторінці лінки ведуть по /en/-дереву,
+    якщо дзеркало існує; інакше — на uk-оригінал. Логотип — на головну
+    поточної мови. -#}
+{%- set navPrefix = "/en" if isEn else "" -%}
 <div class="site-header__inner">
-  <a class="site-logo" href="/">{{ strings.site.name }}</a>
+  <a class="site-logo" href="{{ navPrefix }}/">{{ strings.site.name }}</a>
   <nav class="site-nav" aria-label="{{ strings.nav.sections_label }}">
     {%- set nav = [
       { href: "/", key: "home" },
@@ -27,8 +31,13 @@
       { href: "/blog/", key: "blog" }
     ] -%}
     {%- for item in nav %}
+    {%- set itemHref = item.href -%}
+    {%- if isEn -%}
+      {%- set cand = "/en" + item.href -%}
+      {%- if collections.all | findByUrl(cand) %}{% set itemHref = cand %}{% endif -%}
+    {%- endif -%}
     {%- set active = cur === item.href or (item.href !== "/" and cur.indexOf(item.href) === 0) %}
-    <a href="{{ item.href }}"{% if active %} aria-current="page"{% endif %}>{{ strings.nav[item.key] }}</a>
+    <a href="{{ itemHref }}"{% if active %} aria-current="page"{% endif %}>{{ strings.nav[item.key] }}</a>
     {%- endfor %}
   </nav>
   {#- Мітка «УКР / ENG» (§8.1.2). УКР завжди перша (§8.1.1). Поточна мова —
