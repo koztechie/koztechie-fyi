@@ -1,0 +1,62 @@
+{#- now.njk: лейаут сторінки «Стан» (/now/).
+    Крок 127. content-model.md §3.5, DECISIONS.md §27 (раз на місяць).
+    Поля: season, working_on, reading, energy (всі опційні — §2).
+    Секція рендериться лише якщо поле заповнене: чесність даних,
+    не порожні заголовки.
+    Без буквиці та entry-line: службова сторінка (§5.11.1, §7.1.2).
+    Частота оновлення — відповідальність автора (≥1 разу на місяць). -#}
+{% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
+
+{% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
+
+{% block description %}
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+{% endblock %}
+
+{% block content %}
+<article class="page">
+  <h1>{{ title }}</h1>
+
+  {%- if season %}
+  <p class="now-season">{{ strings.now.season }}: {{ season }}</p>
+  {%- endif %}
+
+  {%- if working_on and working_on.length %}
+  <section class="now-section" aria-labelledby="now-working">
+    <h2 id="now-working">{{ strings.now.working_on }}</h2>
+    <ul>
+      {%- for w in working_on %}
+      <li>{{ w }}</li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endif %}
+
+  {%- if reading and reading.length %}
+  <section class="now-section" aria-labelledby="now-reading">
+    <h2 id="now-reading">{{ strings.now.reading }}</h2>
+    <ul>
+      {%- for r in reading %}
+      <li>{{ r }}</li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endif %}
+
+  {%- if energy is number %}
+  <section class="now-section" aria-labelledby="now-energy">
+    <h2 id="now-energy">{{ strings.now.energy }}</h2>
+    <p class="now-energy">{{ energy }} / 10</p>
+  </section>
+  {%- endif %}
+
+  {%- if content %}
+  <div class="page-body">
+    {{ content | safe }}
+  </div>
+  {%- endif %}
+</article>
+{% endblock %}

@@ -41,6 +41,41 @@ main {
   max-width: var(--measure);
 }
 
+/* Секції «Стан» (/now/, крок 127): простір між блоками (§6.3). */
+.now-season {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 2rem;
+}
+
+.now-section {
+  margin-bottom: 2rem;
+}
+
+.now-section h2 {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-dim);
+  margin: 0 0 0.75rem;
+}
+
+.now-section ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.now-energy {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  color: var(--ink);
+  margin: 0;
+}
+
 /* Шапка */
 .site-header {
   border-bottom: 1px solid var(--rule);

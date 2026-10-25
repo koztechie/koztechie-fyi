@@ -15,7 +15,10 @@
   },
   "list": {
     "count": "Total",
-    "count_unit": ["entry", "entries"],
+    "count_unit": [
+      "entry",
+      "entries"
+    ],
     "empty": "No entries yet.",
     "prev": "Previous",
     "next": "Next",
@@ -72,5 +75,11 @@
   },
   "page_404": {
     "text": "Entry not found."
+  },
+  "now": {
+    "season": "Season",
+    "working_on": "Working on",
+    "reading": "Reading",
+    "energy": "Energy"
   }
 }
