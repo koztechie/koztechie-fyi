@@ -1,5 +1,5 @@
 ---
-title: "ВУЗОЛ-0"
+title: "koztechie"
 lang: uk
 permalink: /
 layout: home.njk

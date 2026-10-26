@@ -12,6 +12,7 @@ eleventyExcludeFromCollections: true
     - без самого sitemap (не HTML-сторінка).
     lastmod: updated або date, ISO 8601 (§20).
     Без <priority> та <changefreq> (§17.4). -#}
+{%- set origin = "https://koztechie.fyi" -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {%- set entries = [] -%}
@@ -26,7 +27,7 @@ eleventyExcludeFromCollections: true
 {%- endfor -%}
 {%- for e in entries %}
   <url>
-    <loc>https://koztechie.fyi{{ e.url }}</loc>
+    <loc>{{ origin }}{{ e.url }}</loc>
     {%- if e.lastmod %}
     <lastmod>{{ e.lastmod }}</lastmod>
     {%- endif %}

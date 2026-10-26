@@ -1,5 +1,5 @@
 ---
-title: "NODE-0"
+title: "koztechie"
 lang: en
 permalink: /en/
 layout: home.njk

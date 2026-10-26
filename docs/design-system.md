@@ -1477,7 +1477,7 @@ CSS: `src/styles/core.css`.
 | # | Елемент | Розмітка | Примітка |
 |---|---------|----------|----------|
 | 1 | Навігація | `<nav>` з 5 лінків | `sitemap.md`, «Місце: Підвал» |
-| 2 | Копірайт | `© 2026 Eugene Kozlovsky` | Текст, не лінк |
+| 2 | Копірайт | `© 2026 Євгеній Козловський · koztechie` (en: `Eugene Kozlovsky · koztechie`) | Текст, не лінк |
 | 3 | RSS | `<a href="/feed.xml">RSS</a>` | Повні тексти (§30 DECISIONS) |
 | 4 | Email | `<a href="mailto:hello@koztechie.fyi">` | Без форми. Відповідь ≤ 7 днів |
 | 5 | Місце | `Зроблено в Києві. Під час сирен.` | Факт, не гасло |
@@ -1496,7 +1496,7 @@ CSS: `src/styles/core.css`.
 
 ```
 [Навігація: 5 лінків]
-© 2026 Eugene Kozlovsky · RSS · hello@koztechie.fyi
+© 2026 Євгеній Козловський · koztechie · RSS · hello@koztechie.fyi
 Зроблено в Києві. Під час сирен.
 ```
 

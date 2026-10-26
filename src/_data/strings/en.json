@@ -1,13 +1,13 @@
 {
   "site": {
-    "name": "NODE-0",
-    "name_en": "ВУЗОЛ-0",
+    "name": "koztechie",
+    "name_en": "koztechie",
     "title": "Text without ornament.",
     "lead": "An archive node. Text without ornament.",
     "bio_short": "Kyiv. Coding on old hardware. The text fixes facts. The reader is not a client. koztechie.fyi"
   },
   "home": {
-    "lead": "One author, two languages, zero trackers. The text fixes facts. Updated by hand, with no publication schedule.",
+    "lead": "Eugene Kozlovsky. One author, two languages, zero trackers. The text fixes facts. Updated by hand, with no publication schedule.",
     "manifest_title": "Manifesto",
     "manifest_lead": "A list of what this site will never be.",
     "manifest_link": "→ /en/manifest/",
@@ -30,12 +30,12 @@
     ],
     "sections_title": "Sections",
     "nichlyst_lead": "The main project is the mobile game",
-    "thesis": "Solo developer from Kyiv: plugins, PHP, static sites.",
+    "thesis": "koztechie — solo developer from Kyiv: plugins, PHP, static sites.",
     "doc_updated": "Updated",
     "meta": [
-      "KOZTECHIE",
-      "KYIV",
-      "SINCE 2014",
+      "Eugene Kozlovsky",
+      "Kyiv",
+      "Since 2014",
       "0 JS"
     ],
     "cta_text": "Write a letter →",
@@ -74,7 +74,11 @@
         "title": "Boundary",
         "text": "A pause is not a fault. Return on an external request."
       }
-    ]
+    ],
+    "pass_label_author": "Author",
+    "pass_value_author": "Eugene Kozlovsky",
+    "pass_label_alias": "Handle",
+    "pass_value_alias": "@koztechie"
   },
   "list": {
     "count": "Total",
@@ -130,7 +134,7 @@
     "rss": "RSS",
     "place": "Made in Kyiv. During air raids.",
     "made_in": "Made in Kyiv",
-    "copyright": "© 2026 Eugene Kozlovsky",
+    "copyright": "© 2026 Eugene Kozlovsky · koztechie",
     "email": "&#104;ello@koztechie.fyi",
     "privacy": "Privacy"
   },
