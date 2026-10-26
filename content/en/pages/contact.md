@@ -1,5 +1,5 @@
 ---
-title: "Contact"
+title: "Contacts"
 lang: en
 layout: page.njk
 updated: 2026-10-25

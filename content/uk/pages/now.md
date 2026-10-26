@@ -1,5 +1,5 @@
 ---
-title: "Стан"
+title: "Зараз"
 lang: uk
 layout: now.njk
 updated: 2026-10-25
