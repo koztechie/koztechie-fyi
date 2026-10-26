@@ -14,4 +14,4 @@ draft: false
 layout: stub.njk
 ---
 
-<!-- Заглушка §35.2 (редендер — stub.njk). Поля period/cause/epitaph обов'язкові для типу graveyard; на сторінці не відображаються. -->
+<!-- Заглушка §35.2 (редендер — stub.njk). Поля period/cause/epitaph обов'язкові для типу cemetery; на сторінці не відображаються. -->

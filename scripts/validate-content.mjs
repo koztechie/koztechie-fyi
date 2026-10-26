@@ -205,8 +205,8 @@ for (const file of files) {
     }
   }
 
-  // 14. Цвинтар: epitaph — одне речення
-  if (type === "graveyard" && fm.epitaph) {
+  // 14. Кладовище: epitaph — одне речення
+  if (type === "cemetery" && fm.epitaph) {
     const sentences = fm.epitaph.split(/[.!?]+/).filter((s) => s.trim().length > 0);
     if (sentences.length > 1) {
       warnings.push(`epitaph: ${sentences.length} речень (має бути одне)`);
@@ -221,7 +221,7 @@ for (const file of files) {
   // 16. Порожній body — лише для типів, де тіло є контентом.
   // Лейаут-генеровані сторінки (section, home) та сторінки з секціями
   // з front matter (page/now) легітимно без тіла — не шумимо.
-  if (body.trim().length === 0 && ["post", "case", "poem", "graveyard", "unknown"].includes(type)) {
+  if (body.trim().length === 0 && ["post", "case", "poem", "cemetery", "unknown"].includes(type)) {
     warnings.push("Тіло файлу порожнє");
   }
 
@@ -331,8 +331,8 @@ function detectType(relPath, fm) {
   // (bo /blog/index.md не є записом).
   const isIndex = /(^|\/)index\.md$/.test(relPath);
   if (isIndex && /^uk\/index\.md$|^en\/index\.md$/.test(relPath)) return "home";
-  if (isIndex && /\/(blog|practice|graveyard|poetry)\//.test(relPath)) return "section";
-  if (relPath.includes("/graveyard/")) return "graveyard";
+  if (isIndex && /\/(blog|practice|cemetery|poetry)\//.test(relPath)) return "section";
+  if (relPath.includes("/cemetery/")) return "cemetery";
   if (relPath.includes("/practice/")) return "case";
   if (relPath.includes("/poetry/")) return "poem";
   if (relPath.includes("/blog/")) return "post";
@@ -349,7 +349,7 @@ function getRequiredFields(type) {
       return [...base, "slug", "entry", "date", "summary"];
     case "case":
       return [...base, "slug", "entry", "date", "summary", "consent"];
-    case "graveyard":
+    case "cemetery":
       return [...base, "slug", "entry", "date", "period", "cause", "epitaph"];
     case "poem":
       return [...base, "slug", "entry", "date", "first_published"];

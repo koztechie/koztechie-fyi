@@ -6,5 +6,5 @@ summary: "Епітафії закритих проєктів: назва, пер
 intro: "Епітафії закритих проєктів: назва, період, причина, один рядок."
 draft: false
 layout: list.njk
-section: graveyard
+section: cemetery
 ---

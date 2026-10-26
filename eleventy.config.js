@@ -17,8 +17,8 @@ export default function (eleventyConfig) {
   eleventyConfig.addCollection("practice", (api) =>
     api.getFilteredByGlob("content/*/practice/*.md").sort((a, b) => b.data.date - a.data.date)
   );
-  eleventyConfig.addCollection("graveyard", (api) =>
-    api.getFilteredByGlob("content/*/graveyard/*.md").sort((a, b) => b.data.date - a.data.date)
+  eleventyConfig.addCollection("cemetery", (api) =>
+    api.getFilteredByGlob("content/*/cemetery/*.md").sort((a, b) => b.data.date - a.data.date)
   );
   eleventyConfig.addCollection("poetry", (api) =>
     api.getFilteredByGlob("content/*/poetry/*.md").sort((a, b) => b.data.entry - a.data.entry)

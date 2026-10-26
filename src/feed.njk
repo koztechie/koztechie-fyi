@@ -9,7 +9,7 @@ eleventyExcludeFromCollections: true
 {#- feed.njk: два RSS-фіди — /feed.xml (uk) та /en/feed.xml (en).
     Крок 125. DECISIONS.md §30, §17.3, ARCHITECTURE.md.
     Повні тексти (§30.1): <description> = весь HTML запису, без обрізок.
-    Весь архів (§30.3): /blog/, /practice/, /poetry/, /graveyard/ — без лімітів.
+    Весь архів (§30.3): /blog/, /practice/, /poetry/, /cemetery/ — без лімітів.
     <guid> = <link> (§30.4). <pubDate> — RFC 822 (фільтр rfc822Date).
     Без реклами, відстеження, соцмереж, «Читати далі» (§30.3).
     Мовна ізоляція: items лише цієї мови.
@@ -18,7 +18,7 @@ eleventyExcludeFromCollections: true
     у pagination.data не підтримується. -#}
 {%- set strings = strings[feedLang] | default(strings.uk) -%}
 {%- set siteRoot = "https://koztechie.fyi" -%}
-{%- set sections = ["/blog/", "/practice/", "/poetry/", "/graveyard/"] -%}
+{%- set sections = ["/blog/", "/practice/", "/poetry/", "/cemetery/"] -%}
 {%- set items = [] -%}
 {%- for item in collections.all -%}
   {%- set u = item.url if item.url else "" -%}

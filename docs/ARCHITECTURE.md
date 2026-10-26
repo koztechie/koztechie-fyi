@@ -22,8 +22,8 @@
 │   │   ├── practice/
 │   │   │   ├── practice.11tydata.json
 │   │   │   └── [slug].md
-│   │   ├── graveyard/
-│   │   │   ├── graveyard.11tydata.json
+│   │   ├── cemetery/
+│   │   │   ├── cemetery.11tydata.js
 │   │   │   └── [slug].md
 │   │   ├── poetry/
 │   │   │   ├── poetry.11tydata.json
@@ -40,7 +40,7 @@
 │   ├── en/
 │   │   ├── blog/                       # Дзеркало uk/
 │   │   ├── practice/
-│   │   ├── graveyard/
+│   │   ├── cemetery/
 │   │   ├── poetry/
 │   │   ├── pages/
 │   │   └── index.md
@@ -132,8 +132,8 @@ export default function (eleventyConfig) {
   eleventyConfig.addCollection("practice", (api) =>
     api.getFilteredByGlob("content/*/practice/*.md").sort((a, b) => b.data.date - a.data.date)
   );
-  eleventyConfig.addCollection("graveyard", (api) =>
-    api.getFilteredByGlob("content/*/graveyard/*.md").sort((a, b) => b.data.date - a.data.date)
+  eleventyConfig.addCollection("cemetery", (api) =>
+    api.getFilteredByGlob("content/*/cemetery/*.md").sort((a, b) => b.data.date - a.data.date)
   );
   eleventyConfig.addCollection("poetry", (api) =>
     api.getFilteredByGlob("content/*/poetry/*.md").sort((a, b) => b.data.entry - a.data.entry)
@@ -211,7 +211,7 @@ LICENSE
 }
 ```
 
-**Аналогічно для:** `practice`, `graveyard`, `poetry`, `pages`.
+**Аналогічно для:** `practice`, `cemetery`, `poetry`, `pages`.
 
 **Головна:** `content/uk/index.md` → `/`; `content/en/index.md` → `/en/`.
 

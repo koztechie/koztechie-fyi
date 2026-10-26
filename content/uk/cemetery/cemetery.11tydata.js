@@ -7,8 +7,8 @@ export default {
       // Явний permalink у front matter має пріоритет (індекси, пагінація).
       if (data.permalink) return data.permalink;
       const stem = data.page?.filePathStem || "";
-      if (stem.endsWith("/index")) return "/graveyard/";
-      return "/graveyard/" + data.page.fileSlug + "/";
+      if (stem.endsWith("/index")) return "/cemetery/";
+      return "/cemetery/" + data.page.fileSlug + "/";
     },
   },
 };
