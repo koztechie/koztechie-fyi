@@ -7,7 +7,7 @@
     "bio_short": "Kyiv. Coding on old hardware. The text fixes facts. The reader is not a client. koztechie.fyi"
   },
   "home": {
-    "lead": "One entry, one thought. Updated manually, with no schedule and no counters. The reader here is a guest of the archive, not a client.",
+    "lead": "One author, two languages, zero trackers. The text fixes facts. Updated by hand, with no publication schedule.",
     "manifest_title": "Manifesto",
     "manifest_lead": "A list of what this site will never be.",
     "manifest_link": "→ /en/manifest/",
@@ -29,7 +29,53 @@
       }
     ],
     "sections_title": "Sections",
-    "nichlyst_lead": "The main project is the mobile game"
+    "nichlyst_lead": "The main project is the mobile game",
+    "thesis": "Solo developer from Kyiv: plugins, PHP, static sites.",
+    "doc_corpus": "Personal corpus · Kyiv",
+    "doc_updated": "Updated",
+    "meta": [
+      "KOZTECHIE",
+      "KYIV",
+      "SINCE 2014",
+      "0 JS"
+    ],
+    "cta_text": "Write a letter →",
+    "cta_note": "the only feedback channel",
+    "passport_label": "Passport",
+    "pass_label_lang": "Languages",
+    "pass_label_pages": "Pages",
+    "pass_label_js": "JS",
+    "pass_label_budget": "Budget",
+    "pass_label_rhythm": "Rhythm",
+    "pass_label_channel": "Channel",
+    "pass_js": "0 B",
+    "pass_budget": "50 KB",
+    "pass_rhythm": "manual",
+    "pass_channel": "letter",
+    "eyebrow_base": "Essence",
+    "eyebrow_content": "Contents",
+    "eyebrow_log": "Journal",
+    "eyebrow_rules": "Rules",
+    "eyebrow_project": "Project",
+    "theses_title": "Four theses",
+    "theses": [
+      {
+        "title": "Evidence-based function",
+        "text": "Leads with what has an external criterion, not a pose."
+      },
+      {
+        "title": "Honesty is structure",
+        "text": "Date, evidence level, dated correction. No showing life conditions for show."
+      },
+      {
+        "title": "Feedback",
+        "text": "One live channel: a letter. The rest is closed deliberately."
+      },
+      {
+        "title": "Boundary",
+        "text": "A pause is not a fault. Return on an external request."
+      }
+    ]
   },
   "list": {
     "count": "Total",

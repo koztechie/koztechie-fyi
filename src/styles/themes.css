@@ -8,12 +8,12 @@
 :root {
   color-scheme: light;
 
-  --bg: #f7f8fa;
-  --surface: #edeff3;
-  --ink: #14181d;
-  --ink-dim: #434955;
-  --accent: #0a5266;
-  --rule: #7c8492;
+  --bg: #faf7f2;
+  --surface: #efe9df;
+  --ink: #1a1713;
+  --ink-dim: #4b443c;
+  --accent: #7f2f18;
+  --rule: #8b8376;
 }
 
 /* БУНКЕР (темна) */
@@ -21,11 +21,11 @@
   :root {
     color-scheme: dark;
 
-    --bg: #0e1116;
-    --surface: #161b23;
-    --ink: #e8ebf0;
-    --ink-dim: #a6adba;
-    --accent: #7fd4ec;
-    --rule: #6b7482;
+    --bg: #15120d;
+    --surface: #1d1913;
+    --ink: #ece7dd;
+    --ink-dim: #b0a99b;
+    --accent: #e89a72;
+    --rule: #757062;
   }
 }

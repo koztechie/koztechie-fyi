@@ -74,6 +74,27 @@
   {#- Skip-link (TECH_STANDARDS §63): перший елемент — клавіатурна навігація
       відразу до вмісту, оминаючи шапку. Видимий лише при фокусі (layout.css). -#}
   <a class="skip-link" href="#main">{{ (strings[lang] | default(strings.uk) | default(strings)).nav.skip }}</a>
+  {#- Рядок документа (design-system §1): дата останнього оновлення контенту
+      — прояв тези 2 «чесність = дата» (DECISIONS §1.7). Джерело — колекція uk
+      (обидві мови мають однакові дати). -#}
+  {%- set docStr = strings[lang] | default(strings.uk) | default(strings) -%}
+  {%- set lastUpd = "" -%}
+  {%- set lastTs = 0 -%}
+  {%- for p in collections.uk -%}
+    {%- set d = p.data.updated if p.data.updated else p.data.date -%}
+    {%- if d and d.getTime -%}
+      {%- set ts = d.getTime() -%}
+      {%- if ts > lastTs -%}{%- set lastTs = ts -%}{%- set lastUpd = d -%}{%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  <div class="doc-bar">
+    <div class="doc-bar__inner">
+      <span>{{ docStr.home.doc_corpus }}</span>
+      {%- if lastUpd %}
+      <span>{{ docStr.home.doc_updated }} <b>{{ lastUpd | ukDate }}</b></span>
+      {%- endif -%}
+    </div>
+  </div>
   <header class="site-header">
     {% block header %}{% include "header.njk" %}{% endblock %}
   </header>

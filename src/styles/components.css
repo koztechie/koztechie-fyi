@@ -174,3 +174,190 @@ h1 {
 .content-warning p {
   margin: 0;
 }
+
+/* ===== Друкований протокол: документні елементи (design-system §1,
+   тези DECISIONS §1.7). Впровадження 2026-10-26. ===== */
+
+/* Рядок документа (усі сторінки, base.njk): корпус + дата оновлення. */
+.doc-bar {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 1rem;
+}
+
+.doc-bar__inner {
+  max-width: 72ch;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.doc-bar__inner b {
+  color: var(--accent);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Мікро-мітка секції: §N · назва. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 0.6rem;
+}
+
+.eyebrow .sec {
+  color: var(--accent);
+}
+
+/* Мета-рядок героя: моно, верхній регістр, оксид-роздільники. */
+.meta-line {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 1.4rem;
+}
+
+.meta-line .sep {
+  color: var(--accent);
+}
+
+/* Теза головної — h1, 6-й щабель (§5.9). Мікрогліч §7.2 лишається
+   на h1 через глобальний селектор core/components. */
+article.home h1 {
+  font-size: var(--text-display);
+  line-height: 1.15;
+  max-width: 24ch;
+  text-wrap: balance;
+  text-indent: -0.03em;
+  margin: 0 0 1.2rem;
+}
+
+/* Заголовки секцій головної: книжкові, не мікро-мітки. */
+article.home h2 {
+  font-family: var(--font-text);
+  font-size: var(--text-xl);
+  line-height: 1.25;
+  font-weight: 700;
+  margin: 0 0 1.1rem;
+}
+
+/* Єдиний заклик (теза 3): лист. */
+.letter-cta {
+  margin: 0 0 1.5rem;
+}
+
+.letter-cta a {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.15rem;
+}
+
+.letter-cta a:hover {
+  background: var(--surface);
+}
+
+.letter-note {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  margin-top: 0.5rem;
+}
+
+/* Паспорт сайту: приладдя замість обіцянок. */
+.passport {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.passport dl {
+  margin: 0;
+}
+
+.passport .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.42rem 0;
+}
+
+.passport .row + .row {
+  border-top: 1px solid var(--rule);
+}
+
+.passport dt {
+  margin: 0;
+  color: var(--ink-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.passport dd {
+  margin: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.passport dd.hl {
+  color: var(--accent);
+}
+
+/* Реєстр чотирьох тез (§1.7). */
+.home-theses {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.home-theses li {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 0.25rem 1.25rem;
+  align-items: baseline;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.home-theses li:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.home-theses .num {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-theses .name {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.home-theses .desc {
+  grid-column: 2;
+  color: var(--ink-dim);
+}
+
+@media (max-width: 44rem) {
+  .home-theses li {
+    grid-template-columns: 2.25rem 1fr;
+  }
+}
