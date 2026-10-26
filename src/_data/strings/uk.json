@@ -92,7 +92,8 @@
   },
   "stub": {
     "title": "Not translated",
-    "lead": "Read the original in Ukrainian →"
+    "lead": "Read the original in Ukrainian →",
+    "link": "Читати українською"
   },
   "page_404": {
     "text": "Запис відсутній."

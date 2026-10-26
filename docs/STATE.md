@@ -13,7 +13,7 @@
 | Фаза | A (Запуск) |
 | Крок | 155–200 (кроки 1–154 виконано, БРАМИ 0–4 пройдено) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
-| Блокери | Немає |
+| Блокери | 155: текст допису відсутній — потрібен експорт Facebook (автор) |
 
 ---
 
@@ -208,3 +208,4 @@
 | 2026-10-25 | 152 | `check.mjs` 7о | Валідація JSON-LD: JSON-parse, @context, @graph, Person (name/alternateName/sameAs тільки GitHub), WebSite (name/url koztechie.fyi/description). 4 негативи → 7 помилок |
 | 2026-10-25 | 153 | `check.mjs` 7п | Canonical: 22/22 сторінки — абсолютні, self-reference, унікальні, 404 поза. 5 типів негативів (без/чужий/не-self/дубль/на 404) |
 | 2026-10-25 | 154 | `content/{uk,en}/blog/blog-manifesto.md`, `validate-content.mjs` | Перший пост (entry 1): маніфест блогу за §18/§27/§28. En-паралель. Валідатор: переклади не дублікати entry (нормалізація шляху). Головна/список/RSS/sitemap живі |
+| 2026-10-26 | 156 | `content/{uk,en}/graveyard/svitlogics.md`, `src/templates/stub.njk`, `src/_data/strings/{uk,en}.json`, `src/templates/list.njk`, `docs/inventory.md` | Епітафія G4 (entry 2): період/причина/епітафія — рішення автора; провенанс — без позначки (рішення); скан red-lines §2.3 = дозволено. Заглушка §35 (noindex → поза sitemap/hreflang). Виправлено регресію 155: `for...if` у nunjucks не рендерить → `for + if` у list.njk (списки були порожні) |
