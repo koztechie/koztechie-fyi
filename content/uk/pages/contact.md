@@ -1,5 +1,5 @@
 ---
-title: "Контакти"
+title: "Контакт"
 lang: uk
 layout: page.njk
 updated: 2026-10-25
