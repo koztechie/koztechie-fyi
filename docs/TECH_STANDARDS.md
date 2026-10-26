@@ -241,10 +241,10 @@ core.css → layout.css → components.css → themes.css → print.css → nich
 --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 ```
 
-**Моноширинне (нативне)** — для коду, де woff2 не завантажився:
+**Моноширинне** — акцент (woff2) із системним фолбеком:
 
 ```css
---font-mono: ui-monospace, "Cascadia Code", "Courier New", monospace;
+--font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
 ```
 
 ### 6.1. Самохостинговий woff2
@@ -269,7 +269,7 @@ core.css → layout.css → components.css → themes.css → print.css → nich
 - Апостроф `ʼ`
 - Лапки `«»`
 - Тире `—`
-- Символи дизайн-системи `▍ ≈ № → ▪`
+- Символи дизайн-системи `▍ ≈ № →`
 
 Гліфи поза діапазоном падають на системний mono-стек. Це нормально.
 

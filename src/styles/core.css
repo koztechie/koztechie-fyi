@@ -5,17 +5,19 @@
 
 /* Самохостинговий моноширинний шрифт.
    Крок 89. design-system.md §5.8.
-   JetBrains Mono, OFL-ліцензія. Сабсет: latin + cyrillic + символи системи.
-   Вага: 33,4 КБ (бюджет 60 КБ, AGENTS.md §3). */
+   IBM Plex Mono, OFL-ліцензія. Походження — критерій автора
+   (заміна JetBrains Mono, 2026-10-26).
+   Сабсет: latin + cyrillic + символи дизайн-системи.
+   Вага: 13,6 КБ (бюджет 60 КБ, AGENTS.md §3). */
 @font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-Regular-subset.woff2") format("woff2");
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-Regular-subset.woff2") format("woff2");
   font-display: optional;
   font-weight: 400;
   font-style: normal;
-  unicode-range: U+0020-00FF, U+0100-017F, U+0400-04FF, U+2010-2015,
-    U+2018-201F, U+2026, U+00AB, U+00BB, U+02BC, U+2116, U+2192, U+2248,
-    U+258D, U+25AA;
+  unicode-range: U+0020-00FF, U+0100-017F, U+0400-04FF, U+2013, U+2014,
+    U+2018, U+2019, U+201C, U+201D, U+201E, U+2026, U+00AB, U+00BB, U+02BC,
+    U+2116, U+2192, U+2248, U+258D;
 }
 
 :root {
@@ -29,7 +31,7 @@
 
   /* Моноширинний: акценти, код, лінійка запису.
      Крок 89. design-system.md §5.8. */
-  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
 
   /* Типографічна шкала: ratio 1.25, 5 розмірів.
      Крок 90. design-system.md §5.9. */

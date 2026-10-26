@@ -84,7 +84,7 @@ if (existsSync(distDir)) {
   // dist/static/... — і сайт рендериться без стилів (виявлено при перегляді).
   const requiredAssets = [
     ...["core", "layout", "components", "themes", "print"].map((n) => `styles/${n}.css`),
-    "fonts/JetBrainsMono-Regular-subset.woff2",
+    "fonts/IBMPlexMono-Regular-subset.woff2",
   ];
   let assetErrors = 0;
   for (const rel of requiredAssets) {

@@ -12,7 +12,7 @@ draft: false
 
 - **Georgia** — main text. The system serif stack.
 - **System grotesk** — interface: header, footer, labels.
-- **JetBrains Mono** — monospace accent. Self-hosted, OFL license,
+- **IBM Plex Mono** — monospace accent. Self-hosted, OFL license,
   Latin and Cyrillic subset.
 
 ## Tools
