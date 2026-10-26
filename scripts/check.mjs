@@ -139,6 +139,33 @@ if (existsSync(stylesDir)) {
   if (cssErrors === 0) {
     console.log(`  ✅ ${cssFiles.length} CSS-файлів без заборонених патернів`);
   }
+
+  // Рем-відступи: кратність 0.25rem (design-system §6.5, аудит 2026-10-26).
+  // em — типографіка (прив'язана до кегля/гліфа), clamp — плавна ритміка:
+  // обидва класи поза рем-сіткою за каноном.
+  let gridErrors = 0;
+  for (const file of cssFiles) {
+    const content = readFileSync(file, "utf-8");
+    const rel = file.replace(stylesDir + "/", "");
+    const spacingRe = /(?:margin|padding|gap)(?:-[a-z]+)?\s*:\s*([^;]+);/gi;
+    let sm;
+    while ((sm = spacingRe.exec(content)) !== null) {
+      for (const token of sm[1].split(/[\s,]+/)) {
+        const mm = token.match(/^(-?[\d.]+)rem$/);
+        if (!mm) continue;
+        const n = parseFloat(mm[1]);
+        if (Math.abs(n / 0.25 - Math.round(n / 0.25)) > 1e-9) {
+          const line = content.slice(0, sm.index).split("\n").length;
+          console.log(`  ❌ ${rel}:${line} — відступ ${token} поза сіткою 0.25rem (design-system §6.5)`);
+          gridErrors++;
+          totalErrors++;
+        }
+      }
+    }
+  }
+  if (gridErrors === 0) {
+    console.log("  ✅ Сітка відступів: усі рем-відступи кратні 0.25 (§6.5)");
+  }
 } else {
   console.log("  ⚠️  src/styles/ не існує. Пропущено.");
 }
