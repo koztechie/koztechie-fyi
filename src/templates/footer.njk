@@ -2,7 +2,7 @@
     Крок 109. docs/design-system.md §9.7.
     Порядок (§9.7.3): навігація → копірайт · RSS · email → місце.
     Навігація перша: підвал починається з корисного, не з копірайту.
-    5 лінків — sitemap.md «Місце: Підвал».
+    4 лінки — sitemap.md, таблиця «Верхній рівень» (орієнтація).
     Тексти — зі словників (кроки 117, 118). Хардкод заборонено. -#}
 {%- set strings = strings[lang] | default(strings.uk) -%}
 {#- Мовна навігація (крок 131): en-дерево з fallback на uk. -#}
@@ -11,8 +11,7 @@
 <div class="site-footer__inner">
   <nav class="footer-nav" aria-label="{{ strings.nav.footer_sections_label }}">
     {%- set nav = [
-      { href: "/poetry/", key: "poetry" },
-      { href: "/nichlyst/", key: "nichlyst" },
+      { href: "/manifest/", key: "manifest" },
       { href: "/now/", key: "now" },
       { href: "/colophon/", key: "colophon" },
       { href: "/contact/", key: "contact" }

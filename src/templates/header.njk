@@ -1,7 +1,7 @@
 {#- header.njk: паршал шапки.
     Крок 108. docs/design-system.md §9.6.
     Логотип — текст, не картинка (§9.6.4).
-    5 лінків — sitemap.md «Місце: Шапка».
+    5 лінків — sitemap.md, таблиця «Верхній рівень». Головна — логотип (§9.6.2).
     Активний розділ — aria-current="page" (крок 110, §9.6.3).
     Дужки [ ] — моно-мітка з CSS layout.css, не в розмітці.
     Перемикач мови — §8.1 (крок 111).
@@ -21,14 +21,14 @@
     поточної мови. -#}
 {%- set navPrefix = "/en" if isEn else "" -%}
 <div class="site-header__inner">
-  <a class="site-logo" href="{{ navPrefix }}/">{{ strings.site.name }}</a>
+  <a class="site-logo" href="{{ navPrefix }}/"{% if cur === "/" %} aria-current="page"{% endif %}>{{ strings.site.name }}</a>
   <nav class="site-nav" aria-label="{{ strings.nav.sections_label }}">
     {%- set nav = [
-      { href: "/", key: "home" },
-      { href: "/manifest/", key: "manifest" },
+      { href: "/nichlyst/", key: "nichlyst" },
+      { href: "/blog/", key: "blog" },
       { href: "/practice/", key: "practice" },
-      { href: "/cemetery/", key: "cemetery" },
-      { href: "/blog/", key: "blog" }
+      { href: "/poetry/", key: "poetry" },
+      { href: "/cemetery/", key: "cemetery" }
     ] -%}
     {%- for item in nav %}
     {%- set itemHref = item.href -%}
