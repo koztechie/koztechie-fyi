@@ -4,7 +4,7 @@
     "name_en": "koztechie",
     "title": "Text without ornament.",
     "lead": "An archive node. Text without ornament.",
-    "bio_short": "Kyiv. Coding on old hardware. The text fixes facts. The reader is not a client. koztechie.fyi"
+    "bio_short": "Kyiv. Working with AI on old hardware. The text fixes facts. The reader is not a client. koztechie.fyi"
   },
   "home": {
     "lead": "Eugene Kozlovsky. One author, two languages, zero trackers. The text fixes facts. Updated by hand, with no publication schedule.",
@@ -30,7 +30,7 @@
     ],
     "sections_title": "Sections",
     "nichlyst_lead": "The main project is the mobile game",
-    "thesis": "koztechie — solo developer from Kyiv: plugins, PHP, static sites.",
+    "thesis": "koztechie — AI-assisted solo developer from Kyiv.",
     "doc_updated": "Updated",
     "meta": [
       "Eugene Kozlovsky",
