@@ -178,31 +178,6 @@ h1 {
 /* ===== Друкований протокол: документні елементи (design-system §1,
    тези DECISIONS §1.7). Впровадження 2026-10-26. ===== */
 
-/* Рядок документа (усі сторінки, base.njk): корпус + дата оновлення. */
-.doc-bar {
-  border-bottom: 1px solid var(--rule);
-  padding: 0.5rem 1rem;
-}
-
-.doc-bar__inner {
-  max-width: 72ch;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-}
-
-.doc-bar__inner b {
-  color: var(--accent);
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-}
-
 /* Мікро-мітка секції: §N · назва. */
 .eyebrow {
   font-family: var(--font-mono);

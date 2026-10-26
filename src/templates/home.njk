@@ -47,6 +47,17 @@
 {% block content %}
 {%- set homeIsEn = (lang | default("uk")) === "en" -%}
 {%- set pageLang = lang | default("uk") -%}
+{#- Останнє оновлення контенту (теза 2: чесність = дата).
+      Джерело — колекція uk; ISO у паспорті обома мовами. -#}
+{%- set lastUpd = "" -%}
+{%- set lastTs = 0 -%}
+{%- for p in collections.uk -%}
+  {%- set d = p.data.updated if p.data.updated else p.data.date -%}
+  {%- if d and d.getTime -%}
+    {%- set ts = d.getTime() -%}
+    {%- if ts > lastTs -%}{%- set lastTs = ts -%}{%- set lastUpd = d -%}{%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
 <article class="home">
   {#- Герой: мета-рядок → теза → лід → єдиний заклик (теза 3) → паспорт. -#}
   <div class="home-hero">
@@ -78,6 +89,9 @@
         <div class="row"><dt>{{ strings.home.pass_label_budget }}</dt><dd>{{ strings.home.pass_budget }}</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_rhythm }}</dt><dd>{{ strings.home.pass_rhythm }}</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_channel }}</dt><dd>{{ strings.home.pass_channel }}</dd></div>
+        {%- if lastUpd %}
+        <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd>{{ lastUpd | isoDate }}</dd></div>
+        {%- endif %}
       </dl>
     </aside>
   </div>
