@@ -171,7 +171,6 @@ article.home section::before {
   font-size: var(--text-sm);
   color: var(--ink);
   text-decoration: none;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
