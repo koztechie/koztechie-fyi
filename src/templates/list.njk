@@ -53,12 +53,14 @@
   {%- endif -%}
   <ul class="archive-list">
     {%- for item in items %}
+    {%- if item.data.draft !== true and item.url %}
     <li>
-      <a href="{{ item.url }}">{{ item.data.title }}</a>
+      <a href="{{ item.url if item.url else "#" }}">{{ item.data.title }}</a>
       {%- if item.data.date %}
       <time datetime="{{ item.data.date.toISOString().slice(0, 10) }}">{{ item.data.date | ukDate }}</time>
       {%- endif %}
     </li>
+    {%- endif %}
     {%- endfor %}
   </ul>
 

@@ -17,7 +17,7 @@
 
 {% block content %}
 {#- Нормалізація: /en/manifest/ → /manifest/ (мовна гілка не змінює розділ). -#}
-{%- set raw = page.url | default("/") -%}
+{%- set raw = page.url if page.url else "/" -%}
 {%- set cur = raw.slice(3) if raw.indexOf("/en/") === 0 else raw -%}
 <article class="page">
   <h1>{{ title }}</h1>

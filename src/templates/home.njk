@@ -114,7 +114,7 @@
   {%- set latest = [] -%}
   {%- set pageLang = lang | default("uk") -%}
   {%- for post in collections.blog -%}
-    {%- if post.data.date and (post.data.lang | default("uk")) === pageLang and latest.length < 3 %}{% set latest = latest.concat([post]) %}{% endif -%}
+    {%- if post.data.draft !== true and post.data.date and post.url and (post.data.lang | default("uk")) === pageLang and latest.length < 3 %}{% set latest = latest.concat([post]) %}{% endif -%}
   {%- endfor -%}
   {%- if latest.length %}
   <section class="home-latest" aria-labelledby="home-latest-h">

@@ -8,7 +8,7 @@
     Тексти — зі словників (кроки 117, 118). Хардкод заборонено. -#}
 {%- set strings = strings[lang] | default(strings.uk) -%}
 {#- Нормалізація URL: /en/blog/ → /blog/ (мовна гілка не змінює розділ). -#}
-{%- set raw = page.url | default("/") -%}
+{%- set raw = page.url if page.url else "/" -%}
 {%- set isEn = raw.indexOf("/en/") === 0 -%}
 {%- if isEn %}{% set cur = raw.slice(3) %}{% set mirror = raw.slice(3) %}{% else %}{% set cur = raw %}{% set mirror = "/en" + raw %}{% endif -%}
 {#- Дзеркало або заглушка (§8.1.1, §19.5): лінк веде на дзеркало, якщо воно

@@ -16,9 +16,9 @@ eleventyExcludeFromCollections: true
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {%- set entries = [] -%}
 {%- for item in collections.all -%}
-  {%- set u = item.url | default("") -%}
+  {%- set u = item.url if item.url else "" -%}
   {%- set isPage = u.length > 0 and u.slice(-1) === "/" -%}
-  {%- set excluded = item.data.noindex or u.indexOf("/404") === 0 or u.indexOf("/sitemap") === 0 -%}
+  {%- set excluded = item.data.noindex or item.data.draft === true or u.indexOf("/404") === 0 or u.indexOf("/sitemap") === 0 -%}
   {%- if isPage and not excluded -%}
     {%- set mod = item.data.updated or item.data.date -%}
     {%- set entries = entries.concat([{ url: u, lastmod: mod | isoDate }]) -%}

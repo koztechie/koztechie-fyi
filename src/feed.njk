@@ -21,10 +21,10 @@ eleventyExcludeFromCollections: true
 {%- set sections = ["/blog/", "/practice/", "/poetry/", "/graveyard/"] -%}
 {%- set items = [] -%}
 {%- for item in collections.all -%}
-  {%- set u = item.url | default("") -%}
+  {%- set u = item.url if item.url else "" -%}
   {%- set inSection = false -%}
   {%- for s in sections -%}{%- if u.indexOf(s) >= 0 or u.indexOf("/en" + s) >= 0 %}{% set inSection = true %}{% endif -%}{%- endfor -%}
-  {%- if inSection and item.data.date and not item.data.noindex and (item.data.lang | default("uk")) === feedLang -%}
+  {%- if inSection and item.data.date and not item.data.noindex and item.data.draft !== true and (item.data.lang | default("uk")) === feedLang and u -%}
     {%- set items = items.concat([item]) -%}
   {%- endif -%}
 {%- endfor -%}
@@ -38,10 +38,11 @@ eleventyExcludeFromCollections: true
     <language>{{ feedLang }}</language>
     <lastBuildDate>{{ page.date | rfc822Date }}</lastBuildDate>
     {%- for item in items %}
+    {%- set u = item.url if item.url else "" %}
     <item>
       <title>{{ item.data.title }}</title>
-      <link>{{ siteRoot }}{{ item.url }}</link>
-      <guid isPermaLink="true">{{ siteRoot }}{{ item.url }}</guid>
+      <link>{{ siteRoot }}{{ u }}</link>
+      <guid isPermaLink="true">{{ siteRoot }}{{ u }}</guid>
       <pubDate>{{ item.data.date | rfc822Date }}</pubDate>
       <description><![CDATA[{{ item.templateContent | safe }}]]></description>
     </item>

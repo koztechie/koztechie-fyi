@@ -1,6 +1,0 @@
-{
-  "lang": "uk",
-  "eleventyComputed": {
-    "permalink": "{% if permalink %}{{ permalink }}{% elif page.filePathStem.endsWith(\"/index\") %}/poetry/{% else %}/poetry/{{ page.fileSlug }}/{% endif %}"
-  }
-}
