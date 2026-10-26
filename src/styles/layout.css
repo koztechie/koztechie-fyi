@@ -158,7 +158,11 @@ article.home section::before {
 }
 
 .site-header__inner {
-  max-width: 72ch;
+  /* ch рахується у шрифті та кеглі елемента: контекст = шрифт контенту
+     (main, Georgia 16px), щоб колонка шапки збігалася з текстовою.
+     Діти мають власні --font-* і не змінюються. */
+  max-width: var(--measure);
+  font-family: var(--font-text);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -215,11 +219,20 @@ article.home section::before {
 }
 
 .site-footer__inner {
-  max-width: 72ch;
+  /* ch рахується у шрифті елемента: контекст — шрифт контенту,
+     щоб колонка підвалу збігалася з main. Діти повертають --font-ui. */
+  max-width: var(--measure);
+  font-family: var(--font-text);
+  font-size: 1rem;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.site-footer__inner > * {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
 }
 
 .site-footer a {
