@@ -3,7 +3,7 @@ title: "Now"
 lang: en
 layout: now.njk
 updated: 2026-10-25
-summary: "Season, work, reading, energy level. Updated manually, once a month."
+summary: "Season, work, reading, energy level. I update it by hand, once a month."
 translation_status: complete
 draft: false
 season: "October 2026"
