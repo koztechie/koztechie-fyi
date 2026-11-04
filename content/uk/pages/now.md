@@ -3,7 +3,7 @@ title: "Зараз"
 lang: uk
 layout: now.njk
 updated: 2026-10-25
-summary: "Сезон, роботи, читання, рівень енергії. Оновлюю вручну, раз на місяць."
+summary: "Сезон, роботи, читання, рівень енергії. Оновлюю раз на місяць."
 translation_status: complete
 draft: false
 season: "Жовтень 2026"
