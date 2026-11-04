@@ -87,12 +87,9 @@
         <div class="row"><dt>{{ strings.home.pass_label_alias }}</dt><dd>{{ strings.home.pass_value_alias }}</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>2</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.uk.length + collections.en.length + 1 }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_js }}</dt><dd class="hl">{{ strings.home.pass_js }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_budget }}</dt><dd>{{ strings.home.pass_budget }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_rhythm }}</dt><dd>{{ strings.home.pass_rhythm }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_channel }}</dt><dd>{{ strings.home.pass_channel }}</dd></div>
+        <div class="row"><dt>{{ strings.home.pass_label_weight }}</dt><dd>{{ strings.home.pass_weight }}</dd></div>
         {%- if lastUpd %}
-        <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd>{{ lastUpd | isoDate }}</dd></div>
+        <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{{ lastUpd | isoDate }}</dd></div>
         {%- endif %}
       </dl>
     </aside>

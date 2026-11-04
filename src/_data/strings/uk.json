@@ -41,14 +41,8 @@
     "passport_label": "Паспорт сайту",
     "pass_label_lang": "Мови",
     "pass_label_pages": "Сторінки",
-    "pass_label_js": "JS",
-    "pass_label_budget": "Бюджет",
-    "pass_label_rhythm": "Ритм",
-    "pass_label_channel": "Канал",
-    "pass_js": "0 Б",
-    "pass_budget": "50 КБ",
-    "pass_rhythm": "вручну",
-    "pass_channel": "лист",
+    "pass_label_weight": "Вага",
+    "pass_weight": "до 50 КБ",
     "eyebrow_base": "Основа",
     "eyebrow_content": "Зміст",
     "eyebrow_log": "Журнал",
@@ -76,7 +70,7 @@
     "pass_label_author": "Автор",
     "pass_value_author": "Євгеній Козловський",
     "pass_label_alias": "Псевдонім",
-    "pass_value_alias": "@koztechie"
+    "pass_value_alias": "koztechie"
   },
   "list": {
     "count": "Всього",

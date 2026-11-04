@@ -41,14 +41,8 @@
     "passport_label": "Passport",
     "pass_label_lang": "Languages",
     "pass_label_pages": "Pages",
-    "pass_label_js": "JS",
-    "pass_label_budget": "Budget",
-    "pass_label_rhythm": "Rhythm",
-    "pass_label_channel": "Channel",
-    "pass_js": "0 B",
-    "pass_budget": "50 KB",
-    "pass_rhythm": "manual",
-    "pass_channel": "letter",
+    "pass_label_weight": "Weight",
+    "pass_weight": "up to 50 KB",
     "eyebrow_base": "Essence",
     "eyebrow_content": "Contents",
     "eyebrow_log": "Journal",
@@ -76,7 +70,7 @@
     "pass_label_author": "Author",
     "pass_value_author": "Eugene Kozlovsky",
     "pass_label_alias": "Handle",
-    "pass_value_alias": "@koztechie"
+    "pass_value_alias": "koztechie"
   },
   "list": {
     "count": "Total",
