@@ -1,9 +1,10 @@
 ---
 title: "Blog"
 lang: en
-updated: 2026-10-25
-summary: "Archive of entries."
-intro: "Archive of entries."
+updated: 2026-11-05
+summary: "My posts, notes and reflections."
+intro: "My posts, notes and reflections."
+count_label: "Total posts"
 draft: false
 layout: list.njk
 section: blog

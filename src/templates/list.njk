@@ -3,7 +3,8 @@
     Призначення: /blog/, /practice/, /cemetery/, /poetry/ — індекси.
     Структура: h1 → intro (опційно) → список → пагінація.
     Пагінація (DECISIONS.md §9.3): «Сторінка 1, 2, 3…» + лічильник
-    «Всього N записів». Без «∞», без infinite scroll (§9.2).
+    («Усього дописів: N» для блогу, спек 2026-11-05; решта — старий формат).
+    Без «∞», без infinite scroll (§9.2).
     entry-line у списках НЕ виводиться (design-system.md §7.1.2).
     Тексти — зі словників (кроки 117–119). Хардкод заборонено (крок 118).
     Джерела елементів (крок 131):
@@ -57,7 +58,8 @@
     <li>
       <a href="{{ item.url if item.url else "#" }}">{{ item.data.title }}</a>
       {%- if item.data.date %}
-      <time datetime="{{ item.data.date.toISOString().slice(0, 10) }}">{{ item.data.date | ukDate }}</time>
+      <span class="sep" aria-hidden="true"> · </span>
+      <time datetime="{{ item.data.date.toISOString().slice(0, 10) }}>{% if pageLang === "en" %}{{ item.data.date | enDate }}{% else %}{{ item.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
       {%- endif %}
     </li>
     {%- endif %}
@@ -87,7 +89,11 @@
   </nav>
   {%- endif %}
   {%- endif %}
+  {%- if count_label %}
+  <p class="list-count">{{ count_label }}: {{ all.length }}</p>
+  {%- else %}
   <p class="list-count">{{ strings.list.count }} {{ all.length }} {{ all.length | plural(strings.list.count_unit) }}</p>
+  {%- endif %}
   {%- else %}
   <p class="list-empty">{{ strings.list.empty }}</p>
   {%- endif %}

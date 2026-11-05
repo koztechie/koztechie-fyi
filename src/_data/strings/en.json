@@ -4,7 +4,8 @@
     "name_en": "koztechie",
     "title": "Text without ornament.",
     "lead": "An archive node. Text without ornament.",
-    "bio_short": "Kyiv. Working with AI on old hardware. The text fixes facts. The reader is not a client. koztechie.fyi"
+    "bio_short": "Kyiv. Working with AI on old hardware. The text fixes facts. The reader is not a client. koztechie.fyi",
+    "date_suffix": ""
   },
   "home": {
     "lead": "This is my personal site. Here are my projects, texts, technical work and notes. I write in Ukrainian and English. I update the site without a schedule.",
@@ -31,7 +32,6 @@
     },
     "pass_label_size": "Page size",
     "pass_size": "up to 50 KB",
-    "doc_suffix": "",
     "principles_title": "Core principles",
     "principles": [
       {

@@ -113,7 +113,6 @@ h1 {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   color: var(--ink-dim);
-  margin-left: auto;
 }
 
 /* Пагінація (DECISIONS.md §9.3): «Сторінка 1, 2, 3…». */

@@ -100,7 +100,7 @@
         <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.uk.length + collections.en.length + 1 }}</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_size }}</dt><dd>{{ strings.home.pass_size }}</dd></div>
         {%- if lastUpd %}
-        <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{% if pageLang === "en" %}{{ lastUpd | enDate }}{% else %}{{ lastUpd | ukDate }}{{ strings.home.doc_suffix }}{% endif %}</dd></div>
+        <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{% if pageLang === "en" %}{{ lastUpd | enDate }}{% else %}{{ lastUpd | ukDate }}{{ strings.site.date_suffix }}{% endif %}</dd></div>
         {%- endif %}
       </dl>
     </div>
