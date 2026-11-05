@@ -746,9 +746,13 @@ console.log("--- 7з. UI без хардкоду ---");
         const key = rel + "\u0000" + val;
         if (seen.has(key)) continue;
         const firstWord = val.split(/\s+/)[0];
+        // Межа першого слова — юнікод-літери, не \b (кирилиця поза \w, а
+        // «WebSite» не має межі перед «Site» — хибне спрацювання, крок 2026-11-05).
+        const esc = firstWord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const wordRe = new RegExp(`(^|[^\\p{L}])${esc}([^\\p{L}]|$)`, "u");
         const hit =
           textNodes.includes(val) ||
-          (firstWord.length >= 4 && textNodes.includes(firstWord)) ||
+          (firstWord.length >= 4 && wordRe.test(textNodes)) ||
           attrValues.includes(val);
         if (hit) {
           const why = textNodes.includes(val) ? "текст" : attrValues.includes(val) ? "атрибут" : "перше слово";

@@ -1,10 +1,10 @@
 {#- home.njk: лейаут головної.
-    Структура за спеком автора: 2026-11-05.
-    Головна: герой (мета-рядок, теза, лід, лист) → Коротко про сайт (паспорт) →
+    Структура за спеком автора: 2026-11-05 (фінальна редакція, §6).
+    Головна: герой (мета-рядок, теза, лід, лист) → Про автора і сайт (паспорт) →
     Основні принципи (DECISIONS §1.7) → Що тут є → Останні записи →
-    Навіщо цей сайт (маніфест) → Головний проєкт (NICHLYST).
+    Головний проєкт (NICHLYST). Блок маніфесту прибрано (повтор теми).
     Паспорт рахується, не лежить у словнику: мови — з наявних мовних дерев,
-    сторінки — з колекцій, дата — максимум date/updated. Розмір — ліміт
+    сторінки — з колекцій, дата — максимум date/updated. Обсяг — ліміт
     TECH_STANDARDS §1. Сигнатури: мікрогліч на h1 (§7.2), .entry-line (§7.1).
     Тексти — зі словників. Хардкод заборонено (крок 118). -#}
 {% extends "base.njk" %}
@@ -147,8 +147,9 @@
     </ul>
   </section>
 
-  {#- Останні записи: три останні записи колекції blog (спаджено за датою).
-      Фільтри: мова, наявність date, не чернетка. Сигнатура .entry-line. -#}
+  {#- Останні записи: до трьох останніх записів колекції blog (спаджено за
+      датою). Без нумерації: «Назва · Приблизно N хвилин читання.»
+      (спек 2026-11-05, §6). Фільтри: мова, наявність date, не чернетка. -#}
   {%- set latest = [] -%}
   {%- for post in collections.blog -%}
     {%- if post.data.draft !== true and post.data.date and post.url and (post.data.lang | default("uk")) === pageLang and latest.length < 3 %}{% set latest = latest.concat([post]) %}{% endif -%}
@@ -160,31 +161,17 @@
       {%- for post in latest %}
       {%- set mins = post.templateContent | readingTime %}
       <li>
-        <span class="entry-line">{{ strings.home.entry_prefix }}{{ post.data.entry }}</span>
-        <span class="sep" aria-hidden="true"> · </span>
         <a href="{{ post.url }}">{{ post.data.title }}</a>
-        <span class="entry-meta">{{ strings.home.reading_prefix }} {{ mins }} {{ mins | plural(strings.home.reading_forms) }}.</span>
+        <span class="sep" aria-hidden="true"> · </span>
+        <span class="entry-meta">{{ strings.home.reading_prefix }} {{ mins }} {{ mins | plural(strings.home.reading_forms) }}{{ strings.home.reading_suffix }}</span>
       </li>
       {%- endfor %}
     </ul>
   </section>
   {%- endif %}
 
-  {#- Навіщо цей сайт: уривок маніфесту (мовне дзеркало, крок 150).
-      Текст — зі словників; лінк дзеркальний. -#}
-  {%- set manifestPath = "/manifest/" -%}
-  {%- if homeIsEn -%}
-    {%- set manifestCand = "/en/manifest/" -%}
-    {%- if collections.all | findByUrl(manifestCand) %}{% set manifestPath = manifestCand %}{% endif -%}
-  {%- endif -%}
-  <section aria-labelledby="home-manifest-h">
-    <h2 id="home-manifest-h">{{ strings.home.why_title }}</h2>
-    <h3>{{ strings.home.manifest_title }}</h3>
-    <p>{{ strings.home.manifest_why }}</p>
-    <p><a href="{{ manifestPath }}">{{ strings.home.manifest_link }}</a></p>
-  </section>
-
-  {#- Головний проєкт: один рядок NICHLYST (§21.1: анкор, без голого URL). -#}
+  {#- Головний проєкт: текст і окремий вихід (спек 2026-11-05, §6).
+      Блок «Навіщо цей сайт» прибрано — маніфест є в переліку розділів. -#}
   {%- set nichlystHref = "/nichlyst/" -%}
   {%- if homeIsEn -%}
     {%- set nichlystCand = "/en/nichlyst/" -%}
@@ -193,7 +180,8 @@
   <section aria-labelledby="home-nichlyst-h">
     <h2 id="home-nichlyst-h">{{ strings.home.nichlyst_section_title }}</h2>
     <h3>{{ strings.nav.nichlyst }}</h3>
-    <p>{{ strings.home.nichlyst_pre }}<a href="{{ nichlystHref }}">{{ strings.nav.nichlyst }}</a>{{ strings.home.nichlyst_post }}</p>
+    <p>{{ strings.home.nichlyst_text }}</p>
+    <p><a href="{{ nichlystHref }}">{{ strings.home.nichlyst_link }}</a></p>
   </section>
 </article>
 {% endblock %}

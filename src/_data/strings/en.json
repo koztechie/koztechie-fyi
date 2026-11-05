@@ -7,22 +7,20 @@
     "bio_short": "Kyiv. Working with AI on old hardware. The text fixes facts. The reader is not a client. koztechie.fyi"
   },
   "home": {
-    "lead": "Eugene Kozlovsky's personal site. My projects, texts, working drafts and thoughts are collected here. I write in Ukrainian and English. I publish what I find worth attention, when I have something to say.",
-    "manifest_title": "Manifesto",
-    "manifest_link": "Read the manifesto →",
+    "lead": "This is my personal site. Here are my projects, texts, technical work and notes. I write in Ukrainian and English. I update the site without a schedule.",
     "latest_title": "Latest entries",
     "sections_title": "What's here",
-    "thesis": "koztechie — developer who works with AI and systems architect",
-    "doc_updated": "Last updated",
+    "thesis": "koztechie — AI-assisted developer and systems architect",
+    "doc_updated": "Updated",
     "meta": [
       "Eugene Kozlovsky",
       "Kyiv, Ukraine"
     ],
-    "cta_text": "Write to me →",
-    "cta_note": "The only way to reach me is email.",
-    "passport_label": "About this site",
-    "pass_label_lang": "Languages",
-    "pass_label_pages": "Pages",
+    "cta_text": "Write a letter →",
+    "cta_note": "I use email for contact.",
+    "passport_label": "About the author and the site",
+    "pass_label_lang": "Site languages",
+    "pass_label_pages": "Number of pages",
     "pass_label_author": "Author",
     "pass_value_author": "Eugene Kozlovsky",
     "pass_label_alias": "Handle",
@@ -32,7 +30,7 @@
       "en": "English"
     },
     "pass_label_size": "Page size",
-    "pass_size": "Up to 50 KB",
+    "pass_size": "up to 50 KB",
     "doc_suffix": "",
     "principles_title": "Core principles",
     "principles": [
@@ -41,40 +39,38 @@
         "text": "I prefer what can be verified to what sounds good. If I don't know something or can't confirm it, I say so."
       },
       {
-        "title": "Openness without show",
-        "text": "I don't try to build a flawless image. Dates, sources, context and honest corrections matter. But private life does not have to become public property."
+        "title": "Openness has limits",
+        "text": "I don't hide mistakes and don't pass guesses off as facts. I give sources, dates and corrections. At the same time, not everything from private life has to be public."
       },
       {
-        "title": "Contact without extra noise",
-        "text": "If you want to discuss something — write a letter. I don't run open comments, chats or dozens of channels."
+        "title": "For contact — email",
+        "text": "If you want to reach me, write a letter. There are no comments, chats or other ways to communicate on this site."
       },
       {
-        "title": "Nobody owes anybody publications",
-        "text": "I don't run this site on a schedule and don't promise to publish regularly. I may disappear for a long time and then come back to work. That needs no explanation."
+        "title": "No publication schedule",
+        "text": "I don't commit to updating the site regularly. I publish when I have something to add. Breaks can be long."
       }
     ],
     "sections_desc": {
-      "manifest": "the principles this site exists by.",
-      "practice": "working drafts, tools and experiments.",
-      "cemetery": "projects that ended, stalled, or never became what they were meant to be.",
-      "blog": "notes, observations and reflections.",
-      "poetry": "poetic texts.",
+      "manifest": "the principles and rules of this site.",
+      "practice": "tools, experiments and technical notes.",
+      "cemetery": "completed, abandoned and failed projects.",
+      "blog": "my texts and notes.",
+      "poetry": "my poems.",
       "nichlyst": "my main project.",
-      "now": "what I am working on and what has my attention.",
-      "colophon": "how this site is made.",
-      "contact": "how to reach me."
+      "now": "what I'm doing now.",
+      "colophon": "how this site is built and organized.",
+      "contact": "the email address."
     },
-    "entry_prefix": "#",
-    "reading_prefix": "Reading time: about",
+    "reading_prefix": "About",
     "reading_forms": [
       "minute",
       "minutes"
     ],
-    "why_title": "Why this site exists",
-    "manifest_why": "It describes why koztechie exists, which principles I follow and what not to expect from this site.",
     "nichlyst_section_title": "The main project",
-    "nichlyst_pre": "My main independent project — ",
-    "nichlyst_post": ", a mobile game I am working on."
+    "reading_suffix": " of reading.",
+    "nichlyst_text": "My mobile game, which I'm working on now.",
+    "nichlyst_link": "Learn about NICHLYST →"
   },
   "list": {
     "count": "Total",
@@ -128,7 +124,7 @@
   },
   "footer": {
     "rss": "RSS",
-    "place": "Made in Kyiv. Despite everything.",
+    "place": "Made in Kyiv.",
     "made_in": "Made in Kyiv",
     "copyright": "© 2026 Eugene Kozlovsky · koztechie",
     "email": "&#104;ello@koztechie.fyi",
