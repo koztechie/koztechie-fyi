@@ -42,7 +42,7 @@
     "pass_label_lang": "Мови",
     "pass_label_pages": "Сторінки",
     "pass_label_weight": "Вага",
-    "pass_weight": "до 50 КБ",
+    "pass_weight_unit": "КБ",
     "eyebrow_base": "Основа",
     "eyebrow_content": "Зміст",
     "eyebrow_log": "Журнал",

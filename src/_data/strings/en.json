@@ -42,7 +42,7 @@
     "pass_label_lang": "Languages",
     "pass_label_pages": "Pages",
     "pass_label_weight": "Weight",
-    "pass_weight": "up to 50 KB",
+    "pass_weight_unit": "KB",
     "eyebrow_base": "Essence",
     "eyebrow_content": "Contents",
     "eyebrow_log": "Journal",

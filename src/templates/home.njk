@@ -82,12 +82,15 @@
     </p>
 
     <aside class="passport" aria-label="{{ strings.home.passport_label }}">
+      {#- Дані паспорта — з вимірювань, не зі слів: Мови/Сторінки/Оновлено
+          рахуються з колекцій, Вага міряється після рендера (eleventy.after,
+          якір .passw). У словнику — лише мітки та одиниці. -#}
       <dl>
         <div class="row"><dt>{{ strings.home.pass_label_author }}</dt><dd>{{ strings.home.pass_value_author }}</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_alias }}</dt><dd>{{ strings.home.pass_value_alias }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>2</dd></div>
+        <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>{{ (collections.uk.length > 0) + (collections.en.length > 0) }}</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.uk.length + collections.en.length + 1 }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_weight }}</dt><dd>{{ strings.home.pass_weight }}</dd></div>
+        <div class="row"><dt>{{ strings.home.pass_label_weight }}</dt><dd><span class="passw"></span> {{ strings.home.pass_weight_unit }}</dd></div>
         {%- if lastUpd %}
         <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{{ lastUpd | isoDate }}</dd></div>
         {%- endif %}
