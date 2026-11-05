@@ -1,9 +1,11 @@
 {#- home.njk: лейаут головної.
-    Впровадження «чотирьох тез»: 2026-10-26 (DECISIONS §1.7).
-    Головна: герой (мета-рядок, теза, лід, лист, паспорт) → §1 тези →
-    §2 розділи → §3 журнал → §4 маніфест/NICHLYST.
-    Рядок документа з датою — у base.njk (усі сторінки).
-    Сигнатури: мікрогліч на h1 (§7.2), .entry-line (§7.1).
+    Структура за спеком автора: 2026-11-05.
+    Головна: герой (мета-рядок, теза, лід, лист) → Коротко про сайт (паспорт) →
+    Основні принципи (DECISIONS §1.7) → Що тут є → Останні записи →
+    Навіщо цей сайт (маніфест) → Головний проєкт (NICHLYST).
+    Паспорт рахується, не лежить у словнику: мови — з наявних мовних дерев,
+    сторінки — з колекцій, дата — максимум date/updated. Розмір — ліміт
+    TECH_STANDARDS §1. Сигнатури: мікрогліч на h1 (§7.2), .entry-line (§7.1).
     Тексти — зі словників. Хардкод заборонено (крок 118). -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
@@ -48,23 +50,23 @@
 {%- set homeIsEn = (lang | default("uk")) === "en" -%}
 {%- set pageLang = lang | default("uk") -%}
 {#- Останнє оновлення контенту (теза 2: чесність = дата).
-      Джерело — колекція uk; ISO у паспорті обома мовами. -#}
+      Джерело — колекція uk; у паспорті — локалізована дата (ukDate/enDate). -#}
 {%- set lastUpd = "" -%}
 {%- set lastTs = 0 -%}
 {%- for p in collections.uk -%}
   {%- set d = p.data.updated if p.data.updated else p.data.date -%}
   {%- if d and d.getTime -%}
     {%- set ts = d.getTime() -%}
-    {%- if ts > lastTs -%}{%- set lastTs = ts -%}{%- set lastUpd = d -%}{%- endif -%}
+    {%- if ts > lastTs %}{%- set lastTs = ts %}{%- set lastUpd = d -%}{%- endif -%}
   {%- endif -%}
 {%- endfor -%}
 <article class="home">
-  {#- Герой: мета-рядок → теза → лід → єдиний заклик (теза 3) → паспорт. -#}
+  {#- Герой: мета-рядок → теза → лід → єдиний заклик (теза 3). -#}
   <div class="home-hero">
     <p class="meta-line">
       {%- for m in strings.home.meta -%}
       {{ m }}{% if not loop.last %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
-      {%- endfor -%}
+      {%- endfor %}
     </p>
     <h1>{{ strings.home.thesis }}</h1>
     <p class="home-lead">{{ strings.home.lead }}</p>
@@ -80,30 +82,35 @@
       <a href="{{ ctaHref }}">{{ strings.home.cta_text }}</a>
       <span class="letter-note">{{ strings.home.cta_note }}</span>
     </p>
+  </div>
 
-    <aside class="passport" aria-label="{{ strings.home.passport_label }}">
-      {#- Дані паспорта — з вимірювань, не зі слів: Мови/Сторінки/Оновлено
-          рахуються з колекцій, Вага міряється після рендера (eleventy.after,
-          якір .passw). У словнику — лише мітки та одиниці. -#}
+  {#- Коротко про сайт: паспорт видимим заголовком (спек 2026-11-05).
+      Мови — назви тих дерев, що мають контент; сторінки — з колекцій;
+      дата — максимум date/updated (§27); розмір — ліміт §1. -#}
+  <section aria-labelledby="home-cabinet-h">
+    <h2 id="home-cabinet-h">{{ strings.home.passport_label }}</h2>
+    {%- set langList = [] -%}
+    {%- if collections.uk.length %}{% set langList = langList.concat([strings.home.lang_names.uk]) %}{% endif -%}
+    {%- if collections.en.length %}{% set langList = langList.concat([strings.home.lang_names.en]) %}{% endif -%}
+    <div class="passport">
       <dl>
         <div class="row"><dt>{{ strings.home.pass_label_author }}</dt><dd>{{ strings.home.pass_value_author }}</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_alias }}</dt><dd>{{ strings.home.pass_value_alias }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>{{ (collections.uk.length > 0) + (collections.en.length > 0) }}</dd></div>
+        <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>{{ langList | join(", ") }}</dd></div>
         <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.uk.length + collections.en.length + 1 }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_weight }}</dt><dd><span class="passw"></span> {{ strings.home.pass_weight_unit }}</dd></div>
+        <div class="row"><dt>{{ strings.home.pass_label_size }}</dt><dd>{{ strings.home.pass_size }}</dd></div>
         {%- if lastUpd %}
-        <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{{ lastUpd | isoDate }}</dd></div>
+        <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{% if pageLang === "en" %}{{ lastUpd | enDate }}{% else %}{{ lastUpd | ukDate }}{{ strings.home.doc_suffix }}{% endif %}</dd></div>
         {%- endif %}
       </dl>
-    </aside>
-  </div>
+    </div>
+  </section>
 
-  {#- §1. Основа: чотири тези (DECISIONS §1.7). Нумерація 01–04. -#}
-  <section aria-labelledby="home-theses-h">
-    <p class="eyebrow"><span class="sec">§1</span> · {{ strings.home.eyebrow_base }}</p>
-    <h2 id="home-theses-h">{{ strings.home.theses_title }}</h2>
-    <ol class="home-theses">
-      {%- for t in strings.home.theses %}
+  {#- Основні принципи (DECISIONS §1.7). Нумерація 01–04. -#}
+  <section aria-labelledby="home-principles-h">
+    <h2 id="home-principles-h">{{ strings.home.principles_title }}</h2>
+    <ol class="home-principles">
+      {%- for t in strings.home.principles %}
       <li>
         <span class="num">{{ "0" + loop.index }}</span>
         <span class="name">{{ t.title }}</span>
@@ -113,13 +120,11 @@
     </ol>
   </section>
 
-  {#- §2. Розділи: карта сайту за sitemap (9 розділів, без Головної).
-      Моно-нумерація — CSS counter (§5.8.3). Лінки мовно-залежні:
-      en-дерево з fallback на uk. -#}
+  {#- Що тут є: карта сайту за sitemap (9 розділів, без Головної).
+      Описи — зі словників; лінки мовно-залежні: en-дерево з fallback на uk. -#}
   <section aria-labelledby="home-sections-h">
-    <p class="eyebrow"><span class="sec">§2</span> · {{ strings.home.eyebrow_content }}</p>
     <h2 id="home-sections-h">{{ strings.home.sections_title }}</h2>
-    <ol class="home-sections-list">
+    <ul class="home-sections-list">
       {%- set sectionsNav = [
         { href: "/manifest/", key: "manifest" },
         { href: "/practice/", key: "practice" },
@@ -136,13 +141,13 @@
       {%- if homeIsEn -%}
         {%- set cand = "/en" + item.href -%}
         {%- if collections.all | findByUrl(cand) %}{% set itemHref = cand %}{% endif -%}
-      {%- endif -%}
-      <li><a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a></li>
+      {%- endif %}
+      <li><a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a> — {{ strings.home.sections_desc[item.key] }}</li>
       {%- endfor %}
-    </ol>
+    </ul>
   </section>
 
-  {#- §3. Журнал: три останні записи колекції blog (спаджено за датою).
+  {#- Останні записи: три останні записи колекції blog (спаджено за датою).
       Фільтри: мова, наявність date, не чернетка. Сигнатура .entry-line. -#}
   {%- set latest = [] -%}
   {%- for post in collections.blog -%}
@@ -150,45 +155,45 @@
   {%- endfor -%}
   {%- if latest.length %}
   <section aria-labelledby="home-latest-h">
-    <p class="eyebrow"><span class="sec">§3</span> · {{ strings.home.eyebrow_log }}</p>
     <h2 id="home-latest-h">{{ strings.home.latest_title }}</h2>
     <ul class="archive-list">
       {%- for post in latest %}
+      {%- set mins = post.templateContent | readingTime %}
       <li>
-        <span class="entry-line">{{ strings.post.entry_prefix }}{{ post.data.entry }}</span>
+        <span class="entry-line">{{ strings.home.entry_prefix }}{{ post.data.entry }}</span>
+        <span class="sep" aria-hidden="true"> · </span>
         <a href="{{ post.url }}">{{ post.data.title }}</a>
-        {%- if post.templateContent %}
-        <span class="entry-meta">≈ {{ post.templateContent | readingTime }} {{ strings.post.reading_time_unit }}</span>
-        {%- endif %}
+        <span class="entry-meta">{{ strings.home.reading_prefix }} {{ mins }} {{ mins | plural(strings.home.reading_forms) }}.</span>
       </li>
       {%- endfor %}
     </ul>
   </section>
   {%- endif %}
 
-  {#- §4. Правила + проєкт: уривок маніфесту (мовне дзеркало, крок 150)
-      і один рядок NICHLYST (§21.1: анкор, без голого URL). -#}
-  {%- set manifestPath = "/en/manifest/" if homeIsEn else "/manifest/" -%}
-  {%- set manifest = collections.all | findByUrl(manifestPath) -%}
+  {#- Навіщо цей сайт: уривок маніфесту (мовне дзеркало, крок 150).
+      Текст — зі словників; лінк дзеркальний. -#}
+  {%- set manifestPath = "/manifest/" -%}
+  {%- if homeIsEn -%}
+    {%- set manifestCand = "/en/manifest/" -%}
+    {%- if collections.all | findByUrl(manifestCand) %}{% set manifestPath = manifestCand %}{% endif -%}
+  {%- endif -%}
+  <section aria-labelledby="home-manifest-h">
+    <h2 id="home-manifest-h">{{ strings.home.why_title }}</h2>
+    <h3>{{ strings.home.manifest_title }}</h3>
+    <p>{{ strings.home.manifest_why }}</p>
+    <p><a href="{{ manifestPath }}">{{ strings.home.manifest_link }}</a></p>
+  </section>
+
+  {#- Головний проєкт: один рядок NICHLYST (§21.1: анкор, без голого URL). -#}
   {%- set nichlystHref = "/nichlyst/" -%}
   {%- if homeIsEn -%}
     {%- set nichlystCand = "/en/nichlyst/" -%}
     {%- if collections.all | findByUrl(nichlystCand) %}{% set nichlystHref = nichlystCand %}{% endif -%}
   {%- endif -%}
-  <section class="home-duo">
-    {%- if manifest %}
-    <div class="home-duo-cell">
-      <p class="eyebrow"><span class="sec">§4</span> · {{ strings.home.eyebrow_rules }}</p>
-      <h2>{{ strings.home.manifest_title }}</h2>
-      <p>{{ manifest.data.summary or strings.home.manifest_lead }}</p>
-      <p><a href="{{ manifestPath }}">{{ strings.home.manifest_link }}</a></p>
-    </div>
-    {%- endif %}
-    <div class="home-duo-cell">
-      <p class="eyebrow">{{ strings.home.eyebrow_project }}</p>
-      <h2>{{ strings.nav.nichlyst }}</h2>
-      <p>{{ strings.home.nichlyst_lead }} <a href="{{ nichlystHref }}">{{ strings.nav.nichlyst }}</a>.</p>
-    </div>
+  <section aria-labelledby="home-nichlyst-h">
+    <h2 id="home-nichlyst-h">{{ strings.home.nichlyst_section_title }}</h2>
+    <h3>{{ strings.nav.nichlyst }}</h3>
+    <p>{{ strings.home.nichlyst_pre }}<a href="{{ nichlystHref }}">{{ strings.nav.nichlyst }}</a>{{ strings.home.nichlyst_post }}</p>
   </section>
 </article>
 {% endblock %}

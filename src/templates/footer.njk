@@ -9,6 +9,9 @@
 {%- set isEnPage = (lang | default("uk")) === "en" -%}
 {%- set navPrefix = "/en" if isEnPage else "" -%}
 <div class="site-footer__inner">
+  {#- Видимий підпис над навігацією (спек 2026-11-05): «Інші сторінки».
+      Той самий рядок лишається aria-label навігації. -#}
+  <p class="footer-label">{{ strings.nav.footer_sections_label }}</p>
   <nav class="footer-nav" aria-label="{{ strings.nav.footer_sections_label }}">
     {%- set nav = [
       { href: "/manifest/", key: "manifest" },

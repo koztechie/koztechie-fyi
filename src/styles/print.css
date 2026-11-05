@@ -19,6 +19,7 @@
   /* Приховати навігацію та перемикачі */
   .site-header nav,
   .site-footer nav,
+  .site-footer .footer-label,
   .lang-switch {
     display: none;
   }

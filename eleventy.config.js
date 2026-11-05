@@ -1,18 +1,3 @@
-import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { brotliCompressSync } from "node:zlib";
-
-// Обхід dist/ для вимірювання ваги (підтримує вкладені теки).
-function walkDist(dir) {
-  const out = [];
-  for (const item of readdirSync(dir)) {
-    const full = join(dir, item);
-    if (statSync(full).isDirectory()) out.push(...walkDist(full));
-    else out.push(full);
-  }
-  return out;
-}
-
 export default function (eleventyConfig) {
   // Passthrough. Явні мапи: input = "." → прості шляхи зберігали б структуру
   // (src/styles → dist/src/styles), але розмітка шукає /styles/, /fonts/, /img/.
@@ -119,6 +104,20 @@ export default function (eleventyConfig) {
     return d.toISOString().slice(0, 10);
   });
 
+  // Дата по-англійськи для паспорта en (дзеркало ukDate, спек 2026-11-05):
+  // "26 October 2026". uk-варіант лишається канонічним для uk-сторінок.
+  eleventyConfig.addFilter("enDate", (date) => {
+    if (!date) return "";
+    const d = date instanceof Date ? date : new Date(date);
+    if (isNaN(d.getTime())) return "";
+    return new Intl.DateTimeFormat("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(d);
+  });
+
   // RFC 822 для RSS <pubDate> (DECISIONS.md §30.4).
   // toUTCString() → «Fri, 16 Oct 2026 00:00:00 GMT» — валідний RFC 1123/822
   // з англійськими токенами (локалізовані дні ламають валідацію фідів, крок 126).
@@ -133,43 +132,6 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("sortByDateDesc", (items) => {
     const toTime = (v) => (v instanceof Date ? v.getTime() : v ? new Date(v).getTime() : 0);
     return [...(items || [])].sort((a, b) => toTime(b.data?.date) - toTime(a.data?.date));
-  });
-
-  // Паспорт: реальна вага сторінки (TECH_STANDARDS §1: HTML + CSS + JS, brotli —
-  // той самий показник, що й у size-budget.mjs). Шаблон рендерить порожній
-  // <span class="passw">; число вимірюється після кожного рендера, у т.ч. в
-  // --serve, тому в паспорті ніколи не буває застарілого значення.
-  // Одиниця — у словнику (pass_weight_unit), тут лише число.
-  // Якщо якір не знайдено — збірка падає, а не мовчки показує порожнє поле.
-  eleventyConfig.on("eleventy.after", (args) => {
-    const outDir =
-      (args.directories && args.directories.output) ||
-      (args.dir && args.dir.output) ||
-      "dist";
-    if (!existsSync(outDir)) return;
-
-    const files = walkDist(outDir);
-    let shared = 0;
-    for (const f of files) {
-      if (f.endsWith(".css") || f.endsWith(".js")) {
-        shared += brotliCompressSync(readFileSync(f)).length;
-      }
-    }
-
-    const anchor = /(<span class="passw">)[^<]*(<\/span>)/;
-    let stamped = 0;
-    for (const f of files) {
-      if (!f.endsWith(".html")) continue;
-      const html = readFileSync(f, "utf8");
-      if (!anchor.test(html)) continue;
-      const kb = ((brotliCompressSync(readFileSync(f)).length + shared) / 1024).toFixed(1);
-      writeFileSync(f, html.replace(anchor, `$1${kb}$2`));
-      stamped++;
-    }
-    if (stamped === 0) {
-      throw new Error("Паспорт: якір .passw не знайдено у жодній сторінці — онови шаблон або цей хук.");
-    }
-    console.log(`  паспорт: вага виміряна (${stamped} с.)`);
   });
 
   // Конфіг

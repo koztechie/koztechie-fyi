@@ -178,20 +178,6 @@ h1 {
 /* ===== Друкований протокол: документні елементи (design-system §1,
    тези DECISIONS §1.7). Впровадження 2026-10-26. ===== */
 
-/* Мікро-мітка секції: §N · назва. */
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  margin: 0 0 0.5rem;
-}
-
-.eyebrow .sec {
-  color: var(--accent);
-}
-
 /* Мета-рядок героя: моно, верхній регістр, оксид-роздільники. */
 .meta-line {
   font-family: var(--font-mono);
@@ -254,12 +240,12 @@ article.home h2 {
   margin-top: 0.5rem;
 }
 
-/* Паспорт сайту: приладдя замість обіцянок. */
+/* Паспорт сайту: приладдя замість обіцянок.
+   Межі дає секція (border-top), тому власних рамок немає — подвійних
+   ліній не буде. Секція з паспортом: спек 2026-11-05. */
 .passport {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
 }
 
 .passport dl {
@@ -294,14 +280,14 @@ article.home h2 {
   color: var(--accent);
 }
 
-/* Реєстр чотирьох тез (§1.7). */
-.home-theses {
+/* Реєстр принципів (§1.7). Нумерація 01–04. */
+.home-principles {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.home-theses li {
+.home-principles li {
   display: grid;
   grid-template-columns: 3rem 1fr;
   gap: 0.25rem 1.25rem;
@@ -310,29 +296,29 @@ article.home h2 {
   border-top: 1px solid var(--rule);
 }
 
-.home-theses li:last-child {
+.home-principles li:last-child {
   border-bottom: 1px solid var(--rule);
 }
 
-.home-theses .num {
+.home-principles .num {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
-.home-theses .name {
+.home-principles .name {
   font-size: var(--text-lg);
   font-weight: 700;
 }
 
-.home-theses .desc {
+.home-principles .desc {
   grid-column: 2;
   color: var(--ink-dim);
 }
 
 @media (max-width: 44rem) {
-  .home-theses li {
+  .home-principles li {
     grid-template-columns: 2.25rem 1fr;
   }
 }

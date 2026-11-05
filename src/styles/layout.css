@@ -75,25 +75,14 @@ article.home section::before {
   list-style: none;
   margin: 0;
   padding: 0;
-  counter-reset: section;
 }
 
 .home-sections-list li {
-  counter-increment: section;
   margin-bottom: 0.5rem;
 }
 
 .home-sections-list li:last-child {
   margin-bottom: 0;
-}
-
-.home-sections-list li::before {
-  content: counter(section, decimal-leading-zero);
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-  margin-right: 0.75em;
 }
 
 .home-sections-list a {
@@ -110,6 +99,12 @@ article.home section::before {
   font-size: var(--text-sm);
   color: var(--ink-dim);
   margin: 0 0 1.5rem;
+}
+
+/* Час читання у списку головної: власним рядком (спек 2026-11-05). */
+.archive-list .entry-meta {
+  flex-basis: 100%;
+  margin: 0;
 }
 
 .entry-body {
@@ -245,6 +240,11 @@ article.home section::before {
   color: var(--accent);
 }
 
+.footer-label {
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
 .footer-nav {
   display: flex;
   gap: 1rem;
@@ -269,17 +269,4 @@ article.home section::before {
 .footer-legal a:hover,
 .footer-legal a:focus-visible {
   color: var(--accent);
-}
-
-/* Дует «Правила / Проєкт» (§4 головної). */
-.home-duo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-@media (max-width: 44rem) {
-  .home-duo {
-    grid-template-columns: 1fr;
-  }
 }
