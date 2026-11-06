@@ -7,7 +7,7 @@
     "date_suffix": ""
   },
   "home": {
-    "lead": "This is my personal site. Here I gather my projects, code and texts. I write about what I'm working on, in two languages and without any publishing schedule.",
+    "lead": "This is my personal website. It's a collection of my projects, code, and writing. I share what I'm working on in two languages, with no strict publishing schedule.",
     "latest_title": "Latest entries",
     "sections_title": "What's here",
     "thesis": "Developer and systems architect",
@@ -18,7 +18,7 @@
     ],
     "cta_text": "Write a letter →",
     "cta_note": "The best way to reach me.",
-    "passport_label": "About the author and the site",
+    "passport_label": "About me and this site",
     "pass_label_lang": "Site languages",
     "pass_label_pages": "Number of pages",
     "pass_label_author": "Author",
@@ -34,31 +34,34 @@
     "principles_title": "Core principles",
     "principles": [
       {
-        "title": "Focus on what matters",
-        "text": "I share what I have verified in practice and don't try to come across as an expert in everything. No invented stories for attention."
+        "title": "Focus on the essence",
+        "text": "I share things I've actually verified in practice and don't pretend to be an expert in everything. No clickbait or made-up stories."
       },
       {
         "title": "A working space",
-        "text": "I openly write about technical decisions, experiments and my own mistakes. But my personal life stays off the site."
+        "text": "I openly document my technical decisions, experiments, and mistakes. However, my personal life stays off the site."
       },
       {
         "title": "Contact by email",
-        "text": "There are no comments, chats or intrusive pop-ups on the site. If you have a question or a suggestion — just write to me by email."
+        "text": "You won't find comment sections, live chats, or annoying pop-ups here. If you have a question or proposal, just shoot me an email."
       },
       {
         "title": "No deadlines",
-        "text": "I update the pages only when I truly have something to share. Long breaks between posts are normal."
+        "text": "I only update the site when I actually have something to share. Long gaps between posts are completely normal."
       }
     ],
     "sections_desc": {
-      "manifest": "how this site is set up.",
-      "cemetery": "projects I finished or abandoned.",
+      "manifest": "the rules and principles of this site.",
+      "practice": "tools, experiments, and technical notes.",
+      "cemetery": "projects I've finished or abandoned.",
       "blog": "my thoughts and observations.",
-      "nichlyst": "my game (the main project).",
-      "now": "what I am doing right now.",
-      "colophon": "how this site is created and works."
+      "poetry": "my poems.",
+      "nichlyst": "my mobile game (current main project).",
+      "now": "what I'm focused on right now.",
+      "colophon": "how this site was built.",
+      "contact": "how to get in touch with me."
     },
-    "nichlyst_section_title": "The main project",
+    "nichlyst_section_title": "Main project",
     "nichlyst_text": "A mobile game I'm working on right now.",
     "nichlyst_link": "Learn about NICHLYST →"
   },

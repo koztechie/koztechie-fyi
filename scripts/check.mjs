@@ -812,6 +812,25 @@ console.log("--- 7з. UI без хардкоду ---");
         console.log(`  ✅ Парність ключів uk ↔ en: ${ku.length}/${ke.length}`);
       }
     }
+
+    // sections_desc: кожен із дев'яти розділів має непорожній опис в ОБОХ мовах.
+    // Бага 2026-11-06: заміна словника цілком (6 ключів замість 9) дала порожні
+    // «Практика — » на обидвох мовах; парність це не ловить — зникнення симетричне.
+    const SECTIONS = ["manifest", "practice", "cemetery", "blog", "poetry", "nichlyst", "now", "colophon", "contact"];
+    if (ukObj && enObj) {
+      let descErrors = 0;
+      for (const [name, dict] of [["uk.json", ukObj], ["en.json", enObj]]) {
+        const sd = (dict.home || {}).sections_desc || {};
+        for (const s of SECTIONS) {
+          if (!sd[s]) {
+            console.log(`  ❌ home.sections_desc (${name}): немає опису «${s}» або він порожній`);
+            descErrors++;
+          }
+        }
+      }
+      totalErrors += descErrors;
+      if (descErrors === 0) console.log("  ✅ sections_desc: 9 розділів × 2 мови — усі описи на місці");
+    }
   } else {
     console.log("  ⚠️  src/_data/strings або src/templates не існують. Пропущено.");
   }
