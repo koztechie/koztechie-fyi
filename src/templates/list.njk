@@ -92,7 +92,9 @@
   </nav>
   {%- endif %}
   {%- endif %}
-  {%- if count_label %}
+  {%- if count_label and count_unit %}
+  <p class="list-count">{{ count_label }}: {{ all.length }} {{ all.length | plural(count_unit) }}.</p>
+  {%- elif count_label %}
   <p class="list-count">{{ count_label }}: {{ all.length }}</p>
   {%- else %}
   <p class="list-count">{{ strings.list.count }} {{ all.length }} {{ all.length | plural(strings.list.count_unit) }}</p>
