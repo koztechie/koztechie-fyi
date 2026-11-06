@@ -41,6 +41,9 @@
   {%- if intro %}
   <p class="list-intro">{{ intro }}</p>
   {%- endif %}
+  {%- if content %}
+  <div class="list-body">{{ content | safe }}</div>
+  {%- endif %}
 
   {%- if items.length %}
   {#- Загальна кількість: конкатенація всіх сторінок пагінації

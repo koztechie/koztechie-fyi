@@ -160,6 +160,12 @@ h1 {
   margin-bottom: 2.5rem;
 }
 
+/* Тіло індексу списку (за інтро): нормальний колір, міра тексту. */
+.list-body {
+  max-width: var(--measure);
+  margin-bottom: 2.5rem;
+}
+
 /* Контент-попередження (DECISIONS.md §32.2, крок 145):
    під заголовком, перед текстом. Одне речення. */
 .content-warning {
