@@ -876,6 +876,31 @@ console.log("--- 7и. robots.txt і _headers ---");
     }
   }
 
+  // Парність noindex: скільки файлів контенту мають noindex: true, стільки
+  // сторінок dist мають robots-meta (+404 — власний тег у 404.njk, поза
+  // front-matter). Поле в даних раніше не рендерилося взагалі (виявлено
+  // 2026-11-06) — тег у base.njk + цей контроль.
+  {
+    const contentFiles = walkDir(resolve("content")).filter((f) => f.endsWith(".md"));
+    let noindexData = 0;
+    for (const f of contentFiles) {
+      const fm = readFileSync(f, "utf-8").match(/^---\n([\s\S]*?)\n---/);
+      if (fm && /^noindex:\s*true\s*$/m.test(fm[1])) noindexData++;
+    }
+    let robotsMeta = 0;
+    for (const f of walkDir(distDir).filter((f) => f.endsWith(".html"))) {
+      if (readFileSync(f, "utf-8").includes('<meta name="robots"')) robotsMeta++;
+    }
+    const expected = noindexData + (existsSync(join(distDir, "404.html")) ? 1 : 0);
+    if (expected !== robotsMeta) {
+      console.log(`  ❌ noindex-парність: очікувано ${expected} (${noindexData} noindex + 404) ↔ знайдено ${robotsMeta} robots-meta`);
+      policyErrors++;
+      totalErrors++;
+    } else if (noindexData > 0) {
+      console.log(`  ✅ noindex-парність: ${noindexData} заглушка + 404 ↔ ${robotsMeta} robots-meta`);
+    }
+  }
+
   if (policyErrors === 0) {
     console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 4 Disallow, Sitemap) + _headers (X-Robots-Tag ×4)");
   }

@@ -22,6 +22,13 @@
   {% block description %}
   <meta name="description" content="{{ (strings[lang] | default(strings.uk) | default(strings)).site.bio_short }}">
   {% endblock %}
+  {#- noindex (§35.2, заглушки «Not translated»): поле в даних уже виключає
+      сторінку з sitemap (sitemap.njk) і hreflang (блок hreflang), але самої
+      індексації ніщо не блокувало — robots.txt дозволяє все. Тег закриває
+      прогалину (виявлено 2026-11-06); парність з даними контролює check7и. -#}
+  {%- if noindex %}
+  <meta name="robots" content="noindex">
+  {%- endif %}
   {#- theme-color: ПАПІР #f7f8fa, БУНКЕР #0e1116 (§4.2).
       Два теги з media queries — тема визначається системою, без JS. -#}
   <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
