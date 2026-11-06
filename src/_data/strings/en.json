@@ -2,23 +2,22 @@
   "site": {
     "name": "koztechie",
     "name_en": "koztechie",
-    "title": "Text without ornament.",
-    "lead": "An archive node. Text without ornament.",
+    "title": "Personal blog and portfolio.",
     "bio_short": "Personal blog from Kyiv. Thoughts, notes, and projects. No clickbait, no vanity metrics.",
     "date_suffix": ""
   },
   "home": {
-    "lead": "This is my personal site. Here are my projects, texts, technical work and notes. I write in Ukrainian and English. I update the site without a schedule.",
+    "lead": "This is my personal site. Here I gather my projects, code and texts. I write about what I'm working on, in two languages and without any publishing schedule.",
     "latest_title": "Latest entries",
     "sections_title": "What's here",
-    "thesis": "koztechie — AI-assisted developer and systems architect",
+    "thesis": "Developer and systems architect",
     "doc_updated": "Updated",
     "meta": [
       "Eugene Kozlovsky",
       "Kyiv, Ukraine"
     ],
     "cta_text": "Write a letter →",
-    "cta_note": "I use email for contact.",
+    "cta_note": "The best way to reach me.",
     "passport_label": "About the author and the site",
     "pass_label_lang": "Site languages",
     "pass_label_pages": "Number of pages",
@@ -35,35 +34,32 @@
     "principles_title": "Core principles",
     "principles": [
       {
-        "title": "Facts matter more than impressions",
-        "text": "I prefer what can be verified to what sounds good. If I don't know something or can't confirm it, I say so."
+        "title": "Focus on what matters",
+        "text": "I share what I have verified in practice and don't try to come across as an expert in everything. No invented stories for attention."
       },
       {
-        "title": "Openness has limits",
-        "text": "I don't hide mistakes and don't pass guesses off as facts. I give sources, dates and corrections. At the same time, not everything from private life has to be public."
+        "title": "A working space",
+        "text": "I openly write about technical decisions, experiments and my own mistakes. But my personal life stays off the site."
       },
       {
-        "title": "For contact — email",
-        "text": "If you want to reach me, write a letter. There are no comments, chats or other ways to communicate on this site."
+        "title": "Contact by email",
+        "text": "There are no comments, chats or intrusive pop-ups on the site. If you have a question or a suggestion — just write to me by email."
       },
       {
-        "title": "No publication schedule",
-        "text": "I don't commit to updating the site regularly. I publish when I have something to add. Breaks can be long."
+        "title": "No deadlines",
+        "text": "I update the pages only when I truly have something to share. Long breaks between posts are normal."
       }
     ],
     "sections_desc": {
-      "manifest": "the principles and rules of this site.",
-      "practice": "tools, experiments and technical notes.",
-      "cemetery": "completed, abandoned and failed projects.",
-      "blog": "my texts and notes.",
-      "poetry": "my poems.",
-      "nichlyst": "my main project.",
-      "now": "what I'm doing now.",
-      "colophon": "how this site is built and organized.",
-      "contact": "the email address."
+      "manifest": "how this site is set up.",
+      "cemetery": "projects I finished or abandoned.",
+      "blog": "my thoughts and observations.",
+      "nichlyst": "my game (the main project).",
+      "now": "what I am doing right now.",
+      "colophon": "how this site is created and works."
     },
     "nichlyst_section_title": "The main project",
-    "nichlyst_text": "My mobile game, which I'm working on now.",
+    "nichlyst_text": "A mobile game I'm working on right now.",
     "nichlyst_link": "Learn about NICHLYST →"
   },
   "list": {
