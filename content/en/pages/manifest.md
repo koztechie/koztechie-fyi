@@ -2,33 +2,22 @@
 title: "Manifesto"
 lang: en
 layout: page.njk
-updated: 2026-10-25
-summary: "What this site will never be and what it is."
+updated: 2026-11-06
+summary: "What this site will not be and why it exists."
 translation_status: complete
 draft: false
 ---
 
-## What this site will NEVER be
+## What this site will not be
 
-- **Not a portfolio.** Not a shop window of services, not a collection of
-  case studies with invented metrics, not a line of fake recommendations.
-- **Not a tool for self-promotion.** No polished "success stories", no
-  counting months as "achievements", no trading experience as trophies.
-- **Not a platform for manipulative patterns.** No pop-ups, no cookie banners,
-  no lead magnets, no view or like counters.
-- **Not glossy AI sheen.** No synthetic illustrations, no template texts,
-  no "friendly gradients".
-- **Not a place to trade on pain.** War and physical limits are the geography
-  of life, not a currency of empathy.
+- **Not a portfolio of services.** No invented metrics, embellished success stories or fake testimonials.
+- **Not a venue for self-promotion.** I will not turn every month of work into an achievement or display my experience for show.
+- **Not a site that fights for attention.** No pop-ups, no intrusive subscription prompts, no view or like counters.
+- **Not a template site with AI texts and pictures.** No illustrations generated for beauty, template texts or decorative gradients.
+- **Not a way to draw attention to my own hardships.** War and physical limits are part of my life. But I will not use them to evoke pity or win sympathy.
 
-## What this site IS
+## What this site is for
 
-- **A testimony.** A record without ornament. Sirens, ruins, small decisions —
-  everything lands on the page as it happened. A word is the material trace
-  of a person's presence.
-- **A book, not a feed.** Sections, rhythm, inner logic. Every text is a
-  finished unit with an entry and an exit. Silence and empty space are
-  full-fledged elements of the architecture.
-- **A node.** A point of autonomy in a distributed network. A digital vault
-  built on DIY and antifragility principles. The reader is a guest in an
-  archive, not a user whose attention is held.
+- **To record what is happening.** My thoughts, observations, everyday events and decisions. Without embellishment or attempts to turn every story into a lesson.
+- **To keep texts, not chase a feed.** There are separate sections for different topics. I publish new material when I have something to say. Not for regularity and not to hold the reader's attention.
+- **To have my own space on the internet.** A site I build, maintain and fill myself. Without dependence on social networks and their rules. A reader can come, read and leave — I will not try to keep them here.
