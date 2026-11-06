@@ -5,8 +5,8 @@ slug: svitlogics
 entry: 2
 date: 2026-10-26
 period: "06.2025 — 02.2026"
-cause: "Відсутність ринку"
-epitaph: "Не переміг у контесті, ринок не відповів."
+cause: "Недостатній попит"
+epitaph: "Не знайшов достатнього попиту, і конкурс не виграв."
 summary: "Not translated. Read the original in Ukrainian."
 translation_status: partial
 noindex: true
