@@ -98,7 +98,7 @@
   <p class="list-count">{{ strings.list.count }} {{ all.length }} {{ all.length | plural(strings.list.count_unit) }}</p>
   {%- endif %}
   {%- else %}
-  <p class="list-empty">{{ strings.list.empty }}</p>
+  <p class="list-empty">{{ empty_label or strings.list.empty }}</p>
   {%- endif %}
 </article>
 {% endblock %}
