@@ -2,18 +2,18 @@
 title: "Contact"
 lang: en
 layout: page.njk
-updated: 2026-10-25
-summary: "Single channel. Reply within 7 days. No forms, no calls, no messengers."
+updated: 2026-11-06
+summary: "You can reach me only by email. I usually reply within seven days."
 translation_status: complete
 draft: false
 ---
 
-Single channel. No forms.
+If you want to reach me, send an email.
 
 <a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">Write an email</a>
 
-## Rules
+## A few notes
 
-- Reply within 7 days. Longer during shelling.
-- Email is the only way. No forms, no calls, no messengers.
-- Your address is never shared with third parties and is never used for a mailing list.
+- I usually reply within seven days. During shelling, a reply may take longer.
+- You can reach me only by email. I do not take calls.
+- I do not share your email address with third parties and do not use it for mailing lists.
