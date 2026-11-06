@@ -4,6 +4,7 @@ lang: en
 slug: blog-manifesto
 entry: 1
 date: 2026-10-25
+updated: 2026-11-06
 summary: "What is published here, how often, and by what rules. Observations, rhythm without obligation, headlines without clickbait."
 translation_status: complete
 tags: ["manifesto"]
@@ -11,33 +12,24 @@ draft: false
 layout: post.njk
 ---
 
-This blog is observation. Not case studies: those belong to "Practice".
-Not news: news grows old, observation does not.
+This blog is a place for my observations and thoughts. There will be no descriptions of completed work and projects — that is what the Practice section is for. Nor will there be news: news quickly loses relevance, while interesting observations can stay relevant for years.
 
-## Frequency
+## How often I write
 
-No more than one post per week. Minimum — zero.
+No more than one post a week. Maybe none at all.
 
-This is a rhythm, not an obligation. If a thought has ripened — I write.
-If not — I don't. A week without a post is a norm, not a failure.
-There is no publication calendar, no schedule, and no counters.
+This is a guideline, not a promise. If there is something to write about, I write. If not, I publish nothing. Breaks between posts are perfectly normal. I don't keep publication schedules and don't try to maintain activity for the sake of numbers.
 
-## Headline
+## What the headings will be like
 
-A noun or a noun phrase. The headline says what the text is about,
-not why you should open it. No numbers, no exclamations, no promises.
+Headings will be short and concrete: they will name the topic of the post rather than try to attract attention. No artificial intrigue, loud promises, exclamations or artificial numbering.
 
-## One text, one thought
+## One post — one place
 
-If a thought belongs to the blog, it lives here. If it belongs to
-practice — it lives there. The same text does not exist on two pages.
-Links are allowed; copies are not.
+If a text belongs to the blog — it is published here. If it is a description of work, a project or an experiment — it belongs in the Practice section. The same text will not be published in both sections. You may link to other materials; duplicating them — no.
 
-## What will not appear
+## What will not be here
 
-Publication metrics. "Twenty posts per quarter" is not meaningful
-information about an archive. Scheduled rubrics. Sharing prompts.
-Like buttons.
+No statistics for the sake of statistics. The number of posts per month or quarter says nothing about their content. No sections that require regular publications either. And no share buttons or likes.
 
-Entry numbers are immutable: the first entry is №1. The number is never
-rewritten, never reused, and does not depend on the title or the date.
+Every post will have a permanent number. The first is №1. Numbers will not change, will not be reused and will not depend on the title or publication date.

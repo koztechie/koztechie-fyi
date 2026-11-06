@@ -62,13 +62,7 @@
       "colophon": "how this site is built and organized.",
       "contact": "the email address."
     },
-    "reading_prefix": "About",
-    "reading_forms": [
-      "minute",
-      "minutes"
-    ],
     "nichlyst_section_title": "The main project",
-    "reading_suffix": " of reading.",
     "nichlyst_text": "My mobile game, which I'm working on now.",
     "nichlyst_link": "Learn about NICHLYST →"
   },
@@ -84,8 +78,7 @@
     "pagination_label": "Pagination"
   },
   "post": {
-    "entry_prefix": "Entry №",
-    "reading_time_unit": "min",
+    "entry_prefix": "Post №",
     "warning_prefix": "Warning:",
     "warnings": {
       "війна": "the text contains descriptions of military action",
@@ -93,7 +86,13 @@
       "травма": "the text contains descriptions of trauma",
       "смерть": "the text contains descriptions of death",
       "залежність": "the text contains descriptions of addiction"
-    }
+    },
+    "reading_prefix": "About",
+    "reading_forms": [
+      "minute",
+      "minutes"
+    ],
+    "reading_suffix": " of reading"
   },
   "case_sections": [
     "Role",
