@@ -12,17 +12,17 @@ draft: false
 layout: post.njk
 ---
 
-This blog is a place for my observations and thoughts. There will be no descriptions of completed work and projects — that is what the Practice section is for. Nor will there be news: news quickly loses relevance, while interesting observations can stay relevant for years.
+I publish my observations and thoughts here. The Practice section is dedicated to descriptions of completed work and projects. There will be no news here either: news quickly loses relevance, while some observations stay interesting for years.
 
 ## How often I write
 
-No more than one post a week. Maybe none at all.
+No more than one post a week. There may be weeks without new posts too.
 
-This is a guideline, not a promise. If there is something to write about, I write. If not, I publish nothing. Breaks between posts are perfectly normal. I don't keep publication schedules and don't try to maintain activity for the sake of numbers.
+This is a guideline, not a promise. If there is something to write about, I write. If not, I publish nothing. I don't keep a publication schedule and don't write only to add new posts regularly.
 
 ## What the headings will be like
 
-Headings will be short and concrete: they will name the topic of the post rather than try to attract attention. No artificial intrigue, loud promises, exclamations or artificial numbering.
+Headings will be short and concrete: they will name the topic of the post rather than try to attract attention. No artificial intrigue, loud promises, exclamations or numbers added to attract attention.
 
 ## One post — one place
 
@@ -30,6 +30,6 @@ If a text belongs to the blog — it is published here. If it is a description o
 
 ## What will not be here
 
-No statistics for the sake of statistics. The number of posts per month or quarter says nothing about their content. No sections that require regular publications either. And no share buttons or likes.
+I won't publish metrics like the number of posts per month or quarter: on their own they say nothing about the content of the blog. There will be no sections that require regular publications either. Nor will there be share buttons or likes.
 
-Every post will have a permanent number. The first is №1. Numbers will not change, will not be reused and will not depend on the title or publication date.
+Every post will have a permanent number. The first is №1. Each number is assigned to one post and is never given to another. Numbering does not depend on the title or publication date.
