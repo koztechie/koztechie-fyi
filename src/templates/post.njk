@@ -32,7 +32,7 @@
   {%- endif %}
   <p class="entry-meta">
     {%- if date %}
-    <time datetime="{{ date.toISOString().slice(0, 10) }}>{% if (lang | default("uk")) === "en" %}{{ date | enDate }}{% else %}{{ date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
+    <time datetime="{{ date.toISOString().slice(0, 10) }}">{% if (lang | default("uk")) === "en" %}{{ date | enDate }}{% else %}{{ date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
     {%- endif %}
     {%- if date and content %} · {% endif %}
     {%- if content %}≈ {{ content | readingTime }} {{ strings.post.reading_time_unit }}{% endif %}

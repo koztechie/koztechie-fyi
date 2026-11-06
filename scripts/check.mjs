@@ -250,6 +250,15 @@ if (existsSync(distDir)) {
       totalErrors++;
     }
 
+    // Незакриті лапки datetime: значення атрибута «ковтає» решту розмітки —
+    // дата ховається в атрибуті, сусідні елементи виходять з-під контролю
+    // парсингу (випадок 2026-11-05: datetime="2026-10-25>…).
+    if (/datetime="[^"]*>/.test(content)) {
+      console.log(`  ❌ ${rel} — datetime="… незакриті лапки атрибута`);
+      htmlErrors++;
+      totalErrors++;
+    }
+
     // alt на img
     const imgTags = content.match(/<img[^>]*>/g) || [];
     for (const img of imgTags) {

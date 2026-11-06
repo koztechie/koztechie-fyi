@@ -59,7 +59,7 @@
       <a href="{{ item.url if item.url else "#" }}">{{ item.data.title }}</a>
       {%- if item.data.date %}
       <span class="sep" aria-hidden="true"> · </span>
-      <time datetime="{{ item.data.date.toISOString().slice(0, 10) }}>{% if pageLang === "en" %}{{ item.data.date | enDate }}{% else %}{{ item.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
+      <time datetime="{{ item.data.date.toISOString().slice(0, 10) }}">{% if pageLang === "en" %}{{ item.data.date | enDate }}{% else %}{{ item.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
       {%- endif %}
     </li>
     {%- endif %}
