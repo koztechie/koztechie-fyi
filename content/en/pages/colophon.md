@@ -2,34 +2,36 @@
 title: "Colophon"
 lang: en
 layout: page.njk
-updated: 2026-11-06
-summary: "Fonts, tools, computer. The site's only GitHub link."
+updated: 2026-11-07
+summary: "How this site is built: typography, tech stack, hardware, and source code."
+og_description: "A look behind the scenes: typography, tools, hardware, and source code."
+og_title: "Colophon — koztechie"
 translation_status: complete
 draft: false
 ---
 
 ## Fonts
 
-- **Georgia** — for the main text.
-- **The system sans-serif font** — for menus, footers and captions.
-- **IBM Plex Mono** — for code and technical labels. The font files are stored on this site. The font is distributed under the OFL license and contains Latin and Cyrillic characters.
+- **Georgia** — for body copy.
+- **System sans-serif** — for navigation, interface elements, and captions.
+- **IBM Plex Mono** — for code snippets and technical labels. Self-hosted under the SIL Open Font License, with Latin and Cyrillic support.
 
 ## Tools
 
 - **Eleventy 3.1.7** — static site generator.
-- **Node.js 22** — needed to build the site.
-- **CSS** — custom styles, no frameworks or preprocessors.
+- **Node.js 22** — build environment runtime.
+- **Vanilla CSS** — hand-written styles without frameworks or preprocessors.
 - **Git** — version control.
 
-## Computer
+## Hardware
 
-- **AMD A4-4020**, 8 GB of RAM.
+- **AMD A4-4020**, 8 GB RAM.
 - **Ubuntu 26.04.1 LTS**.
 
-I develop and build the site on this machine.
+Everything on this site is written, tested, and built on this machine.
 
-## Code
+## Source code
 
 Repository: [github.com/koztechie/koztechie-fyi](https://github.com/koztechie/koztechie-fyi)
 
-Quality control — Ukrop
+Quality assurance: Ukrop

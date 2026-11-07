@@ -3,7 +3,7 @@ title: "Колофон"
 lang: uk
 layout: page.njk
 updated: 2026-11-06
-summary: "Шрифти, інструменти, комп'ютер. Єдине GitHub-посилання сайту."
+summary: "Як зроблено сайт: шрифти, стек, комп'ютер та вихідний код."
 translation_status: complete
 draft: false
 ---
