@@ -9,6 +9,30 @@
 
 ---
 
+## СТАН ВИКОНАННЯ (оновлено 2026-11-07)
+
+| Крок | Стан |
+|------|------|
+| `netlify.toml` у репо | ✅ виконано (`d80a4e4`) |
+| Сайт у Netlify | ✅ **вже існує**: проєкт `koztechie` (id `4b260726-36ea-4bfe-8c1f-b5a693294e76`), primary = `koztechie.pp.ua` |
+| Свіжий деплой поточного контенту | ✅ виконано через MCP: деплой `6aef2fce1146a57aefeb9a0a`, стан `ready`, «27 generated pages,13 assets», `4 header rules`; pp.ua оновився (було: від 03.09 з репо `koztechie-hub`) |
+| Додати домен `koztechie.fyi` до проєкту | ⏳ **РОБИТЬ АВТОР** (панель Netlify — інструменту в MCP немає) + увімкнути Force HTTPS після видачі сертифіката |
+| DNS у Spaceship | ⬜ після пункту вище — виконує ШІ (інструменти `dns_records_save/delete` підтверджені; домен `koztechie.fyi` є в акаунті) |
+| HTTPS-верифікація | ⬜ автоматично після DNS (Let's Encrypt) — перевірка за §6 |
+
+**Підтверджені DNS-цілі (доки Netlify, 2026-11-07):** apex ALIAS →
+`apex-loadbalancer.netlify.com`; www CNAME → `koztechie.netlify.app`.
+**Старі A для відкату:** `34.216.117.25`, `54.149.79.189` (зона відповідає
+ними й досі — авторитетний запит до `launch1.spaceship.net`).
+
+**Git-інтеграція:** проєкт попередньо деплоївся через API з репо
+`koztechie-hub`. Автодеплою з `koztechie-fyi` НЕМАЄ — варіанти: (а) підключити
+репо у панелі (Netlify → Site configuration → Build & deploy → Link to Git
+repository) тоді кожен push на `main` збирається сам; (б) деплої через MCP
+вручну. Рішення — за автором.
+
+---
+
 ## 0. Стан на початок (зафіксовані факти)
 
 | Що | Стан |
