@@ -63,7 +63,7 @@
       og:title/og:description — блоки для перевизначення сторінками. -#}
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="{{ (strings[lang] | default(strings.uk) | default(strings)).site.name }}">
-  <meta property="og:title" content="{% block og_title %}{{ (strings[lang] | default(strings.uk) | default(strings)).site.name }}{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}{{ og_title if og_title else (strings[lang] | default(strings.uk) | default(strings)).site.name }}{% endblock %}">
   <meta property="og:description" content="{% block og_description %}{{ og_description if og_description else (strings[lang] | default(strings.uk) | default(strings)).site.bio_short }}{% endblock %}">
   <meta property="og:url" content="https://koztechie.fyi{{ page.url if page.url else "/" }}">
   <meta property="og:image" content="https://koztechie.fyi/og/home.png">
