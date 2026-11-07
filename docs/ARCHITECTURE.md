@@ -314,6 +314,23 @@ LICENSE
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Крок PLAN 158: koztechie.pp.ua → 301 — у static/root/_redirects
+# (домен-рівневі редиректи; єдине джерело — _redirects).
+```
+
+**`static/root/_redirects`:**
+
+```
+# Крок PLAN 158: koztechie.pp.ua → 301 на основний домен.
+# Тримати pp.ua, поки .fyi не проіндексований; після індексації — видалити.
+# Домен-рівневі редиректи (доки Netlify, "Domain-level redirects").
+# `!` (force): без нього правило не спрацює на / — існує index.html (shadowing).
+
+https://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
+http://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
+https://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
+http://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 ```
 
 **`static/root/_headers`:**

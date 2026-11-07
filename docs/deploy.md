@@ -14,6 +14,7 @@
 | Крок | Стан |
 |------|------|
 | `netlify.toml` у репо | ✅ виконано (`d80a4e4`) |
+| **Крок158: `pp.ua` → 301** | ✅ виконано: `static/root/_redirects` — 4 домен-рівневі правила (https/http × apex/www → `https://koztechie.fyi/:splat 301!`); деплой `6aef3e2a85cfc3d37621dc0b` («4 redirect rules processed»); верифіковано: усі шляхи/query → 301 на `.fyi`, `.fyi`/`netlify.app` → 200 без петлі. **Після індексації `.fyi` — видалити правила** |
 | Сайт у Netlify | ✅ проєкт `koztechie` (id `4b260726-36ea-4bfe-8c1f-b5a693294e76`), primary = `koztechie.pp.ua` |
 | Свіжий деплой поточного контенту | ✅ через MCP: деплой `6aef2fce1146a57aefeb9a0a`, `ready`, «27 generated pages,13 assets», `4 header rules`; pp.ua оновлено (було від 03.09 з `koztechie-hub`) |
 | Додати домен `koztechie.fyi` | ✅ виконано автором (панель Netlify) |
