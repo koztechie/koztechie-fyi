@@ -71,7 +71,7 @@
       "entry",
       "entries"
     ],
-    "empty": "No publications here yet.",
+    "empty": "Nothing here just yet.",
     "prev": "Previous",
     "next": "Next",
     "pagination_label": "Pagination"
@@ -95,11 +95,11 @@
   },
   "case_sections": [
     "Role",
-    "Period",
-    "Task",
-    "Solution",
+    "Timeframe",
+    "The challenge",
+    "The solution",
     "What went wrong",
-    "What I would do differently",
+    "What I'd do differently",
     "Takeaways"
   ],
   "nav": {
