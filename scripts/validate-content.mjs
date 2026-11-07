@@ -70,11 +70,11 @@ const VALID_LAYOUT = [
 const FALLBACK_CASE_SECTIONS = [
   "Роль",
   "Період",
-  "Задача",
+  "Завдання",
   "Рішення",
-  "Що зламалося",
-  "Що викинув би",
-  "Що це мені дало",
+  "Що пішло не так",
+  "Що зробив би інакше",
+  "Висновки",
 ];
 const caseSectionsFor = (lang) =>
   (lang === "en" ? stringsEn?.case_sections : stringsUk?.case_sections) || FALLBACK_CASE_SECTIONS;
