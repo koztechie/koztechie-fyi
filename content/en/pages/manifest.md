@@ -2,22 +2,24 @@
 title: "Manifesto"
 lang: en
 layout: page.njk
-updated: 2026-11-06
-summary: "What this site will not be and why it exists."
+updated: 2026-11-07
+summary: "Site manifesto: why this independent personal space exists and what you will never find here."
+og_description: "Site manifesto: core principles, independent web philosophy, and why this space exists."
+og_title: "Manifesto — koztechie"
 translation_status: complete
 draft: false
 ---
 
-## What this site will not be
+## What this site is not
 
-- **Not an advertising portfolio.** No invented metrics, embellished success stories or fake testimonials.
-- **Not a venue for self-promotion.** I will not turn every month of work into an achievement or display my experience for show.
-- **Not a site that fights for attention.** No pop-ups, no intrusive subscription prompts, no view or like counters.
-- **Not a site with faceless template content.** I will not publish generated images for decoration or texts that say nothing in my name.
-- **Not a way to draw attention to my own hardships.** War and physical limits are part of my life. But I will not use them to evoke pity or win sympathy.
+- **An advertising portfolio.** No inflated metrics, embellished case studies, or fabricated praise.
+- **A stage for self-promotion.** I won't turn routine work into dramatic milestones or parade my experience for applause.
+- **An attention trap.** No pop-ups, no subscription banners, and no view or like counters.
+- **A home for generic filler.** No generated imagery just to fill space, and no empty fluff published under my name.
+- **A bid for sympathy.** War and physical limitations are part of my daily reality, but I will never use them for pity or emotional leverage.
 
-## What this site is for
+## Why it exists
 
-- **To record what is happening.** My thoughts, observations, everyday events and decisions. Without embellishment or attempts to turn every story into a lesson.
-- **To keep texts, not chase a feed.** There are separate sections for different topics. I publish new material when I have something to say. Not for regularity and not to hold the reader's attention.
-- **To have my own space on the internet.** A site I build, maintain and fill myself. I will not rely on social networks as the only place for my texts and projects. A reader can come, read and leave — I will not try to keep them here.
+- **To document reality.** My thoughts, observations, daily events, and technical decisions — without embellishment or the urge to turn every story into a life lesson.
+- **To preserve writing, not feed an algorithm.** Content lives in dedicated sections, not an ephemeral feed. I publish only when I actually have something to say, never to maintain an arbitrary posting schedule.
+- **To own a quiet corner of the web.** A personal space I design, build, and maintain myself, free from the whims of social networks. Readers are free to arrive, read, and leave — I have no desire to trap your attention.
