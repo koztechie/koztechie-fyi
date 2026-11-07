@@ -919,6 +919,21 @@ console.log("--- 7и. robots.txt і _headers ---");
         }
       }
     }
+
+    // noindex для не-production (PLAN 162): логіка у scripts/postbuild.mjs
+    const postbuildPath = join(resolve("scripts"), "postbuild.mjs");
+    if (!existsSync(postbuildPath)) {
+      console.log("  ❌ scripts/postbuild.mjs відсутній (noindex для не-production, PLAN 162)");
+      policyErrors++;
+      totalErrors++;
+    } else {
+      const pb = readFileSync(postbuildPath, "utf-8");
+      if (!pb.includes("process.env.CONTEXT") || !pb.includes("X-Robots-Tag: noindex")) {
+        console.log("  ❌ postbuild.mjs: немає noindex за CONTEXT для не-production (PLAN 162)");
+        policyErrors++;
+        totalErrors++;
+      }
+    }
   }
 
   // Парність noindex: скільки файлів контенту мають noindex: true, стільки
@@ -947,7 +962,7 @@ console.log("--- 7и. robots.txt і _headers ---");
   }
 
   if (policyErrors === 0) {
-    console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 4 Disallow, Sitemap) + _headers (безпека /* ×6 маркерів, X-Robots-Tag ×4)");
+    console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 4 Disallow, Sitemap) + _headers (безпека /* ×6 маркерів, X-Robots-Tag ×4) + noindex не-production (postbuild, PLAN 162)");
   }
 }
 console.log("");
