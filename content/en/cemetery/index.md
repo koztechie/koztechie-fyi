@@ -1,9 +1,10 @@
 ---
 title: "Cemetery"
 lang: en
-updated: 2026-11-06
-summary: "Here are projects I closed or left. Each one briefly: what it was, when I worked on it and why I stopped."
-intro: "Here are projects I closed or left. Each one briefly: what it was, when I worked on it and why I stopped."
+updated: 2026-11-07
+summary: "An archive of my old, closed or abandoned projects. A short note on the idea and why I stopped working on it."
+og_description: "An archive of my old, closed or simply abandoned projects."
+intro: "I collect my old, closed or simply abandoned projects here. For each one I leave a short note: what the idea was and why I decided to stop working on it."
 count_label: "Total"
 count_unit: ["project", "projects"]
 draft: false
