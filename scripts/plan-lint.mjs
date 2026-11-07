@@ -28,7 +28,8 @@ try {
 const contentNoCode = content.replace(/```[\s\S]*?```/g, "");
 
 // Знаходимо всі пронумеровані кроки: рядок починається з числа + крапка + пробіл
-const stepPattern = /^(\d+)\.\s/gm;
+// Кроки можуть бути з відступом (акти 1–156) або без (157+) — лідерські пробіли дозволені.
+const stepPattern = /^\s*(\d+)\.\s/gm;
 const steps = [];
 let match;
 while ((match = stepPattern.exec(contentNoCode)) !== null) {
@@ -76,7 +77,7 @@ while ((phaseMatch = phasePattern.exec(contentNoCode)) !== null) {
 // Рахуємо кроки по фазах (між заголовками)
 const phaseSections = contentNoCode.split(/^## ФАЗА /m).slice(1);
 const phaseCounts = phaseSections.map((section) => {
-  const matches = section.match(/^(\d+)\.\s/gm);
+  const matches = section.match(/^\s*(\d+)\.\s/gm);
   return matches ? matches.length : 0;
 });
 
