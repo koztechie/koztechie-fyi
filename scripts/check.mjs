@@ -904,6 +904,7 @@ console.log("--- 7и. robots.txt і _headers ---");
       const block = secStar;
       const required = [
         ["Content-Security-Policy:", "CSP"],
+        ["default-src 'self'", "CSP default-src 'self'"],
         ["frame-ancestors 'none'", "CSP frame-ancestors 'none'"],
         ["Strict-Transport-Security:", "HSTS"],
         ["Referrer-Policy:", "Referrer-Policy"],
