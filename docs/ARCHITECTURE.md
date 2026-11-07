@@ -336,6 +336,7 @@ http://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 **`static/root/_headers`:**
 
 ```
+# Заголовки безпеки (PLAN 160): секція /* — на весь сайт.
 /*
   Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
@@ -343,11 +344,20 @@ http://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Content-Type-Options: nosniff
 
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
+# Примусова заборона ШІ-доступу (PLAN 122): X-Robots-Tag на рівні хостингу.
+# Ті самі шляхи, що в robots.txt: поезія та тексти авторські.
 
-/*.html
-  Cache-Control: max-age=0, must-revalidate
+/poetry/*
+  X-Robots-Tag: noai, noimageai
+
+/en/poetry/*
+  X-Robots-Tag: noai, noimageai
+
+/blog/*
+  X-Robots-Tag: noai, noimageai
+
+/en/blog/*
+  X-Robots-Tag: noai, noimageai
 ```
 
 ---

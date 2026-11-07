@@ -893,6 +893,31 @@ console.log("--- 7и. robots.txt і _headers ---");
         totalErrors++;
       }
     }
+
+    // Заголовки безпеки в секції /* (PLAN 160, ARCHITECTURE §9)
+    const secStar = headers.split(/\n(?=\S)/).find((s) => s.startsWith("/*"));
+    if (!secStar) {
+      console.log("  ❌ _headers: немає секції /* (заголовки безпеки, PLAN 160)");
+      policyErrors++;
+      totalErrors++;
+    } else {
+      const block = secStar;
+      const required = [
+        ["Content-Security-Policy:", "CSP"],
+        ["frame-ancestors 'none'", "CSP frame-ancestors 'none'"],
+        ["Strict-Transport-Security:", "HSTS"],
+        ["Referrer-Policy:", "Referrer-Policy"],
+        ["Permissions-Policy:", "Permissions-Policy"],
+        ["X-Content-Type-Options: nosniff", "X-Content-Type-Options"],
+      ];
+      for (const [needle, label] of required) {
+        if (!block.includes(needle)) {
+          console.log(`  ❌ _headers /*: немає ${label} (PLAN 160)`);
+          policyErrors++;
+          totalErrors++;
+        }
+      }
+    }
   }
 
   // Парність noindex: скільки файлів контенту мають noindex: true, стільки
@@ -921,7 +946,7 @@ console.log("--- 7и. robots.txt і _headers ---");
   }
 
   if (policyErrors === 0) {
-    console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 4 Disallow, Sitemap) + _headers (X-Robots-Tag ×4)");
+    console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 4 Disallow, Sitemap) + _headers (безпека /* ×6 маркерів, X-Robots-Tag ×4)");
   }
 }
 console.log("");
@@ -1375,7 +1400,7 @@ console.log("--- 7п. Канонічний URL ---");
 console.log("");
 
 // 7і. Редиректи: саме 301 — PLAN крок 159
-console.log("--- 7і. Редиректи: саме 301 ---");
+console.log("--- 7р. Редиректи: саме 301 ---");
 const redirectsPath = join(resolve("."), "static", "root", "_redirects");
 if (!existsSync(redirectsPath)) {
   console.log("  ⚠️  static/root/_redirects не існує. Пропущено.");

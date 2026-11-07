@@ -1,6 +1,13 @@
+# Заголовки безпеки (PLAN 160): секція /* — на весь сайт.
+/*
+  Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Content-Type-Options: nosniff
+
 # Примусова заборона ШІ-доступу (PLAN 122): X-Robots-Tag на рівні хостингу.
 # Ті самі шляхи, що в robots.txt: поезія та тексти авторські.
-# Секції специфічні (не /*): секцію /* додає крок 160 (заголовки безпеки).
 
 /poetry/*
   X-Robots-Tag: noai, noimageai
