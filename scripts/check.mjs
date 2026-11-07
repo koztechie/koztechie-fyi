@@ -1374,6 +1374,34 @@ console.log("--- 7п. Канонічний URL ---");
 }
 console.log("");
 
+// 7і. Редиректи: саме 301 — PLAN крок 159
+console.log("--- 7і. Редиректи: саме 301 ---");
+const redirectsPath = join(resolve("."), "static", "root", "_redirects");
+if (!existsSync(redirectsPath)) {
+  console.log("  ⚠️  static/root/_redirects не існує. Пропущено.");
+} else {
+  let redirectErrors = 0;
+  let redirectRules = 0;
+  for (const raw of readFileSync(redirectsPath, "utf-8").split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    redirectRules++;
+    // Лише 301 (з опційним `!` force); 302/303/307/308 — заборонені
+    if (!/\s301!?$/.test(line)) {
+      console.log(`  ❌ Редирект не 301: «${line}» — дозволено лише 301`);
+      redirectErrors++;
+    }
+  }
+  if (redirectRules === 0) {
+    console.log("  ⚠️  Жодного правила редиректів у _redirects.");
+    totalWarnings++;
+  } else if (redirectErrors === 0) {
+    console.log(`  ✅ ${redirectRules} правил редиректів (_redirects) — усі 301`);
+  }
+  totalErrors += redirectErrors;
+}
+console.log("");
+
 // Підсумок
 console.log("=== ПІДСУМОК ===");
 console.log(`Помилок: ${totalErrors}`);
