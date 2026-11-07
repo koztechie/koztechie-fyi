@@ -2,47 +2,41 @@
 title: "Privacy"
 lang: en
 layout: page.njk
-updated: 2026-10-25
-summary: "This site collects no personal data. No cookies, no trackers. NICHLYST app section."
+updated: 2026-11-07
+summary: "Privacy policy. Why this site collects no data and how the NICHLYST app works."
+og_description: "Privacy policy. In short: why this site does not collect your data."
 translation_status: complete
 draft: false
 ---
 
-This site collects no personal data.
+The short version: this website collects no personal data at all.
 
-## What is completely absent
+## What is not here
 
-- Cookies and localStorage for tracking
-- Third-party trackers (Google Analytics, Meta Pixel, etc.)
-- Advertising pixels
-- Contact forms
-- Comments
-- "Share on social" buttons
+- Cookies or localStorage data used for tracking
+- Third-party analytics (Google Analytics, Meta Pixel, etc.)
+- Ad banners and pixels
+- Registration forms or comments
+- Social sharing buttons
 
-## What the site may store
+## What the site stores
 
-Nothing. The site is static and has no database.
+Nothing. It is a completely static site with no database at all.
 
-## Email address
+## Your email
 
-If you send a letter to the address listed on the `/contact/` page,
-your address is never shared with third parties and is never used
-for a mailing list.
+If you email me at the address on the `/contact/` page, your email stays in my inbox only. I don't share it with anyone and I never send newsletters.
 
-## NICHLYST app
+## The NICHLYST app
 
-The site and the NICHLYST app are separate products. The app is published
-on Google Play and has its own terms.
+This site and the NICHLYST game are separate products. The game is published on Google Play and has its own privacy policy, which you can read inside the app.
 
-To process purchases and subscriptions, the app uses RevenueCat.
-RevenueCat receives technical data from the app required to process payments.
-This page describes the site's policy; the app's policy is inside the app itself.
+For purchases and subscriptions the game uses RevenueCat. It receives only the technical data needed to process a payment. This page covers the site only.
 
 ## Hosting
 
-The site is hosted on Netlify. Netlify may keep server logs
-according to its own policy. That does not depend on this site.
+The site is hosted on Netlify. Like any hosting, Netlify may automatically collect standard server logs (such as IP addresses) according to its own policy. I don't control that and I don't use this data.
 
 ## Changes
 
-If the policy changes, this page will be updated.
+If how the site works changes, I'll update this page.
