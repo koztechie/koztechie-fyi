@@ -2,18 +2,19 @@
 title: "Contact"
 lang: en
 layout: page.njk
-updated: 2026-11-06
-summary: "You can reach me only by email. I usually reply within seven days."
+updated: 2026-11-07
+summary: "How to reach me. The best and only way is email."
+og_description: "Contact page. How to reach me (the best way is email)."
 translation_status: complete
 draft: false
 ---
 
-If you want to reach me, send an email.
+If you have a question, a suggestion, or just want to discuss something — write me an email.
 
 <a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">Write an email</a>
 
-## A few notes
+## Good to know
 
-- I usually reply within seven days. During shelling, a reply may take longer.
-- You can reach me only by email. I do not take calls.
-- I do not share your email address with third parties and do not use it for mailing lists.
+- I usually try to answer within a few days. But the situation in Kyiv and the shelling can sometimes delay my reply.
+- Email is the only way to reach me. I don't use messengers for the site and I don't take work calls.
+- Your address stays between us. I don't collect contact lists and don't send any newsletters.
