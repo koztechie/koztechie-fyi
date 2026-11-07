@@ -3,18 +3,18 @@ title: "Contact"
 lang: en
 layout: page.njk
 updated: 2026-11-07
-summary: "How to reach me. The best and only way is email."
-og_description: "Contact page. How to reach me (the best way is email)."
+summary: "How to get in touch with me. The best and only way is by email."
+og_description: "Contact page. Drop me an email if you have a question or a proposal."
 translation_status: complete
 draft: false
 ---
 
-If you have a question, a suggestion, or just want to discuss something — write me an email.
+If you have a question, a proposal, or just want to discuss something, feel free to drop me an email.
 
-<a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">Write an email</a>
+<a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">Send an email</a>
 
-## Good to know
+## A few things to note
 
-- I usually try to answer within a few days. But the situation in Kyiv and the shelling can sometimes delay my reply.
-- Email is the only way to reach me. I don't use messengers for the site and I don't take work calls.
-- Your address stays between us. I don't collect contact lists and don't send any newsletters.
+- I usually get back to people within a few days. However, due to the situation in Kyiv and ongoing attacks, my response might sometimes be delayed.
+- Email is the only way to reach me. I don't use messengers for website-related communication, and I don't take work calls.
+- Your email address stays strictly between us. I don't build contact lists, and I never send out newsletters.
