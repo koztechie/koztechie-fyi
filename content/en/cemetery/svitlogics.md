@@ -1,5 +1,5 @@
 ---
-title: "Not translated"
+title: "Svitlogics"
 lang: en
 slug: svitlogics
 entry: 2
