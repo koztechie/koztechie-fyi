@@ -1166,8 +1166,9 @@ console.log("--- 7л. Перемикач мов ---");
 }
 console.log("");
 
-// 7м. Таб-навігація — крок 134. TECH_STANDARDS §9 (focus 2px accent ≥3:1),
-// AGENTS.md §5 (видимий :focus, клавіатурна навігація).
+// 7м. Таб-навігація — крок 134. TECH_STANDARDS §9; фокус за KZTCH_DS §02
+// (3px, колір --k-fg; чорний на білому = 21:1). AGENTS.md §5 (видимий
+// :focus, клавіатурна навігація).
 console.log("--- 7м. Таб-навігація ---");
 {
   let tbErrors = 0;
@@ -1177,11 +1178,11 @@ console.log("--- 7м. Таб-навігація ---");
     totalErrors++;
   };
 
-  // 1. Глобальний :focus-visible з 2px outline у CSS
+  // 1. Глобальний :focus-visible з 3px outline у CSS (KZTCH_DS --k-focus-w)
   const cssFiles = walkDir(stylesDir).filter((f) => f.endsWith(".css"));
   const cssAll = cssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
-  if (!/\.?[a-z-]*:focus-visible[^{]*\{[^}]*outline\s*:\s*2px\s+solid/.test(cssAll)) {
-    fail("CSS: немає правила :focus-visible з outline 2px solid (TECH_STANDARDS §9)");
+  if (!/\.?[a-z-]*:focus-visible[^{]*\{[^}]*outline\s*:\s*3px\s+solid/.test(cssAll)) {
+    fail("CSS: немає правила :focus-visible з outline 3px solid (KZTCH_DS §02)");
   }
   // 2. Ніхто не ховає фокус
   const hidden = cssAll.match(/outline\s*:\s*(none|0)\b/g);

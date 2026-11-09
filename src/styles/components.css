@@ -80,7 +80,7 @@ h1 {
 
 .lang-switch a:hover,
 .lang-switch a:focus-visible {
-  color: var(--accent);
+  background: var(--surface);
 }
 
 /* Список записів (лейаут списку, крок 115). */
@@ -96,7 +96,7 @@ h1 {
   gap: 0.5rem;
   align-items: baseline;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 2px solid var(--rule);
 }
 
 .archive-list a {
@@ -106,7 +106,7 @@ h1 {
 
 .archive-list a:hover,
 .archive-list a:focus-visible {
-  color: var(--accent);
+  background: var(--surface);
 }
 
 .archive-list time {
@@ -133,7 +133,7 @@ h1 {
 
 .pagination a:hover,
 .pagination a:focus-visible {
-  color: var(--accent);
+  background: var(--surface);
 }
 
 .pagination .current {
@@ -169,7 +169,7 @@ h1 {
 /* Контент-попередження (DECISIONS.md §32.2, крок 145):
    під заголовком, перед текстом. Одне речення. */
 .content-warning {
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid var(--warning);
   padding: 0.5rem 0 0.5rem 1rem;
   margin: 0 0 1.5rem;
   font-size: var(--text-sm);
@@ -194,26 +194,28 @@ h1 {
 }
 
 .meta-line .sep {
-  color: var(--accent);
+  color: var(--ink);
 }
 
 /* Теза головної — h1, 6-й щабель (§5.9). Мікрогліч §7.2 лишається
-   на h1 через глобальний селектор core/components. */
+   на h1 через глобальний селектор core/components. Line-height —
+   DS --k-lh-tight (1.05). */
 article.home h1 {
   font-size: var(--text-display);
-  line-height: 1.15;
+  line-height: 1.05;
   max-width: 24ch;
   text-wrap: balance;
   text-indent: -0.03em;
   margin: 0 0 1.25rem;
 }
 
-/* Заголовки секцій головної: книжкові, не мікро-мітки. */
+/* Заголовки секцій головної: display-гарнітура KZTCH_DS (Inter Tight),
+   не книжковий serif — системний вигляд заголовків однаковий усюди. */
 article.home h2 {
-  font-family: var(--font-text);
+  font-family: var(--font-ui);
   font-size: var(--text-xl);
-  line-height: 1.25;
-  font-weight: 700;
+  line-height: 1.05;
+  font-weight: 800;
   margin: 0 0 1.25rem;
 }
 
@@ -228,7 +230,7 @@ article.home h2 {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-decoration: none;
-  border-bottom: 2px solid var(--accent);
+  border-bottom: 2px solid var(--ink);
   padding-bottom: 0.25rem;
 }
 
@@ -265,7 +267,7 @@ article.home h2 {
 }
 
 .passport .row + .row {
-  border-top: 1px solid var(--rule);
+  border-top: 2px solid var(--rule);
 }
 
 .passport dt {
@@ -282,7 +284,8 @@ article.home h2 {
 }
 
 .passport dd.hl {
-  color: var(--accent);
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* Реєстр принципів (§1.7). Нумерація 01–04. */
@@ -298,17 +301,17 @@ article.home h2 {
   gap: 0.25rem 1.25rem;
   align-items: baseline;
   padding: 0.75rem 0;
-  border-top: 1px solid var(--rule);
+  border-top: 2px solid var(--rule);
 }
 
 .home-principles li:last-child {
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 2px solid var(--rule);
 }
 
 .home-principles .num {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  color: var(--accent);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 

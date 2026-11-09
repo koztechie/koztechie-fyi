@@ -20,7 +20,7 @@
   font-size: var(--text-sm);
   color: var(--ink);
   background: var(--bg);
-  border: 1px solid var(--accent);
+  border: 2px solid var(--ink);
 }
 
 /* Базова сітка */
@@ -54,7 +54,7 @@ main {
 /* Секції головної: верхня лінія + оксидний відрізок (design-system §1). */
 article.home section {
   position: relative;
-  border-top: 1px solid var(--rule);
+  border-top: 2px solid var(--rule);
   padding-top: 1.75rem;
   margin-bottom: 2.5rem;
 }
@@ -92,7 +92,7 @@ article.home section::before {
 
 .home-sections-list a:hover,
 .home-sections-list a:focus-visible {
-  color: var(--accent);
+  background: var(--surface);
 }
 
 .entry-meta {
@@ -148,7 +148,7 @@ article.home section::before {
 
 /* Шапка */
 .site-header {
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 2px solid var(--rule);
   padding: 0.75rem 1rem;
 }
 
@@ -188,7 +188,7 @@ article.home section::before {
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-  color: var(--accent);
+  background: var(--surface);
 }
 
 .site-nav a[aria-current="page"] {
@@ -206,7 +206,7 @@ article.home section::before {
 
 /* Підвал */
 .site-footer {
-  border-top: 1px solid var(--rule);
+  border-top: 2px solid var(--rule);
   padding: 1.5rem 1rem;
   font-family: var(--font-ui);
   font-size: var(--text-sm);
@@ -237,7 +237,7 @@ article.home section::before {
 
 .site-footer a:hover,
 .site-footer a:focus-visible {
-  color: var(--accent);
+  background: var(--surface);
 }
 
 .footer-label {
@@ -268,5 +268,5 @@ article.home section::before {
 
 .footer-legal a:hover,
 .footer-legal a:focus-visible {
-  color: var(--accent);
+  background: var(--surface);
 }

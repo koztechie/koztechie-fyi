@@ -22,22 +22,25 @@ const ratio = (a, b) => {
   return (l1 + 0.05) / (l2 + 0.05);
 };
 
-// Текстові пари: AAA ≥7:1. UI-пари (лінії, фокус): ≥3:1.
+// Джерело: KZTCH_DS v1.1.0 (документ §4.1).
+// Текст — чорний/сірий (AAA ≥7). Акценти (teal/orange) — ЗАЛИВКИ з чорним
+// текстом (7,31:1 і 7,83:1): як текст на білому вони дають лише
+// 2,87:1 і 2,68:1 (§4.3.1). Тому текстові пари рахують чорний НА заливці,
+// а не акцент як текст на тлі.
 const TEXT_PAIRS = [
   ["--ink", "--bg"],
   ["--ink", "--surface"],
   ["--ink-dim", "--bg"],
-  ["--ink-dim", "--surface"],
-  ["--accent", "--bg"],
-  ["--accent", "--surface"],
+  ["--ink", "--accent"],
+  ["--ink", "--warning"],
 ];
 const UI_PAIRS = [
   ["--rule", "--bg"],
   ["--rule", "--surface"],
-  ["--accent", "--bg"],
-  ["--accent", "--surface"],
+  ["--rule", "--accent"],
+  ["--rule", "--warning"],
 ];
-const REQUIRED = ["--bg", "--surface", "--ink", "--ink-dim", "--accent", "--rule"];
+const REQUIRED = ["--bg", "--surface", "--ink", "--ink-dim", "--accent", "--warning", "--rule"];
 
 console.log("=== PALETTE-CHECK (ВУЗОЛ-0) ===");
 console.log("Джерело: docs/design-system.md §4");
@@ -90,15 +93,16 @@ for (const section of sections) {
     console.log("");
     continue;
   }
-  console.log(`  ✅ 6 обов'язкових змінних`);
+  console.log(`  ✅ ${REQUIRED.length} обов'язкових змінних`);
 
-  // 2. Ліміт кольорів
-  const count = Object.keys(p).length;
-  if (count > 6) {
-    console.log(`  ❌ ${count} значень (ліміт 6)`);
+  // 2. Ліміт кольорів: рахуються УНІКАЛЬНІ hex (KZTCH_DS:7 змінних,
+  //    але --rule = --ink, отже6 кольорів; AGENTS.md §4 — ліміт кольорів)
+  const uniqueHex = new Set(Object.values(p).map((v) => v.toLowerCase()));
+  if (uniqueHex.size > 6) {
+    console.log(`  ❌ ${uniqueHex.size} унікальних кольорів (ліміт 6)`);
     errors++;
   } else {
-    console.log(`  ✅ ${count} значень (ліміт 6)`);
+    console.log(`  ✅ ${Object.keys(p).length} змінних / ${uniqueHex.size} унікальних кольорів (ліміт 6)`);
   }
 
   // 2b. Альфа-канал заборонено в палітрі (§4.4.1: прозорість — це колір,
@@ -181,12 +185,11 @@ if (!existsSync(cssPath)) {
     return out;
   }
 
-  // :root без медіазапиту = ПАПІР. @media dark :root = БУНКЕР
+  // KZTCH_DS: одна світла палітра. Темна тема вилучена (рішення автора
+  // від 2026-11-09): система свідомо світла.
   const rootBlock = block(":root");
-  const darkMedia = block("@media (prefers-color-scheme: dark)");
   const cssPalettes = {
-    "ПАПІР": rootBlock ? vars(rootBlock) : {},
-    "БУНКЕР": darkMedia ? vars(darkMedia.replace(/:root/g, "")) : {},
+    "KZTCH": rootBlock ? vars(rootBlock) : {},
   };
 
   let cssErrors = 0;
@@ -226,15 +229,15 @@ if (!existsSync(cssPath)) {
       }
     }
 
-    // 3. prefers-color-scheme наявний
-    if (name === "БУНКЕР" && !/prefers-color-scheme:\s*dark/.test(css)) {
-      console.log("  ❌ БУНКЕР без prefers-color-scheme: dark");
+    // 3. Темної теми немає (KZTCH_DS — лише світла)
+    if (/prefers-color-scheme:\s*dark/.test(css)) {
+      console.log(`  ❌ «${name}»: у themes.css є prefers-color-scheme: dark (темна тема поза KZTCH_DS)`);
       errors++;
       cssErrors++;
     }
   }
   if (cssErrors === 0) {
-    console.log("  ✅ themes.css збігається з документом (12 значень, 2 блоки)");
+    console.log("  ✅ themes.css збігається з документом (1 палітра, без темної теми)");
   }
 }
 console.log("");
