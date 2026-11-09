@@ -4,16 +4,19 @@
    TECH_STANDARDS.md §4.1 */
 
 @media print {
-  /* Примусово світла тема для друку */
+  /* Друк: KZTCH-нейтраль (палітра KZTCH_DS, design-system §4.1).
+     Акценти (teal/orange) на друку — чорні: кольоровий друк не гарантований,
+     моноштуховий вивід має лишатися контрастним. */
   :root {
     color-scheme: light;
 
-    --bg: #f7f8fa;
-    --surface: #edeff3;
-    --ink: #14181d;
-    --ink-dim: #434955;
-    --accent: #0a5266;
-    --rule: #6b7482;
+    --bg: #ffffff;
+    --surface: #f0f0f0;
+    --ink: #000000;
+    --ink-dim: #595959;
+    --accent: #000000;
+    --warning: #000000;
+    --rule: #000000;
   }
 
   /* Приховати навігацію та перемикачі */
