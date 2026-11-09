@@ -82,9 +82,17 @@ if (existsSync(distDir)) {
   // 1d. Passthrough: ассети мають бути ПО правильних шляхах (розмітка шукає
   // /styles/, /fonts/). Простий passthrough з input="." кладе їх у dist/src/...,
   // dist/static/... — і сайт рендериться без стилів (виявлено при перегляді).
+  // Шрифти: усі woff2 з джерела (static/fonts) мають потрапити в dist.
+  // Набір KZTCH_DS: 8 файлів (канон, крок «переведення на DS»).
+  const srcFonts = resolve("static/fonts");
+  const fontAssets = existsSync(srcFonts)
+    ? walkDir(srcFonts)
+        .filter((f) => f.endsWith(".woff2"))
+        .map((f) => `fonts/${f.replace(srcFonts + "/", "")}`)
+    : [];
   const requiredAssets = [
     ...["core", "layout", "components", "themes", "print"].map((n) => `styles/${n}.css`),
-    "fonts/IBMPlexMono-Regular-subset.woff2",
+    ...fontAssets,
   ];
   let assetErrors = 0;
   for (const rel of requiredAssets) {
@@ -95,7 +103,7 @@ if (existsSync(distDir)) {
     }
   }
   if (assetErrors === 0) {
-    console.log(`  ✅ Ассети на місці: 5 CSS + 1 woff2 (${requiredAssets.length} шляхів)`);
+    console.log(`  ✅ Ассети на місці: 5 CSS + ${fontAssets.length} woff2 (${requiredAssets.length} шляхів)`);
   }
 } else {
   console.log("  ⚠️  dist/ не існує. Пропущено.");
@@ -423,23 +431,21 @@ if (existsSync(fontsDir)) {
   let fontErrors = 0;
   const woff2 = walkDir(fontsDir).filter((f) => f.endsWith(".woff2"));
 
-  // 1. Один файл
-  if (woff2.length > 1) {
-    console.log(`  ❌ ${woff2.length} .woff2 файлів (бюджет: 1)`);
+  // 1. Кількість і вага (канон: набір KZTCH_DS — до 8 файлів, 340 КБ сумарно;
+  //    раніше було «1 файл, 60 КБ» — канон оновлено за рішенням автора)
+  const totalKB = woff2.reduce((sum, f) => sum + statSync(f).size, 0) / 1024;
+  if (woff2.length > 8) {
+    console.log(`  ❌ ${woff2.length} .woff2 файлів (бюджет: 8)`);
     fontErrors++;
     totalErrors++;
-  } else if (woff2.length === 1) {
-    // 2. Вага ≤ 60 КБ
-    const sizeKB = statSync(woff2[0]).size / 1024;
-    if (sizeKB > 60) {
-      console.log(`  ❌ ${woff2[0].replace(fontsDir + "/", "")}: ${sizeKB.toFixed(1)} КБ (бюджет 60 КБ)`);
-      fontErrors++;
-      totalErrors++;
-    } else {
-      console.log(`  ✅ 1 .woff2: ${sizeKB.toFixed(1)} КБ (бюджет 60 КБ)`);
-    }
-  } else {
+  } else if (woff2.length === 0) {
     console.log("  ⚠️  .woff2 не знайдено. Пропущено.");
+  } else if (totalKB > 340) {
+    console.log(`  ❌ ${woff2.length} .woff2: ${totalKB.toFixed(1)} КБ (бюджет 340 КБ)`);
+    fontErrors++;
+    totalErrors++;
+  } else {
+    console.log(`  ✅ ${woff2.length} .woff2: ${totalKB.toFixed(1)} КБ (бюджет: 8 файлів / 340 КБ)`);
   }
 
   // 3. font-display: optional у CSS-файлах
