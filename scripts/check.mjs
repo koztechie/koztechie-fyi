@@ -1212,7 +1212,7 @@ console.log("--- 7м. Таб-навігація ---");
       // (заборонений клієнтський JS, перевіряє 7а; тут не дублюємо)
     }
     if (tbErrors === 0) {
-      console.log(`  ✅ Таб-навігація: focus 2px accent у CSS, без tabindex/href-прогалин (${htmlFiles.length} сторінок)`);
+      console.log(`  ✅ Таб-навігація: focus 3px ink (KZTCH_DS), без tabindex/href-прогалин (${htmlFiles.length} сторінок)`);
     }
   } else {
     console.log("  ⚠️  dist/ не існує. Пропущено.");
