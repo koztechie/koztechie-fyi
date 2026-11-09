@@ -78,11 +78,6 @@ h1 {
   text-decoration: none;
 }
 
-.lang-switch a:hover,
-.lang-switch a:focus-visible {
-  background: var(--surface);
-}
-
 /* Список записів (лейаут списку, крок 115). */
 .archive-list {
   list-style: none;
@@ -102,11 +97,6 @@ h1 {
 .archive-list a {
   color: var(--ink);
   text-decoration: none;
-}
-
-.archive-list a:hover,
-.archive-list a:focus-visible {
-  background: var(--surface);
 }
 
 .archive-list time {
@@ -129,11 +119,6 @@ h1 {
 .pagination a {
   color: var(--ink-dim);
   text-decoration: none;
-}
-
-.pagination a:hover,
-.pagination a:focus-visible {
-  background: var(--surface);
 }
 
 .pagination .current {
@@ -201,22 +186,19 @@ h1 {
    на h1 через глобальний селектор core/components. Line-height —
    DS --k-lh-tight (1.05). */
 article.home h1 {
-  font-size: var(--text-display);
+  /* Розмір — глобальний clamp KZTCH_DS (core.css). */
+  max-width: min(24ch, 100%);
   line-height: 1.05;
-  max-width: 24ch;
   text-wrap: balance;
   text-indent: -0.03em;
-  margin: 0 0 1.25rem;
+  margin: 0 0 var(--s4);
 }
 
 /* Заголовки секцій головної: display-гарнітура KZTCH_DS (Inter Tight),
    не книжковий serif — системний вигляд заголовків однаковий усюди. */
 article.home h2 {
-  font-family: var(--font-ui);
-  font-size: var(--text-xl);
-  line-height: 1.05;
-  font-weight: 800;
-  margin: 0 0 1.25rem;
+  /* Гарнітура, вага, розмір — глобальні правила KZTCH_DS (core.css). */
+  margin: 0 0 var(--s4);
 }
 
 /* Єдиний заклик (теза 3): лист. */
@@ -224,18 +206,35 @@ article.home h2 {
   margin: 0 0 1.5rem;
 }
 
+/* Заклик — кнопка KZTCH_DS (§02 «Кнопки»): чорна заливка, ціль дотику
+   44px, padding 24px, hover — inverse, active — бірюзова заливка
+   з чорним знаком (--k-active). */
 .letter-cta a {
-  font-family: var(--font-mono);
-  font-size: var(--text-base);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font: 700 var(--text-base) / 1 var(--font-ui);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 var(--s6);
+  border: var(--line-w) solid var(--ink);
+  background: var(--ink);
+  color: var(--bg);
   text-decoration: none;
-  border-bottom: 2px solid var(--ink);
-  padding-bottom: 0.25rem;
+  letter-spacing: normal;
+  text-transform: none;
+  transition: background 120ms ease-out, color 120ms ease-out;
 }
 
-.letter-cta a:hover {
-  background: var(--surface);
+@media (hover: hover) {
+  .letter-cta a:hover {
+    background: var(--bg);
+    color: var(--ink);
+  }
+}
+
+.letter-cta a:active {
+  background: var(--accent);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .letter-note {

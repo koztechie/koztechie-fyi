@@ -149,7 +149,19 @@
   /* Вертикальний ритм та ширина рядка.
      Крок 91. design-system.md §5.10. */
   --leading: 1.6;
-  --measure: 68ch;
+  --measure: 40rem; /* KZTCH_DS --k-measure: ширина текстового рядка (640px) */
+
+  /* Геометрія KZTCH_DS (§01 «Відступи», «Контейнер»). */
+  --container: 1200px; /* --k-container */
+  --tap: 44px;         /* --k-tap: мінімальна ціль дотику */
+  --line-w: 2px;       /* --k-line-w: товщина межі */
+
+  /* s-шкала відступів DS (базовий крок 4px): */
+  --s1: 0.25rem;  /* 4px  */  --s2: 0.5rem;   /* 8px  */
+  --s3: 0.75rem;  /* 12px */  --s4: 1rem;     /* 16px */
+  --s6: 1.5rem;   /* 24px */  --s8: 2rem;     /* 32px */
+  --s12: 3rem;    /* 48px */  --s16: 4rem;    /* 64px */
+  --s24: 6rem;    /* 96px */
 }
 
 /* Типографічна база (design-system.md §5).
@@ -163,9 +175,9 @@ body {
   background: var(--bg);
 }
 
-/* Шкала 1.25: заголовки за кроками (§5.9).
-   Гарнітура і ваги — KZTCH_DS §01: display = Inter Tight,
-   h1/h2/h3 — 800/800/700, letter-spacing -.02em, line-height 1.05. */
+/* Шкала KZTCH_DS: заголовки clamp (§01 «Типографіка»: h1 2.5→6rem,
+   h2 1.75→2.75rem), гарнітура і ваги — display = Inter Tight 800/800/700,
+   letter-spacing -.02em, line-height --k-lh-tight (1.05). */
 h1,
 h2,
 h3 {
@@ -173,12 +185,13 @@ h3 {
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
+  text-wrap: balance;
 }
 h1 {
-  font-size: var(--text-xxl);
+  font-size: clamp(2.5rem, 1.5rem + 5vw, 6rem);
 }
 h2 {
-  font-size: var(--text-xl);
+  font-size: clamp(1.75rem, 1.25rem + 2vw, 2.75rem);
 }
 h3 {
   font-size: var(--text-lg);
@@ -191,13 +204,16 @@ h6 {
   font-size: var(--text-base);
 }
 
-/* Ритм абзаців та списків (§5.10, §6.3). */
+/* Ритм абзаців та списків (§5.10, §6.3).
+   Ширина текстового рядка — KZTCH_DS: p/ul/ol/blockquote обмежені
+   --measure (40rem), як у .k-root p системи. */
 p,
 ul,
 ol,
 blockquote,
 pre {
   margin: 0 0 1em;
+  max-width: var(--measure);
 }
 
 /* Заголовки: простір перед/після (§6.3). */
@@ -252,4 +268,15 @@ a {
 
 a:visited {
   color: var(--ink);
+}
+
+/* Hover звичайних лінків — inverse (KZTCH_DS §03:
+   `a:hover { background: var(--k-fg); color: var(--k-bg) }`).
+   Контекстні hover (навігація, підвал) специфікацією вищі. */
+@media (hover: hover) {
+  a:hover,
+  a:visited:hover {
+    background: var(--ink);
+    color: var(--bg);
+  }
 }

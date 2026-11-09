@@ -12,15 +12,15 @@
 }
 
 .skip-link:focus {
-  left: 1rem;
-  top: 1rem;
+  left: var(--s4);
+  top: var(--s2);
   z-index: 100;
-  padding: 0.5rem 1rem;
+  padding: var(--s3);
   font-family: var(--font-ui);
   font-size: var(--text-sm);
-  color: var(--ink);
-  background: var(--bg);
-  border: 2px solid var(--ink);
+  color: var(--bg);
+  background: var(--ink);
+  border: 0;
 }
 
 /* Базова сітка */
@@ -34,9 +34,15 @@ body {
 main {
   flex: 1;
   width: 100%;
-  max-width: var(--measure);
+  max-width: var(--container);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 0 var(--s4);
+}
+
+@media (min-width: 720px) {
+  main {
+    padding: 0 var(--s8);
+  }
 }
 
 /* Головна: герой (мета → теза → лід → лист → паспорт).
@@ -54,18 +60,24 @@ main {
 /* Секції головної: верхня лінія + оксидний відрізок (design-system §1). */
 article.home section {
   position: relative;
-  border-top: 2px solid var(--rule);
-  padding-top: 1.75rem;
-  margin-bottom: 2.5rem;
+  border-top: var(--line-w) solid var(--rule);
+  padding: var(--s12) 0;
+  margin-bottom: 0;
+}
+
+@media (min-width: 720px) {
+  article.home section {
+    padding: var(--s16) 0;
+  }
 }
 
 article.home section::before {
   content: "";
   position: absolute;
-  top: -1px;
+  top: calc(-1 * var(--line-w));
   left: 0;
-  width: 2.5rem;
-  height: 1px;
+  width: var(--s6);
+  height: var(--line-w);
   background: var(--accent);
 }
 
@@ -88,11 +100,6 @@ article.home section::before {
 .home-sections-list a {
   color: var(--ink);
   text-decoration: none;
-}
-
-.home-sections-list a:hover,
-.home-sections-list a:focus-visible {
-  background: var(--surface);
 }
 
 .entry-meta {
@@ -148,15 +155,13 @@ article.home section::before {
 
 /* Шапка */
 .site-header {
-  border-bottom: 2px solid var(--rule);
-  padding: 0.75rem 1rem;
+  border-bottom: var(--line-w) solid var(--rule);
+  padding: var(--s3) var(--s4);
 }
 
 .site-header__inner {
-  /* ch рахується у шрифті та кеглі елемента: контекст = шрифт контенту
-     (main, Georgia 16px), щоб колонка шапки збігалася з текстовою.
-     Діти мають власні --font-* і не змінюються. */
-  max-width: var(--measure);
+  /* Контейнер KZTCH_DS (1200px): шапка, як і контент, на одній сітці. */
+  max-width: var(--container);
   font-family: var(--font-text);
   margin: 0 auto;
   display: flex;
@@ -175,25 +180,29 @@ article.home section::before {
 
 .site-nav {
   display: flex;
-  gap: 1rem;
+  gap: var(--s4);
   flex-wrap: wrap;
+  font: 500 var(--text-base) / 1.4 var(--font-ui);
 }
 
 .site-nav a {
-  font-family: var(--font-ui);
-  font-size: var(--text-sm);
   color: var(--ink-dim);
   text-decoration: none;
+  padding: var(--s2) 0;
+  border-bottom: var(--line-w) solid transparent;
 }
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-  background: var(--surface);
+  background: none;
+  color: var(--ink);
+  border-bottom-color: var(--ink);
 }
 
 .site-nav a[aria-current="page"] {
   font-family: var(--font-mono);
   color: var(--ink);
+  border-bottom-color: var(--accent);
 }
 
 .site-nav a[aria-current="page"]::before {
@@ -206,17 +215,14 @@ article.home section::before {
 
 /* Підвал */
 .site-footer {
-  border-top: 2px solid var(--rule);
-  padding: 1.5rem 1rem;
-  font-family: var(--font-ui);
-  font-size: var(--text-sm);
+  border-top: var(--line-w) solid var(--rule);
+  padding: var(--s8) var(--s4);
+  font: 400 var(--text-sm) / 1.4 var(--font-mono);
   color: var(--ink-dim);
 }
 
 .site-footer__inner {
-  /* ch рахується у шрифті елемента: контекст — шрифт контенту,
-     щоб колонка підвалу збігалася з main. Діти повертають --font-ui. */
-  max-width: var(--measure);
+  max-width: var(--container);
   font-family: var(--font-text);
   font-size: 1rem;
   margin: 0 auto;
@@ -233,11 +239,6 @@ article.home section::before {
 .site-footer a {
   color: var(--ink-dim);
   text-decoration: none;
-}
-
-.site-footer a:hover,
-.site-footer a:focus-visible {
-  background: var(--surface);
 }
 
 .footer-label {
