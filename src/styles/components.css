@@ -252,6 +252,7 @@ article.home h2 {
 .passport {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
+  max-width: var(--measure); /* KZTCH_DS: dl обмежений --k-measure (40rem) */
 }
 
 .passport dl {

@@ -167,6 +167,16 @@
 /* Типографічна база (design-system.md §5).
    Змінні визначені вище; кольори --bg/--ink — у themes.css (порядок не важливий
    для var(), резолв у computed time). */
+/* Box-sizing — KZTCH_DS (.k-root *): padding входить у ширину елемента.
+   Без цього main { padding: 0 16px } розширює контейнер на 32px за межі
+   вікна — контент обрізається праворуч на мобільному (виявлено при
+   верифікації 390px, 2026-11-10). */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: var(--font-text);
   font-size: var(--text-base);
