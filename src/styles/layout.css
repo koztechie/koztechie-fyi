@@ -21,11 +21,13 @@
   color: var(--bg);
   background: var(--ink);
   border: 0;
+  outline: 3px solid var(--bg);
+  outline-offset: 2px;
 }
 
 /* Базова сітка */
 html {
-  scroll-padding-top: calc(var(--s16) + env(safe-area-inset-top, 0px));
+  scroll-padding-top: calc(var(--header-h) + var(--s4) + var(--bar) + env(safe-area-inset-top, 0px));
 }
 
 body {
@@ -86,7 +88,6 @@ article.home section {
   border-top: var(--line-w) solid var(--rule);
   padding: var(--s12) 0;
   margin-bottom: 0;
-  counter-increment: home-section;
 }
 
 @media (min-width: 720px) {
@@ -208,10 +209,19 @@ article.home section > :not(h2) {
 }
 
 .site-logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
   font: 700 var(--text-lg) / 1.4 var(--font-ui);
   color: var(--bg);
   text-decoration: none;
   letter-spacing: -0.01em;
+}
+
+.site-logo:hover,
+.site-logo:focus-visible {
+  background: var(--surface);
+  color: var(--ink);
 }
 
 .site-nav {
@@ -244,6 +254,16 @@ article.home section > :not(h2) {
   border-color: var(--accent);
 }
 
+.site-header a:active {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.site-header :focus-visible {
+  outline-color: var(--bg);
+  outline-offset: 3px;
+}
+
 /* Підвал */
 .site-footer {
   border-top: var(--bar) solid var(--accent);
@@ -262,6 +282,11 @@ article.home section > :not(h2) {
 }
 
 .site-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0 var(--s2);
   color: var(--bg);
 }
 
@@ -311,7 +336,17 @@ article.home section > :not(h2) {
   color: var(--ink);
 }
 
-@media (max-width: 719px) {
+.site-footer a:active {
+  background: var(--warning);
+  color: var(--ink);
+}
+
+.site-footer :focus-visible {
+  outline-color: var(--bg);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
   html {
     scroll-padding-top: var(--s4);
   }

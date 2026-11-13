@@ -27,6 +27,63 @@
     display: none;
   }
 
+  /* Друк не повторює чорний navigation chrome екрана. */
+  .site-header {
+    position: static;
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    padding: 0;
+  }
+
+  .site-header__inner {
+    display: block;
+    min-height: 0;
+  }
+
+  .site-logo {
+    min-height: 0;
+    padding: 0;
+    color: var(--ink);
+  }
+
+  .home-hero {
+    color: var(--ink);
+    background: transparent;
+    border-bottom-color: var(--ink);
+  }
+
+  .home-hero h1,
+  .home-lead {
+    color: var(--ink);
+  }
+
+  .home-lead {
+    border-left-color: var(--ink);
+  }
+
+  .letter-cta a {
+    color: var(--ink);
+    background: transparent;
+  }
+
+  .letter-note {
+    color: var(--ink-dim);
+  }
+
+  .site-footer {
+    color: var(--ink);
+    background: transparent;
+    border-top-color: var(--ink);
+  }
+
+  .site-footer a {
+    display: inline;
+    min-height: 0;
+    padding: 0;
+    color: var(--ink);
+  }
+
   /* Спростити лінки */
   a {
     color: var(--ink);

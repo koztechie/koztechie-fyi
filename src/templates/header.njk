@@ -46,9 +46,9 @@
     {%- if isEn %}
     <a href="{{ otherHref }}" hreflang="uk">{{ strings.nav.lang_other }}</a>
     <span aria-hidden="true">/</span>
-    <span class="current" hreflang="en">{{ strings.nav.lang_current }}</span>
+    <span class="current" hreflang="en" aria-current="true">{{ strings.nav.lang_current }}</span>
     {%- else %}
-    <span class="current" hreflang="uk">{{ strings.nav.lang_current }}</span>
+    <span class="current" hreflang="uk" aria-current="true">{{ strings.nav.lang_current }}</span>
     <span aria-hidden="true">/</span>
     <a href="{{ otherHref }}" hreflang="en">{{ strings.nav.lang_other }}</a>
     {%- endif %}

@@ -87,6 +87,32 @@ h1 {
   color: var(--surface);
 }
 
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+}
+
+.lang-switch a,
+.lang-switch .current {
+  display: inline-flex;
+  align-items: center;
+  min-width: var(--tap);
+  min-height: var(--tap);
+  padding: 0 var(--s2);
+}
+
+.site-header .lang-switch a:hover,
+.site-header .lang-switch a:focus-visible {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.site-header .lang-switch a:active {
+  background: var(--accent);
+  color: var(--ink);
+}
+
 .lang-switch a {
   color: var(--ink-dim);
 }
@@ -111,7 +137,21 @@ h1 {
 }
 
 .archive-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
   font: 700 var(--text-xl) / 1.2 var(--font-ui);
+  color: var(--ink);
+}
+
+.archive-list a:hover,
+.archive-list a:focus-visible {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.archive-list a:active {
+  background: var(--accent);
   color: var(--ink);
 }
 
@@ -156,6 +196,17 @@ h1 {
   padding: 0 var(--s3);
   color: var(--ink-dim);
   border: var(--line-w) solid var(--rule);
+}
+
+.pagination a:hover,
+.pagination a:focus-visible {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.pagination a:active {
+  background: var(--accent);
+  color: var(--ink);
 }
 
 .pagination .current {
@@ -223,19 +274,12 @@ h1 {
   margin: 0 0 var(--s6);
 }
 
-article.home {
-  counter-reset: home-section;
-}
-
 article.home section h2::before {
   display: block;
-  width: fit-content;
-  padding: var(--s1) var(--s2);
+  width: var(--s6);
+  height: var(--s2);
   margin-bottom: var(--s4);
-  content: "0" counter(home-section);
-  font: 400 var(--text-sm) / 1 var(--font-mono);
-  letter-spacing: 0.08em;
-  color: var(--ink);
+  content: "";
   background: var(--accent);
 }
 
@@ -344,7 +388,7 @@ article.home h2 {
 
 .page-body blockquote,
 .entry-body blockquote {
-  border-left: 8px solid var(--ink);
+  border-left: var(--bar) solid var(--ink);
   padding-left: var(--s6);
   font-size: var(--text-xl);
 }
@@ -520,7 +564,21 @@ article.home h2 {
 }
 
 .home-sections-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
   font: 700 var(--text-xl) / 1.2 var(--font-ui);
+}
+
+.home-sections-list a:hover,
+.home-sections-list a:focus-visible {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.home-sections-list a:active {
+  background: var(--accent);
+  color: var(--ink);
 }
 
 @media (max-width: 44rem) {
