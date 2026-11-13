@@ -33,6 +33,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--surface);
 }
 
 main {
@@ -41,35 +42,51 @@ main {
   max-width: var(--container);
   min-width: 0;
   margin: 0 auto;
-  padding: 0 var(--s4) var(--s24);
+  background: var(--bg);
+  padding: 0 var(--s4) var(--s16);
 }
 
 @media (min-width: 720px) {
   main {
-    padding: 0 var(--s8);
+    padding: 0 var(--s8) var(--s16);
   }
 }
 
 /* Головна: герой (мета → теза → лід → лист → паспорт). */
 .home-hero {
-  max-width: 56rem;
-  padding-top: var(--s16);
-  padding-bottom: var(--s16);
+  max-width: none;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--s8) var(--s4);
+  padding: clamp(3rem, 7vw, 7rem) clamp(1.5rem, 5vw, 5rem);
+  color: var(--bg);
+  background: var(--ink);
+  border-bottom: var(--bar) solid var(--warning);
 }
 
 .home-lead {
-  font-size: var(--text-xl);
-  color: var(--ink);
-  margin: 0 0 var(--s6);
+  grid-column: 7 / -1;
+  align-self: end;
+  max-width: 30rem;
+  padding-left: var(--s6);
+  border-left: var(--bar) solid var(--accent);
+  font-size: clamp(1.25rem, 1rem + 1.1vw, 1.75rem);
+  line-height: 1.35;
+  color: var(--bg);
+  margin: 0;
 }
 
-/* Секції головної: лінія не ширша за змістовий модуль. */
+/* Секції головної: лівий індекс + правий змістовий модуль. */
 article.home section {
   position: relative;
-  max-width: var(--measure);
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr);
+  column-gap: var(--s12);
   border-top: var(--line-w) solid var(--rule);
   padding: var(--s12) 0;
   margin-bottom: 0;
+  counter-increment: home-section;
 }
 
 @media (min-width: 720px) {
@@ -78,14 +95,8 @@ article.home section {
   }
 }
 
-article.home section::before {
-  content: "";
-  position: absolute;
-  top: calc(-1 * var(--line-w));
-  left: 0;
-  width: var(--s6);
-  height: var(--line-w);
-  background: var(--accent);
+article.home section > :not(h2) {
+  grid-column: 2;
 }
 
 /* Блок «Розділи» (крок 141): моно-нумерація — системний вивід
@@ -129,7 +140,10 @@ article.home section::before {
 .page,
 .list,
 .translation-pending {
-  max-width: 56rem;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr);
+  column-gap: var(--s12);
   padding-top: var(--s16);
   padding-bottom: var(--s24);
 }
@@ -177,15 +191,16 @@ article.home section::before {
   position: sticky;
   top: 0;
   z-index: 5;
-  background: var(--bg);
-  border-bottom: var(--line-w) solid var(--rule);
+  color: var(--bg);
+  background: var(--ink);
+  border-bottom: var(--bar) solid var(--warning);
   padding: env(safe-area-inset-top, 0px) var(--s4) 0;
 }
 
 .site-header__inner {
   max-width: var(--container);
   margin: 0 auto;
-  min-height: var(--header-h);
+  min-height: calc(var(--header-h) + var(--s4));
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -194,7 +209,7 @@ article.home section::before {
 
 .site-logo {
   font: 700 var(--text-lg) / 1.4 var(--font-ui);
-  color: var(--ink);
+  color: var(--bg);
   text-decoration: none;
   letter-spacing: -0.01em;
 }
@@ -202,46 +217,40 @@ article.home section::before {
 .site-nav {
   min-width: 0;
   display: flex;
-  justify-content: center;
-  gap: var(--s4);
+  justify-content: flex-start;
+  gap: var(--s1);
   flex-wrap: wrap;
   font: 500 var(--text-base) / 1.4 var(--font-ui);
 }
 
 .site-nav a {
-  color: var(--ink-dim);
+  color: var(--surface);
   text-decoration: none;
-  padding: var(--s2) 0;
-  border-bottom: var(--line-w) solid transparent;
+  padding: var(--s3) var(--s4);
+  border: var(--line-w) solid transparent;
 }
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-  background: none;
+  background: var(--surface);
   color: var(--ink);
-  border-bottom-color: var(--ink);
+  border-color: var(--surface);
 }
 
 .site-nav a[aria-current="page"] {
   font-family: var(--font-mono);
   color: var(--ink);
-  border-bottom-color: var(--accent);
-}
-
-.site-nav a[aria-current="page"]::before {
-  content: "[ ";
-}
-
-.site-nav a[aria-current="page"]::after {
-  content: " ]";
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 /* Підвал */
 .site-footer {
-  border-top: var(--line-w) solid var(--rule);
+  border-top: var(--bar) solid var(--accent);
   padding: var(--s12) var(--s4) var(--s16);
   font: 400 var(--text-sm) / 1.4 var(--font-mono);
-  color: var(--ink-dim);
+  color: var(--surface);
+  background: var(--ink);
 }
 
 .site-footer__inner {
@@ -253,11 +262,12 @@ article.home section::before {
 }
 
 .site-footer a {
-  color: var(--ink-dim);
+  color: var(--bg);
 }
 
 .footer-label {
   font-weight: 700;
+  color: var(--accent);
   margin: 0 0 0.5rem;
 }
 
@@ -275,7 +285,7 @@ article.home section::before {
 .footer-place {
   grid-column: 1 / -1;
   margin: var(--s6) 0 0;
-  color: var(--ink-dim);
+  color: var(--surface);
 }
 
 /* Службовий лінк (приватність): дрібніший, не претендує на увагу (§17.2). */
@@ -286,12 +296,18 @@ article.home section::before {
 }
 
 .footer-legal a {
-  color: var(--ink-dim);
+  color: var(--surface);
 }
 
 .footer-legal a:hover,
 .footer-legal a:focus-visible {
-  background: var(--surface);
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible {
+  background: var(--accent);
   color: var(--ink);
 }
 
@@ -316,7 +332,38 @@ article.home section::before {
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: var(--s2);
-    scrollbar-width: thin;
+    scrollbar-width: none;
+  }
+
+  .site-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  main {
+    padding-right: var(--s4);
+    padding-left: var(--s4);
+  }
+
+  .home-hero {
+    display: block;
+    padding: var(--s12) var(--s4) var(--s16);
+  }
+
+  .home-hero .home-lead {
+    max-width: none;
+    margin-top: var(--s8);
+  }
+
+  article.home section,
+  .entry,
+  .page,
+  .list,
+  .translation-pending {
+    display: block;
+  }
+
+  article.home section > :not(h2) {
+    margin-left: 0;
   }
 
   .site-nav a {

@@ -160,6 +160,7 @@
   --header-h: 56px;    /* --k-header-h */
   --tap: 44px;         /* --k-tap: мінімальна ціль дотику */
   --line-w: 2px;       /* --k-line-w: товщина межі */
+  --bar: 8px;          /* KZTCH_DS wide semantic bar */
 
   /* s-шкала відступів DS (базовий крок 4px): */
   --s1: 0.25rem;  /* 4px  */  --s2: 0.5rem;   /* 8px  */
@@ -186,6 +187,7 @@ body {
   font-synthesis: none;
   -webkit-text-size-adjust: 100%;
   hyphens: auto;
+  overflow-x: hidden;
   font-family: var(--font-text);
   font-size: var(--text-lg);
   line-height: var(--leading);

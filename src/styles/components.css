@@ -8,13 +8,15 @@
 .entry-line {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  color: var(--ink-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   display: inline-block;
-  padding-bottom: var(--s2);
-  border-bottom: var(--line-w) solid var(--accent);
+  padding: var(--s2) var(--s3);
+  color: var(--ink);
+  background: var(--accent);
+  border: 0;
   margin: 0 0 var(--s6);
+  grid-column: 1 / -1;
 }
 
 /* Буквиця для довгих текстів.
@@ -77,6 +79,14 @@ h1 {
   font-weight: 600;
 }
 
+.site-header .lang-switch .current {
+  color: var(--bg);
+}
+
+.site-header .lang-switch a {
+  color: var(--surface);
+}
+
 .lang-switch a {
   color: var(--ink-dim);
 }
@@ -86,8 +96,8 @@ h1 {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-width: var(--measure);
-  border-top: var(--line-w) solid var(--rule);
+  max-width: none;
+  border-top: var(--bar) solid var(--ink);
 }
 
 .archive-list li {
@@ -95,8 +105,9 @@ h1 {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--s2) var(--s4);
   align-items: baseline;
-  padding: var(--s4) 0;
+  padding: var(--s6) var(--s4);
   border-bottom: var(--line-w) solid var(--rule);
+  background: var(--surface);
 }
 
 .archive-list a {
@@ -107,7 +118,7 @@ h1 {
 .archive-list time {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  color: var(--ink-dim);
+  color: var(--ink);
   text-align: right;
 }
 
@@ -119,6 +130,12 @@ h1 {
   grid-column: 2;
   margin: 0;
   text-align: right;
+}
+
+@media (hover: hover) {
+  .archive-list li:hover {
+    background: var(--accent);
+  }
 }
 
 /* Пагінація (DECISIONS.md §9.3): «Сторінка 1, 2, 3…». */
@@ -181,11 +198,12 @@ h1 {
    під заголовком, перед текстом. Одне речення. */
 .content-warning {
   max-width: var(--measure);
-  border-left: 8px solid var(--warning);
-  padding: var(--s3) var(--s4);
+  border-left: var(--bar) solid var(--ink);
+  padding: var(--s4) var(--s6);
   margin: 0 0 var(--s6);
   font-size: var(--text-sm);
   color: var(--ink);
+  background: var(--warning);
 }
 
 .content-warning p {
@@ -205,6 +223,27 @@ h1 {
   margin: 0 0 var(--s6);
 }
 
+article.home {
+  counter-reset: home-section;
+}
+
+article.home section h2::before {
+  display: block;
+  width: fit-content;
+  padding: var(--s1) var(--s2);
+  margin-bottom: var(--s4);
+  content: "0" counter(home-section);
+  font: 400 var(--text-sm) / 1 var(--font-mono);
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: var(--accent);
+}
+
+.home-hero .meta-line {
+  grid-column: 1 / -1;
+  color: var(--accent);
+}
+
 .meta-line .sep {
   color: var(--ink);
 }
@@ -214,12 +253,14 @@ h1 {
    DS --k-lh-tight (1.05). */
 article.home h1 {
   /* Розмір — глобальний clamp KZTCH_DS (core.css). */
-  max-width: 100%;
-  font-size: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  grid-column: 1 / 8;
+  max-width: 12ch;
+  font-size: clamp(3.5rem, 4vw + 1rem, 7rem);
   line-height: 1.05;
   text-wrap: balance;
   text-indent: -0.03em;
   margin: 0 0 var(--s6);
+  color: var(--bg);
 }
 
 /* Заголовки секцій головної: display-гарнітура KZTCH_DS (Inter Tight),
@@ -233,9 +274,28 @@ article.home h2 {
 .page h1,
 .list h1,
 .translation-pending h1 {
+  grid-column: 1 / -1;
   max-width: 34ch;
   font-size: clamp(2.5rem, 2rem + 2.5vw, 4.25rem);
   margin: 0 0 var(--s6);
+}
+
+.entry > .content-warning,
+.entry > .entry-meta,
+.entry > .entry-body,
+.page > .page-body,
+.list > .list-intro,
+.list > .list-body,
+.list > .archive-list,
+.list > .pagination,
+.list > .list-count,
+.list > .list-empty,
+.translation-pending > p {
+  grid-column: 2;
+}
+
+.entry > .entry-meta {
+  margin-bottom: var(--s8);
 }
 
 .entry > .entry-meta {
@@ -307,7 +367,8 @@ article.home h2 {
 
 /* Єдиний заклик (теза 3): лист. */
 .letter-cta {
-  margin: 0 0 var(--s6);
+  grid-column: 7 / -1;
+  margin: 0;
 }
 
 /* Заклик — кнопка KZTCH_DS (§02 «Кнопки»): чорна заливка, ціль дотику
@@ -320,8 +381,8 @@ article.home h2 {
   min-height: var(--tap);
   padding: 0 var(--s6);
   border: var(--line-w) solid var(--ink);
-  background: var(--ink);
-  color: var(--bg);
+  background: var(--warning);
+  color: var(--ink);
   text-decoration: none;
   letter-spacing: normal;
   text-transform: none;
@@ -346,7 +407,7 @@ article.home h2 {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   letter-spacing: 0.06em;
-  color: var(--ink-dim);
+  color: var(--surface);
   margin-top: var(--s2);
 }
 
@@ -356,7 +417,10 @@ article.home h2 {
 .passport {
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  max-width: var(--measure); /* KZTCH_DS: dl обмежений --k-measure (40rem) */
+  max-width: none;
+  padding: var(--s4) var(--s6);
+  border-left: var(--bar) solid var(--accent);
+  background: var(--surface);
 }
 
 .passport dl {
@@ -377,7 +441,7 @@ article.home h2 {
 
 .passport dt {
   margin: 0;
-  color: var(--ink-dim);
+  color: var(--ink);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -400,6 +464,7 @@ article.home h2 {
   list-style: none;
   margin: 0;
   padding: 0;
+  max-width: none;
 }
 
 .home-principles li {
@@ -432,8 +497,8 @@ article.home h2 {
 }
 
 .home-sections-list {
-  max-width: var(--measure);
-  border-top: var(--line-w) solid var(--rule);
+  max-width: none;
+  border-top: var(--bar) solid var(--ink);
   counter-reset: section;
 }
 
@@ -443,18 +508,19 @@ article.home h2 {
   grid-template-columns: 2.5rem minmax(8rem, max-content) minmax(0, 1fr);
   gap: var(--s2) var(--s4);
   align-items: baseline;
-  padding: var(--s3) 0;
+  padding: var(--s4);
   border-bottom: var(--line-w) solid var(--rule);
+  background: var(--surface);
 }
 
 .home-sections-list li::before {
   content: counter(section, decimal-leading-zero);
   font: 400 var(--text-sm) / 1.4 var(--font-mono);
-  color: var(--ink-dim);
+  color: var(--ink);
 }
 
 .home-sections-list a {
-  font: 700 var(--text-base) / 1.4 var(--font-ui);
+  font: 700 var(--text-xl) / 1.2 var(--font-ui);
 }
 
 @media (max-width: 44rem) {
