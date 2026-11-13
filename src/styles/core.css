@@ -137,14 +137,18 @@
   /* Моноширинний: акценти, код, лінійка запису (KZTCH_DS). */
   --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
 
-  /* Типографічна шкала: ratio 1.25, 5 розмірів.
-     Крок 90. design-system.md §5.9. */
-  --text-sm: 0.8rem;
-  --text-base: 1rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5625rem;
-  --text-xxl: 1.9531rem;
-  --text-display: 2.4414rem; /* Теза головної: 6-й щабель (§5.9) */
+  /* Шкала KZTCH_DS v1.1.0. Семантичні аліаси сайту посилаються на
+     системні токени, щоб значення жили в одному місці. */
+  --k-fs-xs: 0.75rem;
+  --k-fs-sm: 0.875rem;
+  --k-fs-md: 1rem;
+  --k-fs-lg: 1.125rem;
+  --k-fs-xl: 1.25rem;
+  --text-xs: var(--k-fs-xs);
+  --text-sm: var(--k-fs-sm);
+  --text-base: var(--k-fs-md);
+  --text-lg: var(--k-fs-lg);
+  --text-xl: var(--k-fs-xl);
 
   /* Вертикальний ритм та ширина рядка.
      Крок 91. design-system.md §5.10. */
@@ -153,6 +157,7 @@
 
   /* Геометрія KZTCH_DS (§01 «Відступи», «Контейнер»). */
   --container: 1200px; /* --k-container */
+  --header-h: 56px;    /* --k-header-h */
   --tap: 44px;         /* --k-tap: мінімальна ціль дотику */
   --line-w: 2px;       /* --k-line-w: товщина межі */
 
@@ -178,8 +183,11 @@
 }
 
 body {
+  font-synthesis: none;
+  -webkit-text-size-adjust: 100%;
+  hyphens: auto;
   font-family: var(--font-text);
-  font-size: var(--text-base);
+  font-size: var(--text-lg);
   line-height: var(--leading);
   color: var(--ink);
   background: var(--bg);
@@ -204,7 +212,7 @@ h2 {
   font-size: clamp(1.75rem, 1.25rem + 2vw, 2.75rem);
 }
 h3 {
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   font-weight: 700;
   letter-spacing: 0;
 }
@@ -212,6 +220,8 @@ h4,
 h5,
 h6 {
   font-size: var(--text-base);
+  font-family: var(--font-ui);
+  line-height: 1.4;
 }
 
 /* Ритм абзаців та списків (§5.10, §6.3).
@@ -226,18 +236,14 @@ pre {
   max-width: var(--measure);
 }
 
-/* Заголовки: простір перед/після (§6.3). */
+/* Відступи заголовків задають компоненти, а не браузерний margin. */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  margin: 1.5em 0 0.5em;
-  line-height: 1.2;
-}
-h1 {
-  margin-top: 0;
+  margin: 0 0 var(--s4);
 }
 
 /* Виділення тексту: бірюзова заливка KZTCH_DS з чорним текстом
@@ -248,10 +254,23 @@ h1 {
   color: var(--ink);
 }
 
-/* Службовий стек для UI-елементів (§5.5): шапка, підвал, мітки. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* UI-стек для шапки й перемикача мови. Футер і мітки мають окремий mono-стек. */
 .site-header,
-.site-footer,
-.entry-meta,
 .lang-switch {
   font-family: var(--font-ui);
 }
@@ -274,6 +293,8 @@ h1 {
    :visited = той самий колір: браузерний синій палітрі не належить. */
 a {
   color: var(--ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 a:visited {

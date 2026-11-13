@@ -24,6 +24,10 @@
 }
 
 /* Базова сітка */
+html {
+  scroll-padding-top: calc(var(--s16) + env(safe-area-inset-top, 0px));
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -35,8 +39,9 @@ main {
   flex: 1;
   width: 100%;
   max-width: var(--container);
+  min-width: 0;
   margin: 0 auto;
-  padding: 0 var(--s4);
+  padding: 0 var(--s4) var(--s24);
 }
 
 @media (min-width: 720px) {
@@ -45,21 +50,23 @@ main {
   }
 }
 
-/* Головна: герой (мета → теза → лід → лист → паспорт).
-   design-system.md §6.3: відступи між секціями — робота лейаутів. */
+/* Головна: герой (мета → теза → лід → лист → паспорт). */
 .home-hero {
-  padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  max-width: 56rem;
+  padding-top: var(--s16);
+  padding-bottom: var(--s16);
 }
 
 .home-lead {
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   color: var(--ink);
-  margin: 0 0 1.5rem;
+  margin: 0 0 var(--s6);
 }
 
-/* Секції головної: верхня лінія + оксидний відрізок (design-system §1). */
+/* Секції головної: лінія не ширша за змістовий модуль. */
 article.home section {
   position: relative;
+  max-width: var(--measure);
   border-top: var(--line-w) solid var(--rule);
   padding: var(--s12) 0;
   margin-bottom: 0;
@@ -103,9 +110,9 @@ article.home section::before {
 }
 
 .entry-meta {
-  font-size: var(--text-sm);
+  font: 500 var(--text-sm) / 1.4 var(--font-mono);
   color: var(--ink-dim);
-  margin: 0 0 1.5rem;
+  margin: 0 0 var(--s6);
 }
 
 /* Час читання у списку головної: після « · », без власного відступу
@@ -118,6 +125,15 @@ article.home section::before {
   max-width: var(--measure);
 }
 
+.entry,
+.page,
+.list,
+.translation-pending {
+  max-width: 56rem;
+  padding-top: var(--s16);
+  padding-bottom: var(--s24);
+}
+
 /* Секції «Стан» (/now/, крок 127): простір між блоками (§6.3). */
 .now-season {
   font-family: var(--font-mono);
@@ -128,7 +144,10 @@ article.home section::before {
 }
 
 .now-section {
-  margin-bottom: 2rem;
+  max-width: var(--measure);
+  border-top: var(--line-w) solid var(--rule);
+  padding: var(--s6) 0 var(--s4);
+  margin-bottom: var(--s8);
 }
 
 .now-section h2 {
@@ -155,31 +174,35 @@ article.home section::before {
 
 /* Шапка */
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--bg);
   border-bottom: var(--line-w) solid var(--rule);
-  padding: var(--s3) var(--s4);
+  padding: env(safe-area-inset-top, 0px) var(--s4) 0;
 }
 
 .site-header__inner {
-  /* Контейнер KZTCH_DS (1200px): шапка, як і контент, на одній сітці. */
   max-width: var(--container);
-  font-family: var(--font-text);
   margin: 0 auto;
-  display: flex;
+  min-height: var(--header-h);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+  gap: var(--s4);
 }
 
 .site-logo {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
+  font: 700 var(--text-lg) / 1.4 var(--font-ui);
   color: var(--ink);
   text-decoration: none;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.01em;
 }
 
 .site-nav {
+  min-width: 0;
   display: flex;
+  justify-content: center;
   gap: var(--s4);
   flex-wrap: wrap;
   font: 500 var(--text-base) / 1.4 var(--font-ui);
@@ -216,29 +239,21 @@ article.home section::before {
 /* Підвал */
 .site-footer {
   border-top: var(--line-w) solid var(--rule);
-  padding: var(--s8) var(--s4);
+  padding: var(--s12) var(--s4) var(--s16);
   font: 400 var(--text-sm) / 1.4 var(--font-mono);
   color: var(--ink-dim);
 }
 
 .site-footer__inner {
   max-width: var(--container);
-  font-family: var(--font-text);
-  font-size: 1rem;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.site-footer__inner > * {
-  font-family: var(--font-ui);
-  font-size: var(--text-sm);
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) minmax(0, 2fr);
+  gap: var(--s2) var(--s12);
 }
 
 .site-footer a {
   color: var(--ink-dim);
-  text-decoration: none;
 }
 
 .footer-label {
@@ -248,19 +263,26 @@ article.home section::before {
 
 .footer-nav {
   display: flex;
-  gap: 1rem;
+  gap: var(--s4);
   flex-wrap: wrap;
 }
 
+.site-footer__inner > p:not(.footer-label):not(.footer-place):not(.footer-legal) {
+  grid-column: 2;
+  margin: 0;
+}
+
 .footer-place {
-  font-style: italic;
+  grid-column: 1 / -1;
+  margin: var(--s6) 0 0;
   color: var(--ink-dim);
 }
 
 /* Службовий лінк (приватність): дрібніший, не претендує на увагу (§17.2). */
 .footer-legal {
+  grid-column: 1 / -1;
   font-size: var(--text-sm);
-  margin-top: 0.5rem;
+  margin: var(--s4) 0 0;
 }
 
 .footer-legal a {
@@ -270,4 +292,50 @@ article.home section::before {
 .footer-legal a:hover,
 .footer-legal a:focus-visible {
   background: var(--surface);
+  color: var(--ink);
+}
+
+@media (max-width: 719px) {
+  html {
+    scroll-padding-top: var(--s4);
+  }
+
+  .site-header {
+    position: static;
+  }
+
+  .site-header__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-bottom: var(--s2);
+  }
+
+  .site-nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: var(--s2);
+    scrollbar-width: thin;
+  }
+
+  .site-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
+  }
+
+  .site-footer__inner > p:not(.footer-label):not(.footer-place):not(.footer-legal) {
+    grid-column: auto;
+  }
+
+  .footer-place,
+  .footer-legal {
+    margin-top: var(--s4);
+  }
 }

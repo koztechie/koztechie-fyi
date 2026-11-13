@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // size-budget.mjs: бюджети ваги ВУЗОЛ-0
 // Рахує вагу dist/ після brotli. Падає (exit 1) при перевищенні.
-// Бюджети: TECH_STANDARDS.md §1. Використання: node scripts/size-budget.mjs [dist/]
+// Бюджети: TECH_STANDARDS.md §1, AGENTS.md §3. Використання:
+// node scripts/size-budget.mjs [dist/]
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
@@ -100,17 +101,19 @@ if (cssTotal > 15) {
 }
 console.log("");
 
-// 3. Шрифти сумарно ≤ 60 КБ
-console.log("--- 3. Шрифти ≤ 60 КБ ---");
+// 3. Шрифти сумарно ≤ 340 КБ (канон KZTCH_DS: до 8 woff2)
+console.log("--- 3. Шрифти ≤ 340 КБ ---");
 const fontFiles = files.filter((f) => f.endsWith(".woff2") || f.endsWith(".woff"));
 let fontTotal = 0;
-for (const f of fontFiles) fontTotal += brotliKB(f);
-if (fontTotal > 60) {
-  fail(`${fontFiles.length} файлів, ${fontTotal.toFixed(1)} КБ (бюджет 60 КБ)`);
+for (const f of fontFiles) fontTotal += statSync(f).size / KB;
+if (fontFiles.length > 8) {
+  fail(`${fontFiles.length} файлів (бюджет 8)`);
+} else if (fontTotal > 340) {
+  fail(`${fontFiles.length} файлів, ${fontTotal.toFixed(1)} КБ (бюджет 340 КБ)`);
 } else if (fontFiles.length === 0) {
   console.log("  ⚠️  Шрифтів немає. Пропущено.");
 } else {
-  ok(`${fontFiles.length} файлів, ${fontTotal.toFixed(1)} КБ`);
+  ok(`${fontFiles.length} файлів, ${fontTotal.toFixed(1)} КБ (бюджет: 8 файлів / 340 КБ)`);
 }
 console.log("");
 
@@ -145,11 +148,12 @@ if (favTotal > 10) {
 }
 console.log("");
 
-// 6. CSS + шрифти + favicon ≤ 130 КБ
-console.log("--- 6. CSS + шрифти + favicon ≤ 130 КБ ---");
+// 6. CSS + шрифти + favicon ≤ 365 КБ:
+//    340 КБ шрифтів + 15 КБ CSS + 10 КБ favicon.
+console.log("--- 6. CSS + шрифти + favicon ≤ 365 КБ ---");
 const coreTotal = cssTotal + fontTotal + favTotal;
-if (coreTotal > 130) {
-  fail(`${coreTotal.toFixed(1)} КБ (бюджет 130 КБ)`);
+if (coreTotal > 365) {
+  fail(`${coreTotal.toFixed(1)} КБ (бюджет 365 КБ)`);
 } else {
   ok(`${coreTotal.toFixed(1)} КБ`);
 }

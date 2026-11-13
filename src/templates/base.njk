@@ -29,10 +29,8 @@
   {%- if noindex %}
   <meta name="robots" content="noindex">
   {%- endif %}
-  {#- theme-color: ПАПІР #f7f8fa, БУНКЕР #0e1116 (§4.2).
-      Два теги з media queries — тема визначається системою, без JS. -#}
-  <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+  {#- KZTCH_DS v1.1.0: єдина світла тема, тому theme-color має одне значення. -#}
+  <meta name="theme-color" content="#ffffff">
   {#- RSS auto-discovery для обох фідів (TECH_STANDARDS §9, крок 125).
       Назва фіда — з самого каналу (<title>), не з атрибута лінка. -#}
   <link rel="alternate" type="application/rss+xml" href="https://koztechie.fyi/feed.xml">
