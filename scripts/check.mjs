@@ -79,20 +79,12 @@ if (existsSync(distDir)) {
     console.log(`  ✅ Без style= атрибутів у HTML`);
   }
 
-  // 1d. Passthrough: ассети мають бути ПО правильних шляхах (розмітка шукає
-  // /styles/, /fonts/). Простий passthrough з input="." кладе їх у dist/src/...,
-  // dist/static/... — і сайт рендериться без стилів (виявлено при перегляді).
-  // Шрифти: усі woff2 з джерела (static/fonts) мають потрапити в dist.
-  // Набір KZTCH_DS: 8 файлів (канон, крок «переведення на DS»).
-  const srcFonts = resolve("static/fonts");
-  const fontAssets = existsSync(srcFonts)
-    ? walkDir(srcFonts)
-        .filter((f) => f.endsWith(".woff2"))
-        .map((f) => `fonts/${f.replace(srcFonts + "/", "")}`)
-    : [];
+  // Згенерована таблиця стилів і іконки мають бути за шляхами з HTML.
   const requiredAssets = [
-    ...["core", "layout", "components", "themes", "print"].map((n) => `styles/${n}.css`),
-    ...fontAssets,
+    "favicon.svg",
+    "favicon.ico",
+    "apple-touch-icon.png",
+    "site.webmanifest",
   ];
   let assetErrors = 0;
   for (const rel of requiredAssets) {
@@ -103,105 +95,136 @@ if (existsSync(distDir)) {
     }
   }
   if (assetErrors === 0) {
-    console.log(`  ✅ Ассети на місці: 5 CSS + ${fontAssets.length} woff2 (${requiredAssets.length} шляхів)`);
+    console.log(`  ✅ Іконки на місці: ${requiredAssets.length} файлів`);
   }
+
+  const builtStylesDir = join(distDir, "styles");
+  const builtStyles = existsSync(builtStylesDir)
+    ? readdirSync(builtStylesDir).filter((file) => file.endsWith(".css"))
+    : [];
+  const siteBundles = builtStyles.filter((file) => /^site\.[a-f0-9]{12}\.css$/.test(file));
+  const printBundles = builtStyles.filter((file) => /^print\.[a-f0-9]{12}\.css$/.test(file));
+  if (siteBundles.length !== 1 || printBundles.length !== 1 || builtStyles.length !== 2) {
+    console.log("  ❌ dist/styles/ має містити лише один fingerprinted site.css і один print.css");
+    totalErrors++;
+  }
+
+  let stylesheetErrors = 0;
+  for (const file of htmlWithStyle) {
+    const html = readFileSync(file, "utf-8");
+    const screenStyles = html.match(/<link\b(?=[^>]*\brel=["']stylesheet["'])(?=[^>]*\bhref=["']\/styles\/site\.[a-f0-9]{12}\.css["'])[^>]*>/gi) || [];
+    const printStyles = html.match(/<link\b(?=[^>]*\brel=["']stylesheet["'])(?=[^>]*\bhref=["']\/styles\/print\.[a-f0-9]{12}\.css["'])[^>]*>/gi) || [];
+    const rel = file.slice(distDir.length + 1);
+    if (screenStyles.length !== 1 || !existsSync(join(distDir, screenStyles[0]?.match(/\bhref=["']\/([^"']+)/i)?.[1] || "__missing__"))) {
+      console.log(`  ❌ ${rel} — має бути один наявний fingerprinted екранний stylesheet`);
+      stylesheetErrors++;
+    }
+    if (printStyles.length !== 1 || !/\bmedia=["']print["']/i.test(printStyles[0] || "") ||
+        !existsSync(join(distDir, printStyles[0]?.match(/\bhref=["']\/([^"']+)/i)?.[1] || "__missing__"))) {
+      console.log(`  ❌ ${rel} — print.css має бути fingerprinted, наявний і підключений лише з media="print"`);
+      stylesheetErrors++;
+    }
+  }
+  if (stylesheetErrors > 0) totalErrors += stylesheetErrors;
+  else console.log(`  ✅ Stylesheet: один fingerprinted екранний файл + print.css для друку (${htmlWithStyle.length} сторінок)`);
 } else {
   console.log("  ⚠️  dist/ не існує. Пропущено.");
 }
 console.log("");
 
-// 2. CSS-патерни
-console.log("--- 2. Заборонені CSS-патерни ---");
-const bannedCSS = [
-  { pattern: /box-shadow/gi, name: "box-shadow" },
-  { pattern: /text-shadow/gi, name: "text-shadow" },
-  { pattern: /drop-shadow/gi, name: "drop-shadow" },
-  { pattern: /linear-gradient/gi, name: "linear-gradient" },
-  { pattern: /radial-gradient/gi, name: "radial-gradient" },
-  { pattern: /conic-gradient/gi, name: "conic-gradient" },
-  { pattern: /backdrop-filter/gi, name: "backdrop-filter" },
-  { pattern: /border-radius:\s*(\d+)px/gi, name: "border-radius", max: 4 },
-];
-
+// 2. CSS: спільний бюджет усіх таблиць стилів.
+console.log("--- 2. CSS ---");
 if (existsSync(stylesDir)) {
   const cssFiles = walkDir(stylesDir).filter((f) => f.endsWith(".css"));
-  let cssErrors = 0;
-  for (const file of cssFiles) {
-    const content = readFileSync(file, "utf-8");
-    const rel = file.replace(stylesDir + "/", "");
-    for (const { pattern, name, max } of bannedCSS) {
-      const regex = new RegExp(pattern.source, pattern.flags);
-      let match;
-      while ((match = regex.exec(content)) !== null) {
-        if (max !== undefined) {
-          const value = parseInt(match[1], 10);
-          if (value <= max) continue;
-        }
-        const line = content.slice(0, match.index).split("\n").length;
-        console.log(`  ❌ ${rel}:${line} — ${name}`);
-        cssErrors++;
-        totalErrors++;
-      }
-    }
-  }
-  if (cssErrors === 0) {
-    console.log(`  ✅ ${cssFiles.length} CSS-файлів без заборонених патернів`);
-  }
-
-  // Рем-відступи: кратність 0.25rem (design-system §6.5, аудит 2026-10-26).
-  // em — типографіка (прив'язана до кегля/гліфа), clamp — плавна ритміка:
-  // обидва класи поза рем-сіткою за каноном.
-  let gridErrors = 0;
-  for (const file of cssFiles) {
-    const content = readFileSync(file, "utf-8");
-    const rel = file.replace(stylesDir + "/", "");
-    const spacingRe = /(?:margin|padding|gap)(?:-[a-z]+)?\s*:\s*([^;]+);/gi;
-    let sm;
-    while ((sm = spacingRe.exec(content)) !== null) {
-      for (const token of sm[1].split(/[\s,]+/)) {
-        const mm = token.match(/^(-?[\d.]+)rem$/);
-        if (!mm) continue;
-        const n = parseFloat(mm[1]);
-        if (Math.abs(n / 0.25 - Math.round(n / 0.25)) > 1e-9) {
-          const line = content.slice(0, sm.index).split("\n").length;
-          console.log(`  ❌ ${rel}:${line} — відступ ${token} поза сіткою 0.25rem (design-system §6.5)`);
-          gridErrors++;
-          totalErrors++;
-        }
-      }
-    }
-  }
-  if (gridErrors === 0) {
-    console.log("  ✅ Сітка відступів: усі рем-відступи кратні 0.25 (§6.5)");
+  const cssBytes = cssFiles.reduce((sum, file) => {
+    const bytes = readFileSync(file);
+    return sum + brotliCompressSync(bytes, { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11 } }).length;
+  }, 0);
+  if (cssBytes > 15 * 1024) {
+    console.log(`  ❌ CSS: ${(cssBytes / 1024).toFixed(1)} КБ > 15 КБ`);
+    totalErrors++;
+  } else {
+    console.log(`  ✅ ${cssFiles.length} CSS-файлів: ${(cssBytes / 1024).toFixed(1)} КБ`);
   }
 } else {
   console.log("  ⚠️  src/styles/ не існує. Пропущено.");
 }
+if (existsSync(join(stylesDir, "layout.css"))) {
+  const layoutCss = readFileSync(join(stylesDir, "layout.css"), "utf-8")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+  const hoverRule = layoutCss.match(/a:hover,\s*a:visited:hover\s*\{([^{}]*)\}/);
+  const hoverDeclarations = hoverRule?.[1] || "";
+  if (
+    !/color\s*:\s*var\(--ink\)/.test(hoverDeclarations) ||
+    !/background\s*:\s*transparent/.test(hoverDeclarations) ||
+    !/text-decoration-thickness\s*:\s*3px/.test(hoverDeclarations)
+  ) {
+    console.log("  ❌ Глобальний hover має бути чорнильним, без заливки, з підкресленням 3px");
+    totalErrors++;
+  } else {
+    console.log("  ✅ Глобальний hover: чорнило, прозоре тло, підкреслення 3px");
+  }
+
+  const cssFiles = walkDir(stylesDir).filter((file) => file.endsWith(".css"));
+  let oldStateTokenErrors = 0;
+  for (const file of cssFiles) {
+    const css = readFileSync(file, "utf-8").replace(/\/\*[\s\S]*?\*\//g, "");
+    for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      if (!/var\(--(?:living|green)\b/.test(match[2])) continue;
+      const rel = file.slice(stylesDir.length + 1);
+      const line = css.slice(0, match.index).split("\n").length;
+      console.log(`  ❌ ${rel}:${line} — застарілий колірний токен стану`);
+      oldStateTokenErrors++;
+      totalErrors++;
+    }
+  }
+  if (oldStateTokenErrors === 0) {
+    console.log("  ✅ Стани не залежать від вилученого зеленого токена");
+  }
+}
+console.log("--- Chrome: пурпурне тло ---");
+const chromeSelector = /\.(?:site-header|site-footer|home-hero)\b/;
+const chromeBackgroundErrors = [];
+for (const file of walkDir(stylesDir).filter((path) => path.endsWith(".css"))) {
+  const css = readFileSync(file, "utf-8").replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!chromeSelector.test(match[1])) continue;
+    if (/background(?:-color)?\s*:\s*var\(--accent(?![a-z-])/i.test(match[2])) {
+      const line = css.slice(0, match.index).split("\n").length;
+      chromeBackgroundErrors.push(`${file.slice(stylesDir.length + 1)}:${line}`);
+    }
+  }
+}
+if (chromeBackgroundErrors.length) {
+  for (const location of chromeBackgroundErrors) {
+    console.log(`  ❌ ${location} — пурпурне тло заборонене для chrome`);
+    totalErrors++;
+  }
+} else {
+  console.log("  ✅ Chrome-селектори не мають пурпурного тла");
+}
 console.log("");
 
-// 3. Hex поза themes.css/nichlyst.css
-console.log("--- 3. Hex поза themes.css/nichlyst.css ---");
-const hexRegex = /#[0-9a-fA-F]{3,8}\b/g;
+// 3. Кольори поза єдиним джерелом themes.css
+console.log("--- 3. Кольори поза themes.css ---");
+const colorRegex = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/gi;
 if (existsSync(stylesDir)) {
   const cssFiles = walkDir(stylesDir).filter(
-    (f) => f.endsWith(".css") && !f.includes("themes") && !f.includes("nichlyst") && !f.includes("print")
+    (f) => f.endsWith(".css") && f !== join(stylesDir, "themes.css")
   );
-  let hexErrors = 0;
+  let colorErrors = 0;
   for (const file of cssFiles) {
     const content = readFileSync(file, "utf-8");
     const rel = file.replace(stylesDir + "/", "");
-    const matches = content.match(hexRegex);
-    if (matches) {
-      for (const m of matches) {
-        const line = content.slice(0, content.indexOf(m)).split("\n").length;
-        console.log(`  ❌ ${rel}:${line} — hex ${m}`);
-        hexErrors++;
+    for (const match of content.matchAll(colorRegex)) {
+        const line = content.slice(0, match.index).split("\n").length;
+        console.log(`  ❌ ${rel}:${line} — колір ${match[0]}`);
+        colorErrors++;
         totalErrors++;
-      }
     }
   }
-  if (hexErrors === 0) {
-    console.log("  ✅ Hex лише в themes.css/nichlyst.css/print.css");
+  if (colorErrors === 0) {
+    console.log("  ✅ HEX, rgb() і hsl() є лише в themes.css");
   }
 } else {
   console.log("  ⚠️  src/styles/ не існує. Пропущено.");
@@ -222,11 +245,10 @@ if (existsSync(distDir)) {
       const unique = [...new Set(matches)];
       for (const m of unique) {
         // Дозволяємо schema.org, w3.org, sitemaps.org (namespace)
-        // та github.com (§277 — єдине посилання коду, /colophon/),
-        // play.google.com (§290 — магазин застосунку NICHLYST).
+        // github.com — профіль; netlify.com і revenuecat.com — політики сервісів.
         if (m.includes("schema.org") || m.includes("w3.org") || m.includes("sitemaps.org")) continue;
         if (m.includes("github.com")) continue;
-        if (m.includes("play.google.com")) continue; // §290 — магазин NICHLYST
+        if (m.includes("netlify.com") || m.includes("revenuecat.com")) continue;
         console.log(`  ❌ ${rel} — сторонній origin: ${m}`);
         extErrors++;
         totalErrors++;
@@ -424,71 +446,27 @@ if (existsSync(distDir)) {
 }
 console.log("");
 
-// 7б. Шрифти — DECISIONS.md §41, TECH_STANDARDS §6
+// 7б. Шрифти — системні стеки, без завантажуваних файлів.
 console.log("--- 7б. Шрифти ---");
-const fontsDir = resolve("static/fonts");
-if (existsSync(fontsDir)) {
-  let fontErrors = 0;
-  const woff2 = walkDir(fontsDir).filter((f) => f.endsWith(".woff2"));
-
-  // 1. Кількість і вага (канон: набір KZTCH_DS — до 8 файлів, 340 КБ сумарно;
-  //    раніше було «1 файл, 60 КБ» — канон оновлено за рішенням автора)
-  const totalKB = woff2.reduce((sum, f) => sum + statSync(f).size, 0) / 1024;
-  if (woff2.length > 8) {
-    console.log(`  ❌ ${woff2.length} .woff2 файлів (бюджет: 8)`);
+const cssFiles = existsSync(stylesDir)
+  ? walkDir(stylesDir).filter((f) => f.endsWith(".css"))
+  : [];
+let fontErrors = 0;
+for (const file of cssFiles) {
+  const content = readFileSync(file, "utf-8");
+  const rel = file.replace(stylesDir + "/", "");
+  if (/@font-face\b|url\([^)]*\.(?:woff2?|ttf|otf)/i.test(content)) {
+    console.log(`  ❌ ${rel} — знайдено завантажуваний шрифт`);
     fontErrors++;
     totalErrors++;
-  } else if (woff2.length === 0) {
-    console.log("  ⚠️  .woff2 не знайдено. Пропущено.");
-  } else if (totalKB > 340) {
-    console.log(`  ❌ ${woff2.length} .woff2: ${totalKB.toFixed(1)} КБ (бюджет 340 КБ)`);
-    fontErrors++;
-    totalErrors++;
-  } else {
-    console.log(`  ✅ ${woff2.length} .woff2: ${totalKB.toFixed(1)} КБ (бюджет: 8 файлів / 340 КБ)`);
   }
-
-  // 3. font-display: optional у CSS-файлах
-  if (existsSync(stylesDir)) {
-    const cssFiles = walkDir(stylesDir).filter((f) => f.endsWith(".css"));
-    let displayErrors = 0;
-    for (const file of cssFiles) {
-      const content = readFileSync(file, "utf-8");
-      const faces = content.match(/@font-face\s*{[^}]*}/gi) || [];
-      for (const face of faces) {
-        if (!/font-display\s*:\s*optional/i.test(face)) {
-          const rel = file.replace(stylesDir + "/", "");
-          console.log(`  ❌ ${rel} — @font-face без font-display: optional`);
-          displayErrors++;
-          totalErrors++;
-        }
-      }
-    }
-    if (displayErrors === 0 && faces0Exists(stylesDir)) {
-      console.log("  ✅ font-display: optional у всіх @font-face");
-    }
-  }
-
-  // 4. Сторонні шрифтові origin у CSS
-  if (existsSync(stylesDir)) {
-    const cssFiles = walkDir(stylesDir).filter((f) => f.endsWith(".css"));
-    const fontOriginRegex = /https?:\/\/(?!koztechie\.fyi|localhost)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}[^"')\s]*\.(woff2?|ttf|otf)/gi;
-    let originErrors = 0;
-    for (const file of cssFiles) {
-      const content = readFileSync(file, "utf-8");
-      if (content.match(fontOriginRegex)) {
-        const rel = file.replace(stylesDir + "/", "");
-        console.log(`  ❌ ${rel} — сторонній шрифтовий origin`);
-        originErrors++;
-        totalErrors++;
-      }
-    }
-    if (originErrors === 0) {
-      console.log("  ✅ Без сторонніх шрифтових origin");
-    }
-  }
-} else {
-  console.log("  ⚠️  static/fonts/ не існує. Пропущено.");
+}
+if (fontErrors === 0) {
+  console.log("  ✅ Шрифти не завантажуються; використовуються системні стеки");
+}
+const fontOriginRegex = /https?:\/\/(?!koztechie\.fyi|localhost)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}[^"')\s]*\.(woff2?|ttf|otf)/i;
+if (cssFiles.every((file) => !fontOriginRegex.test(readFileSync(file, "utf-8")))) {
+  console.log("  ✅ Сторонніх шрифтових origin немає");
 }
 console.log("");
 
@@ -540,17 +518,6 @@ if (existsSync(licenseFile) && existsSync(copyrightFile)) {
   }
 }
 console.log("");
-
-// Допоміжна: чи є хоча б один @font-face у стилях
-function faces0Exists(dir) {
-  try {
-    return walkDir(dir)
-      .filter((f) => f.endsWith(".css"))
-      .some((f) => /@font-face/i.test(readFileSync(f, "utf-8")));
-  } catch {
-    return false;
-  }
-}
 
 // 7д. Політика залежностей — AGENTS.md §3, DECISIONS.md §38.4
 console.log("--- 7д. Політика залежностей ---");
@@ -670,6 +637,18 @@ if (existsSync(distDir)) {
     if (!headMatch) continue;
     const head = headMatch[0];
 
+    const requiredIcons = [
+      /<link\b(?=[^>]*\brel=["']icon["'])(?=[^>]*\bhref=["']\/favicon\.svg["'])[^>]*>/i,
+      /<link\b(?=[^>]*\brel=["']icon["'])(?=[^>]*\bhref=["']\/favicon\.ico["'])[^>]*>/i,
+      /<link\b(?=[^>]*\brel=["']apple-touch-icon["'])(?=[^>]*\bhref=["']\/apple-touch-icon\.png["'])[^>]*>/i,
+      /<link\b(?=[^>]*\brel=["']manifest["'])(?=[^>]*\bhref=["']\/site\.webmanifest["'])[^>]*>/i,
+    ];
+    if (requiredIcons.some((re) => !re.test(head))) {
+      console.log(`  ❌ ${rel} — неповний набір посилань на favicon/manifest`);
+      headErrors++;
+      totalErrors++;
+    }
+
     for (const { re, name } of forbiddenInHead) {
       const matches = head.match(re);
       if (matches) {
@@ -744,6 +723,8 @@ console.log("--- 7з. UI без хардкоду ---");
       // Прибираємо коментарі (документують правила, не розмітка) та вирази njk
       // ({{ strings.* }}, {% set %}) — хардкодом є лише статичний текст і атрибути.
       text = text.replace(/\{#[\s\S]*?#\}/g, "");
+      // JSON-LD — машинні метадані, не видимий UI (перевірка окремо в секції 7о).
+      text = text.replace(/<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi, "");
       text = text.replace(/\{\{[\s\S]*?\}\}/g, " ");
       text = text.replace(/\{%[\s\S]*?%\}/g, " ");
       const rel = file.replace(srcDir + "/", "");
@@ -863,17 +844,19 @@ console.log("--- 7и. robots.txt і _headers ---");
       policyErrors++;
       totalErrors++;
     }
-    // ШІ-політика: бот + заборона поезії та авторських текстів
-    const aiBots = /User-agent:\s*(GPTBot|ClaudeBot|CCBot|Google-Extended|Bytespider|PerplexityBot)/.test(robots);
-    if (!aiBots) {
-      console.log("  ❌ robots.txt: немає ШІ-краулерів (GPTBot/ClaudeBot/CCBot/...)");
-      policyErrors++;
-      totalErrors++;
+    // Імена та шляхи мають бути в одному ШІ-блоці, а не в User-agent: *.
+    const aiGroup = robots.split("# --- Решта краулерів")[0];
+    for (const bot of ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "Claude-User"]) {
+      if (!aiGroup.includes(`User-agent: ${bot}`)) {
+        console.log(`  ❌ robots.txt: ШІ-група не містить User-agent: ${bot}`);
+        policyErrors++;
+        totalErrors++;
+      }
     }
-    const disallows = ["/poetry/", "/blog/", "/en/poetry/", "/en/blog/"];
+    const disallows = ["/poetry/", "/blog/", "/en/poetry/", "/en/blog/", "/feed.xml", "/en/feed.xml"];
     for (const d of disallows) {
-      if (!robots.includes(`Disallow: ${d}`)) {
-        console.log(`  ❌ robots.txt: немає «Disallow: ${d}»`);
+      if (!aiGroup.includes(`Disallow: ${d}`)) {
+        console.log(`  ❌ robots.txt: ШІ-група не містить «Disallow: ${d}»`);
         policyErrors++;
         totalErrors++;
       }
@@ -886,15 +869,27 @@ console.log("--- 7и. robots.txt і _headers ---");
     totalErrors++;
   } else {
     const headers = readFileSync(headersPath, "utf-8");
+    const cacheRules = [
+      [/\/styles\/\*\s+Cache-Control:\s*public,\s*max-age=31536000,\s*immutable/m, "fingerprinted styles: one-year immutable cache"],
+      [/\/og\/\*\s+Cache-Control:\s*public,\s*max-age=86400/m, "OG assets: one-day cache"],
+    ];
+    for (const [pattern, label] of cacheRules) {
+      if (!pattern.test(headers)) {
+        console.log(`  ❌ _headers: немає правила кешування ${label}`);
+        policyErrors++;
+        totalErrors++;
+      }
+    }
     if (!headers.includes("X-Robots-Tag: noai")) {
       console.log("  ❌ _headers: немає X-Robots-Tag: noai");
       policyErrors++;
       totalErrors++;
     }
-    // Примус тих самих шляхів, що й robots.txt
-    for (const p of ["/poetry/*", "/blog/*", "/en/poetry/*", "/en/blog/*"]) {
-      if (!headers.includes(p)) {
-        console.log(`  ❌ _headers: немає секції ${p}`);
+    // Примус тих самих шляхів, що й robots.txt (RSS теж містить повні тексти).
+    for (const p of ["/poetry/*", "/blog/*", "/en/poetry/*", "/en/blog/*", "/feed.xml", "/en/feed.xml"]) {
+      const block = headers.split(/\n(?=\S)/).find((section) => section.startsWith(p));
+      if (!block || !block.includes("X-Robots-Tag: noai, noimageai")) {
+        console.log(`  ❌ _headers: немає секції ${p} з X-Robots-Tag: noai, noimageai`);
         policyErrors++;
         totalErrors++;
       }
@@ -911,11 +906,14 @@ console.log("--- 7и. robots.txt і _headers ---");
       const required = [
         ["Content-Security-Policy:", "CSP"],
         ["default-src 'self'", "CSP default-src 'self'"],
+        ["script-src 'none'", "CSP script-src 'none'"],
+        ["object-src 'none'", "CSP object-src 'none'"],
         ["frame-ancestors 'none'", "CSP frame-ancestors 'none'"],
         ["Strict-Transport-Security:", "HSTS"],
         ["Referrer-Policy:", "Referrer-Policy"],
         ["Permissions-Policy:", "Permissions-Policy"],
         ["X-Content-Type-Options: nosniff", "X-Content-Type-Options"],
+        ["X-Frame-Options: DENY", "X-Frame-Options"],
       ];
       for (const [needle, label] of required) {
         if (!block.includes(needle)) {
@@ -942,10 +940,8 @@ console.log("--- 7и. robots.txt і _headers ---");
     }
   }
 
-  // Парність noindex: скільки файлів контенту мають noindex: true, стільки
-  // сторінок dist мають robots-meta (+404 — власний тег у 404.njk, поза
-  // front-matter). Поле в даних раніше не рендерилося взагалі (виявлено
-  // 2026-11-06) — тег у base.njk + цей контроль.
+    // Парність noindex: файли контенту з noindex та обидві локалізовані 404
+    // мають по одному robots-meta, який рендерить base.njk.
   {
     const contentFiles = walkDir(resolve("content")).filter((f) => f.endsWith(".md"));
     let noindexData = 0;
@@ -955,20 +951,23 @@ console.log("--- 7и. robots.txt і _headers ---");
     }
     let robotsMeta = 0;
     for (const f of walkDir(distDir).filter((f) => f.endsWith(".html"))) {
-      if (readFileSync(f, "utf-8").includes('<meta name="robots"')) robotsMeta++;
+      robotsMeta += [...readFileSync(f, "utf-8").matchAll(/<meta name="robots"/g)].length;
     }
-    const expected = noindexData + (existsSync(join(distDir, "404.html")) ? 1 : 0);
+    const notFoundPages = ["404.html", "en/404.html"].filter((file) =>
+      existsSync(join(distDir, file)),
+    ).length;
+    const expected = noindexData + notFoundPages;
     if (expected !== robotsMeta) {
-      console.log(`  ❌ noindex-парність: очікувано ${expected} (${noindexData} noindex + 404) ↔ знайдено ${robotsMeta} robots-meta`);
+      console.log(`  ❌ noindex-парність: очікувано ${expected} (${noindexData} noindex + ${notFoundPages} 404) ↔ знайдено ${robotsMeta} robots-meta`);
       policyErrors++;
       totalErrors++;
     } else if (noindexData > 0) {
-      console.log(`  ✅ noindex-парність: ${noindexData} заглушка + 404 ↔ ${robotsMeta} robots-meta`);
+      console.log(`  ✅ noindex-парність: ${noindexData} заглушка + ${notFoundPages} 404 ↔ ${robotsMeta} robots-meta`);
     }
   }
 
   if (policyErrors === 0) {
-    console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 4 Disallow, Sitemap) + _headers (безпека /* ×6 маркерів, X-Robots-Tag ×4) + noindex не-production (postbuild, PLAN 162)");
+    console.log("  ✅ Політика ШІ: robots.txt (16 ботів, 6 Disallow, Sitemap) + _headers (X-Robots-Tag для текстів і фідів) + noindex не-production (postbuild, PLAN 162)");
   }
 }
 console.log("");
@@ -1004,6 +1003,7 @@ console.log("--- 7і. RSS фіди ---");
       // XML-каркас RSS 2.0
       if (!xml.includes('<?xml version="1.0" encoding="UTF-8"?>')) feedErrors(`${label}: немає XML-декларації UTF-8`);
       if (!/<rss\b[^>]*\bversion="2\.0"/.test(xml)) feedErrors(`${label}: немає <rss version="2.0">`);
+      if (!/\bxmlns:atom="http:\/\/www\.w3\.org\/2005\/Atom"/.test(xml)) feedErrors(`${label}: немає namespace Atom`);
       if ((xml.match(/<rss\b/g) || []).length !== (xml.match(/<\/rss>/g) || []).length) feedErrors(`${label} незбалансований <rss>`);
       if ((xml.match(/<channel>/g) || []).length !== (xml.match(/<\/channel>/g) || []).length) feedErrors(`${label} незбалансований <channel>`);
       const openItems = (xml.match(/<item>/g) || []).length;
@@ -1021,11 +1021,29 @@ console.log("--- 7і. RSS фіди ---");
       if (!new RegExp(`<language>${feed.lang}<\\/language>`).test(channelHead)) feedErrors(`${label}: <language> ≠ ${feed.lang}`);
       const chanLink = channelHead.match(/<link>([^<]*)<\/link>/)?.[1];
       if (chanLink !== feed.root) feedErrors(`${label}: link каналу «${chanLink}» ≠ «${feed.root}»`);
+      const selfUrl = `https://koztechie.fyi${label}`;
+      const atomSelf = channelHead.match(/<atom:link\b([^>]*)\/>/)?.[1] || "";
+      if (!new RegExp(`\\bhref="${selfUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`).test(atomSelf) ||
+          !/\brel="self"/.test(atomSelf) ||
+          !/\btype="application\/rss\+xml"/.test(atomSelf)) {
+        feedErrors(`${label}: atom:link rel="self" відсутній або некоректний`);
+      }
+
+      const lastBuildDate = channelHead.match(/<lastBuildDate>([^<]*)<\/lastBuildDate>/)?.[1]?.trim();
+      if (!lastBuildDate || !RFC822.test(lastBuildDate)) {
+        feedErrors(`${label}: lastBuildDate відсутній або не RFC 822`);
+      }
 
       // Items (§30.4)
       const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map((m) => m[1]);
       totalItems += items.length;
       if (items.length === 0) console.log(`  ⚠️  ${label}: 0 записів (контент ще не створено)`);
+      if (lastBuildDate && items.length) {
+        const latestPub = Math.max(...items.map((it) => Date.parse(it.match(/<pubDate>([^<]*)<\/pubDate>/)?.[1] || "")));
+        if (Number.isFinite(latestPub) && Date.parse(lastBuildDate) < latestPub) {
+          feedErrors(`${label}: lastBuildDate старіший за найновіший pubDate`);
+        }
+      }
 
       const guids = new Set();
       for (const [i, it] of items.entries()) {
@@ -1065,8 +1083,19 @@ console.log("--- 7і. RSS фіди ---");
       }
     }
 
+    const headersFile = join(resolve("static/root"), "_headers");
+    if (!existsSync(headersFile)) {
+      feedErrors("static/root/_headers відсутній — MIME RSS не задано");
+    } else {
+      const headers = readFileSync(headersFile, "utf-8");
+      for (const path of ["/feed.xml", "/en/feed.xml"]) {
+        const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const mimeRule = new RegExp(`^${escapedPath}\\s*\\n\\s+Content-Type: application/rss\\+xml; charset=utf-8\\s*$`, "m");
+        if (!mimeRule.test(headers)) feedErrors(`${path}: у _headers має бути Content-Type: application/rss+xml; charset=utf-8`);
+      }
+    }
     if (totalErrors === startErrors) {
-      console.log(`  ✅ Фіди валідні: 2 канали (uk/en), ${totalItems} записів, §30.1–30.4 дотримано`);
+      console.log(`  ✅ Фіди валідні: 2 канали (uk/en), ${totalItems} записів, self-link, MIME та build date`);
     }
   }
 }
@@ -1178,11 +1207,11 @@ console.log("--- 7м. Таб-навігація ---");
     totalErrors++;
   };
 
-  // 1. Глобальний :focus-visible з 3px outline у CSS (KZTCH_DS --k-focus-w)
+  // 1. Глобальний :focus-visible з чітким контуром.
   const cssFiles = walkDir(stylesDir).filter((f) => f.endsWith(".css"));
   const cssAll = cssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
   if (!/\.?[a-z-]*:focus-visible[^{]*\{[^}]*outline\s*:\s*3px\s+solid/.test(cssAll)) {
-    fail("CSS: немає правила :focus-visible з outline 3px solid (KZTCH_DS §02)");
+    fail("CSS: немає правила :focus-visible з outline 3px solid");
   }
   // 2. Ніхто не ховає фокус
   const hidden = cssAll.match(/outline\s*:\s*(none|0)\b/g);
@@ -1212,7 +1241,7 @@ console.log("--- 7м. Таб-навігація ---");
       // (заборонений клієнтський JS, перевіряє 7а; тут не дублюємо)
     }
     if (tbErrors === 0) {
-      console.log(`  ✅ Таб-навігація: focus 3px ink (KZTCH_DS), без tabindex/href-прогалин (${htmlFiles.length} сторінок)`);
+      console.log(`  ✅ Таб-навігація: видимий 3px focus, без tabindex/href-прогалин (${htmlFiles.length} сторінок)`);
     }
   } else {
     console.log("  ⚠️  dist/ не існує. Пропущено.");
@@ -1275,9 +1304,8 @@ console.log("--- 7н. Skip-link ---");
 }
 console.log("");
 
-// 7о. JSON-LD — крок 152. TECH_STANDARDS §9, PLAN 151:
-// валідний JSON, @context, @graph; Person (name одне, решта в alternateName,
-// sameAs — лише GitHub), WebSite (name/url/description).
+// 7о. JSON-LD: формат і основні властивості Person, WebSite, BlogPosting,
+// VideoGame та SoftwareApplication.
 console.log("--- 7о. JSON-LD ---");
 {
   let ldErrors = 0;
@@ -1317,8 +1345,12 @@ console.log("--- 7о. JSON-LD ---");
         }
 
         for (const node of graph) {
-          if (node["@type"] === "Person") {
+          const types = new Set(Array.isArray(node["@type"]) ? node["@type"] : [node["@type"]]);
+          if (types.has("Person")) {
             if (typeof node.name !== "string" || !node.name.trim()) fail(`${rel}: Person.name порожній`);
+            if (!/^https:\/\/koztechie\.fyi\//.test(node.url || "")) fail(`${rel}: Person.url відсутній або некоректний`);
+            if (!/^https:\/\/koztechie\.fyi\/.+\.png$/.test(node.image || "")) fail(`${rel}: Person.image відсутній або некоректний`);
+            if (typeof node.jobTitle !== "string" || !node.jobTitle.trim()) fail(`${rel}: Person.jobTitle порожній`);
             const alt = node.alternateName;
             if (!Array.isArray(alt) || alt.length === 0) {
               fail(`${rel}: Person.alternateName не масив або порожній (решта форм — сюди, §9)`);
@@ -1337,19 +1369,38 @@ console.log("--- 7о. JSON-LD ---");
               }
             }
           }
-          if (node["@type"] === "WebSite") {
+          if (types.has("WebSite")) {
             if (typeof node.name !== "string" || !node.name.trim()) fail(`${rel}: WebSite.name порожній`);
             if (typeof node.url !== "string" || !/^https:\/\/koztechie\.fyi\//.test(node.url)) {
               fail(`${rel}: WebSite.url ≠ https://koztechie.fyi/ — «${node.url}»`);
             }
             if (typeof node.description !== "string" || !node.description.trim()) fail(`${rel}: WebSite.description порожній`);
           }
+          if (types.has("BlogPosting")) {
+            if (typeof node.headline !== "string" || !node.headline.trim()) fail(`${rel}: BlogPosting.headline порожній`);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(node.datePublished || "")) fail(`${rel}: BlogPosting.datePublished не ISO date`);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(node.dateModified || "")) fail(`${rel}: BlogPosting.dateModified не ISO date`);
+            if (node.author?.["@type"] !== "Person" || !node.author.name || !node.author.url) {
+              fail(`${rel}: BlogPosting.author неповний`);
+            }
+            if (!["uk", "en"].includes(node.inLanguage)) fail(`${rel}: BlogPosting.inLanguage не uk/en`);
+          }
+          if (types.has("VideoGame") || types.has("SoftwareApplication")) {
+            if (!types.has("VideoGame") || !types.has("SoftwareApplication")) {
+              fail(`${rel}: NICHLYST має бути VideoGame і SoftwareApplication`);
+            }
+            if (node.operatingSystem !== "Android") fail(`${rel}: NICHLYST operatingSystem має бути Android`);
+            if (node.applicationCategory !== "GameApplication") fail(`${rel}: NICHLYST applicationCategory має бути GameApplication`);
+            if (typeof node.offers?.description !== "string" || !node.offers.description.trim()) {
+              fail(`${rel}: NICHLYST Offer не описує модель придбання`);
+            }
+          }
         }
       }
     }
 
     if (ldErrors === 0) {
-      console.log(`  ✅ JSON-LD валідний: ${blocks} блок(и) у ${htmlFiles.length} HTML — Person/WebSite за §9`);
+      console.log(`  ✅ JSON-LD валідний: ${blocks} блок(и) у ${htmlFiles.length} HTML — Person/WebSite/BlogPosting/NICHLYST`);
     }
   }
 }
@@ -1376,7 +1427,7 @@ console.log("--- 7п. Канонічний URL ---");
     for (const file of htmlFiles) {
       const rel = file.slice(distDir.length + 1);
       const content = readFileSync(file, "utf-8");
-      const is404 = rel === "404.html";
+      const is404 = rel === "404.html" || rel === "en/404.html";
       const found = [...content.matchAll(/<link\b[^>]*rel\s*=\s*["']canonical["'][^>]*href\s*=\s*["']([^"']+)["']/gi)]
         .concat([...content.matchAll(/<link\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*rel\s*=\s*["']canonical["']/gi)]);
 
@@ -1434,9 +1485,9 @@ if (!existsSync(redirectsPath)) {
     const line = raw.trim();
     if (!line || line.startsWith("#")) continue;
     redirectRules++;
-    // Лише 301 (з опційним `!` force); 302/303/307/308 — заборонені
-    if (!/\s301!?$/.test(line)) {
-      console.log(`  ❌ Редирект не 301: «${line}» — дозволено лише 301`);
+    // Звичайні редиректи — 301; локалізована 404-маршрутизація — єдиний 404.
+    if (!/\s301!?$/.test(line) && line !== "/en/* /en/404.html 404") {
+      console.log(`  ❌ Неприпустимий статус редиректу: «${line}»`);
       redirectErrors++;
     }
   }
@@ -1444,9 +1495,91 @@ if (!existsSync(redirectsPath)) {
     console.log("  ⚠️  Жодного правила редиректів у _redirects.");
     totalWarnings++;
   } else if (redirectErrors === 0) {
-    console.log(`  ✅ ${redirectRules} правил редиректів (_redirects) — усі 301`);
+    console.log(`  ✅ ${redirectRules} правил (_redirects): 301 редиректи та локалізована 404`);
   }
   totalErrors += redirectErrors;
+}
+console.log("");
+
+// 7с. Open Graph і X Cards: доступність, зображення та article metadata.
+console.log("--- 7с. Open Graph і X Cards ---");
+{
+  let socialErrors = 0;
+  const fail = (msg) => {
+    console.log(`  ❌ ${msg}`);
+    socialErrors++;
+    totalErrors++;
+  };
+
+  if (!existsSync(distDir)) {
+    console.log("  ⚠️  dist/ не існує. Пропущено.");
+  } else {
+    const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+    for (const file of htmlFiles) {
+      const rel = file.slice(distDir.length + 1);
+      const html = readFileSync(file, "utf-8");
+      const is404 = rel === "404.html" || rel === "en/404.html";
+      const metas = new Map();
+      for (const match of html.matchAll(/<meta\s+(property|name)="([^"]+)"\s+content="([^"]*)"/g)) {
+        const key = `${match[1]}:${match[2]}`;
+        metas.set(key, (metas.get(key) || []).concat(match[3]));
+      }
+      if (is404) {
+        if ([...metas.keys()].some((key) => key.startsWith("property:og:") || key.startsWith("name:twitter:"))) {
+          fail(`${rel}: 404 не має містити OG чи X Card метадані`);
+        }
+        continue;
+      }
+      for (const key of [
+        "property:og:type",
+        "property:og:title",
+        "property:og:description",
+        "property:og:image",
+        "property:og:image:alt",
+        "name:twitter:card",
+        "name:twitter:title",
+        "name:twitter:image",
+      ]) {
+        if (!metas.get(key)?.[0]) fail(`${rel}: немає ${key}`);
+      }
+      if (metas.get("name:twitter:card")?.[0] !== "summary_large_image") {
+        fail(`${rel}: twitter:card має бути summary_large_image`);
+      }
+      const imageUrl = metas.get("property:og:image")?.[0];
+      if (imageUrl) {
+        try {
+          const imagePath = new URL(imageUrl).pathname.replace(/^\/+/, "");
+          const imageFile = join(distDir, imagePath);
+          if (!existsSync(imageFile)) {
+            fail(`${rel}: OG-зображення не знайдено — ${imagePath}`);
+          } else {
+            const image = readFileSync(imageFile);
+            if (image.toString("ascii", 1, 4) !== "PNG" ||
+                image.readUInt32BE(16) !== 1200 ||
+                image.readUInt32BE(20) !== 630) {
+              fail(`${rel}: OG-зображення має бути PNG 1200×630 — ${imagePath}`);
+            }
+          }
+        } catch {
+          fail(`${rel}: некоректний URL og:image — ${imageUrl}`);
+        }
+      }
+      if (/<article\b[^>]*class="entry"/.test(html)) {
+        if (metas.get("property:og:type")?.[0] !== "article") {
+          fail(`${rel}: запис має og:type=article`);
+        }
+        if (!metas.get("property:article:published_time")?.[0]) {
+          fail(`${rel}: запис не має article:published_time`);
+        }
+        if (!metas.get("property:article:author")?.[0]) {
+          fail(`${rel}: запис не має article:author`);
+        }
+      }
+    }
+    if (socialErrors === 0) {
+      console.log(`  ✅ Метатеги OG/X повні; усі ${htmlFiles.length} карток мають PNG 1200×630; записи мають article metadata`);
+    }
+  }
 }
 console.log("");
 

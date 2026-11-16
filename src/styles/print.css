@@ -1,22 +1,26 @@
-/* print.css: друк — завжди світла тема
-   Канонічне джерело: docs/design-system.md §4
-   Порядок: core → layout → components → themes → print → nichlyst
+/* print.css: стилі друку
+   Канонічне джерело: docs/design-system.md
+   Порядок: core → layout → components → themes → print
    TECH_STANDARDS.md §4.1 */
 
 @media print {
-  /* Друк: KZTCH-нейтраль (палітра KZTCH_DS, design-system §4.1).
-     Акценти (teal/orange) на друку — чорні: кольоровий друк не гарантований,
-     моноштуховий вивід має лишатися контрастним. */
+  /* Зберегти контраст на монохромному принтері. */
   :root {
     color-scheme: light;
+  }
 
-    --bg: #ffffff;
-    --surface: #f0f0f0;
-    --ink: #000000;
-    --ink-dim: #595959;
-    --accent: #000000;
-    --warning: #000000;
-    --rule: #000000;
+  body[data-world="night"] {
+    --paper: var(--paper-day);
+    --surface: var(--surface-day);
+    --ink: var(--ink-day);
+    --ink-dim: var(--ink-dim-day);
+    --rule-soft: var(--rule-soft-day);
+    --rule-strong: var(--rule-strong-day);
+    --accent: var(--accent-day);
+    --link: var(--accent-day);
+    --focus: var(--accent-day);
+    color: var(--ink);
+    background: var(--paper);
   }
 
   /* Приховати навігацію та перемикачі */
@@ -27,7 +31,7 @@
     display: none;
   }
 
-  /* Друк не повторює чорний navigation chrome екрана. */
+  /* Прибрати кольорові панелі для друку. */
   .site-header {
     position: static;
     color: var(--ink);
@@ -45,6 +49,7 @@
     min-height: 0;
     padding: 0;
     color: var(--ink);
+    border-bottom: 0;
   }
 
   .home-hero {
@@ -71,6 +76,36 @@
     color: var(--ink-dim);
   }
 
+  article.home .card {
+    color: var(--ink);
+    background: transparent;
+    border-color: var(--ink);
+  }
+
+  article.home .card--nichlyst {
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--ink);
+    border-top: 4px solid var(--ink);
+  }
+
+  .nichlyst-logo {
+    background: transparent;
+    border-color: var(--ink);
+  }
+
+  article.home .card--nichlyst h2,
+  article.home .card--nichlyst h3,
+  article.home .card--nichlyst p,
+  article.home .card--nichlyst a {
+    color: var(--ink);
+    background: transparent;
+  }
+
+  article.home .card--nichlyst a {
+    text-decoration: underline;
+  }
+
   .site-footer {
     color: var(--ink);
     background: transparent;
@@ -90,10 +125,57 @@
     text-decoration: underline;
   }
 
-  /* Прибрати анімації */
-  h1,
-  .cursor-blink::after {
-    animation: none;
+  pre,
+  .page-body pre,
+  .entry-body pre {
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--ink);
+  }
+
+  li,
+  .passport .row {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  h2,
+  h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .home-hero .meta-line,
+  .entry-line,
+  .nichlyst-status,
+  .content-warning,
+  .passport .hl,
+  .pagination .current,
+  article.home .card--nichlyst h2,
+  article.home .card--nichlyst p,
+  article.home .card--nichlyst a {
+    color: var(--ink);
+    background: transparent;
+  }
+
+  .entry--closed .entry-line {
+    border: 1px solid var(--ink);
+    border-left: 4px solid var(--ink);
+  }
+
+  .entry-line,
+  .nichlyst-status,
+  .content-warning {
+    border-left-color: var(--ink);
+  }
+
+  .passport .hl,
+  .pagination .current {
+    text-decoration: underline;
+  }
+
+  .letter-cta a {
+    border-color: var(--ink);
   }
 
   /* Розширити текстовий блок */

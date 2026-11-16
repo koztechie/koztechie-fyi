@@ -1,7 +1,6 @@
 {#- header.njk: паршал шапки.
     Крок 108. docs/design-system.md §9.6.
     Логотип — текст, не картинка (§9.6.4).
-    5 лінків — sitemap.md, таблиця «Верхній рівень». Головна — логотип (§9.6.2).
     Активний розділ — aria-current="page" (крок 110, §9.6.3).
     Активний розділ — моно-мітка з контрастною CSS-заливкою, не в розмітці.
     Перемикач мови — §8.1 (крок 111).
@@ -21,14 +20,13 @@
     поточної мови. -#}
 {%- set navPrefix = "/en" if isEn else "" -%}
 <div class="site-header__inner">
-  <a class="site-logo" href="{{ navPrefix }}/"{% if cur === "/" %} aria-current="page"{% endif %}>{{ strings.site.name }}</a>
+  <a class="site-logo" href="{{ navPrefix }}/"{% if cur === "/" %} aria-current="page"{% endif %}><img class="site-logo__mark" src="/favicon.svg" width="28" height="28" alt="">{{ strings.site.name }}</a>
   <nav class="site-nav" aria-label="{{ strings.nav.sections_label }}">
     {%- set nav = [
       { href: "/nichlyst/", key: "nichlyst" },
       { href: "/blog/", key: "blog" },
-      { href: "/practice/", key: "practice" },
-      { href: "/poetry/", key: "poetry" },
-      { href: "/cemetery/", key: "cemetery" }
+      { href: "/cemetery/", key: "cemetery" },
+      { href: "/poetry/", key: "poetry" }
     ] -%}
     {%- for item in nav %}
     {%- set itemHref = item.href -%}
@@ -46,9 +44,9 @@
     {%- if isEn %}
     <a href="{{ otherHref }}" hreflang="uk">{{ strings.nav.lang_other }}</a>
     <span aria-hidden="true">/</span>
-    <span class="current" hreflang="en" aria-current="true">{{ strings.nav.lang_current }}</span>
+    <span class="current" aria-current="true">{{ strings.nav.lang_current }}</span>
     {%- else %}
-    <span class="current" hreflang="uk" aria-current="true">{{ strings.nav.lang_current }}</span>
+    <span class="current" aria-current="true">{{ strings.nav.lang_current }}</span>
     <span aria-hidden="true">/</span>
     <a href="{{ otherHref }}" hreflang="en">{{ strings.nav.lang_other }}</a>
     {%- endif %}

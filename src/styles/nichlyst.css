@@ -1,9 +1,0 @@
-/* nichlyst.css: палітра гри NICHLYST
-   Канонічне джерело: docs/design-system.md §4, DECISIONS.md §3
-   Лише для nichlyst.njk. Не завантажується на інших сторінках.
-   Ізольована палітра: 5 кольорів. Контраст ≥ 7:1 (§36.5 DECISIONS).
-   Порядок: core → layout → components → themes → print → nichlyst */
-
-/* Палітра NICHLYST (5 кольорів)
-   Значення: поки не визначені (кроки 201+, Фаза B).
-   Файл існує для коректного порядку завантаження (TECH_STANDARDS §4.1). */

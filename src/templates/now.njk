@@ -26,10 +26,10 @@
 
   {%- if working_on and working_on.length %}
   <section class="now-section" aria-labelledby="now-working">
-    <h2 id="now-working">{{ strings.now.working_on }}</h2>
+      <h2 id="now-working">{{ strings.now.working_on }}</h2>
     <ul>
       {%- for w in working_on %}
-      <li>{{ w }}</li>
+      <li><a href="{{ w.url }}">{{ w.label }}</a> {{ w.detail }}</li>
       {%- endfor %}
     </ul>
   </section>

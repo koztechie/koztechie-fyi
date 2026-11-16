@@ -4,8 +4,10 @@ lang: en
 slug: blog-manifesto
 entry: 1
 date: 2026-10-25
-updated: 2026-11-06
+updated: 2026-11-15
 summary: "The rules and principles of this blog: no clickbait, no strict schedule, just thoughts and notes."
+og_image: "/og/blog-manifesto-en-v2.png"
+og_image_alt: "koztechie — a light Blog Manifesto card with a graphic index, dark band, and accent line."
 translation_status: complete
 tags: ["manifesto"]
 draft: false
@@ -30,4 +32,6 @@ Blog posts stay in the blog. Case studies belong in the Practice section. I won'
 
 You won't find vanity metrics (like posts per month), mandatory weekly columns, share buttons, or likes.
 
-Instead, every post simply gets a permanent, sequential number, starting from №1.
+Instead, every post simply gets a permanent, sequential number, starting from № 1.
+
+The broader site principles are in the [site manifesto](/en/manifest/).

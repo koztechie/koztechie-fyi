@@ -1,8 +1,8 @@
 ---
-title: "Privacy"
+title: "Privacy policy"
 lang: en
 layout: page.njk
-updated: 2026-11-07
+updated: 2026-11-15
 summary: "Privacy policy. A quick breakdown of why this site doesn't track you and how the NICHLYST game handles data."
 og_description: "Privacy policy. Long story short: this website doesn't collect any of your personal data."
 translation_status: complete
@@ -10,6 +10,8 @@ draft: false
 ---
 
 Long story short: this website doesn't collect any of your personal data.
+
+Last updated: <time datetime="2026-11-15">November 15, 2026</time>.
 
 ## What you won't find here
 
@@ -29,13 +31,13 @@ If you reach out to me via the `/contact/` page, your email address stays strict
 
 ## The NICHLYST game
 
-This website and my game, NICHLYST, are entirely separate things. The game is published on Google Play and has its own privacy policy, which you can read directly inside the app.
+This website and NICHLYST are separate products. The game is in development and is not yet available on Google Play. Its privacy policy is published in [Ukrainian](/nichlyst/privacy/) and [English](/en/nichlyst/privacy/).
 
-The game uses RevenueCat to process purchases and subscriptions. RevenueCat only receives the technical data required to complete a payment. Please note that the policy on this page applies exclusively to the website.
+After release, the game will use OneSignal for narrative push notifications, RevenueCat for the one-time full-game unlock (there are no subscriptions), and Sentry for anonymous crash reports. Google Play Billing processes payments; I do not have access to payment details. This page covers the website only.
 
 ## Hosting and server logs
 
-This site is hosted on Netlify. Like almost any hosting provider, Netlify automatically collects standard server logs (such as IP addresses) in accordance with their own privacy policy. I don't control this process, and I don't access or use this data.
+This site is hosted on Netlify. Like almost any hosting provider, Netlify automatically collects standard server logs (such as IP addresses) in accordance with its [privacy policy](https://www.netlify.com/privacy/). I don't control this process, and I don't access or use this data.
 
 ## Updates
 

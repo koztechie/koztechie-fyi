@@ -1,254 +1,137 @@
 #!/usr/bin/env node
-// palette-check.mjs: верифікація контрасту палітр ВУЗОЛ-0
-// Джерело значень: docs/design-system.md §4 (таблиці з --змінна і hex).
-// Перевіряє WCAG AAA (текст ≥7:1), UI-контраст (лінії/фокус ≥3:1), ліміт 6 кольорів.
-// Використання: node scripts/palette-check.mjs
+// Контрастна перевірка токенів теми та їхніх рольових застосувань.
 
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { readThemeColors, paletteRatioRows, renderPaletteRatioTable } from "./theme-colors.mjs";
 
-const docPath = resolve("docs/design-system.md");
-
-const lum = (hex) => {
-  const c = hex.replace("#", "");
-  const [r, g, b] = [0, 2, 4]
-    .map((i) => parseInt(c.slice(i, i + 2), 16) / 255)
-    .map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-};
-
-const ratio = (a, b) => {
-  const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x);
-  return (l1 + 0.05) / (l2 + 0.05);
-};
-
-// Джерело: KZTCH_DS v1.1.0 (документ §4.1).
-// Текст — чорний/сірий (AAA ≥7). Акценти (teal/orange) — ЗАЛИВКИ з чорним
-// текстом (7,31:1 і 7,83:1): як текст на білому вони дають лише
-// 2,87:1 і 2,68:1 (§4.3.1). Тому текстові пари рахують чорний НА заливці,
-// а не акцент як текст на тлі.
-const TEXT_PAIRS = [
-  ["--ink", "--bg"],
-  ["--ink", "--surface"],
-  ["--ink-dim", "--bg"],
-  ["--ink", "--accent"],
-  ["--ink", "--warning"],
-];
-const UI_PAIRS = [
-  ["--rule", "--bg"],
-  ["--rule", "--surface"],
-  ["--rule", "--accent"],
-  ["--rule", "--warning"],
-];
-const REQUIRED = ["--bg", "--surface", "--ink", "--ink-dim", "--accent", "--warning", "--rule"];
-
-console.log("=== PALETTE-CHECK (ВУЗОЛ-0) ===");
-console.log("Джерело: docs/design-system.md §4");
-console.log("Текст: WCAG AAA ≥ 7:1. Лінії та фокус: ≥ 3:1. Ліміт: 6 кольорів.");
-console.log("");
-
-if (!existsSync(docPath)) {
-  console.error(`❌ ${docPath} не існує`);
+const themePath = resolve("src/styles/themes.css");
+if (!existsSync(themePath)) {
+  console.error("❌ src/styles/themes.css не існує");
   process.exit(1);
 }
 
-const doc = readFileSync(docPath, "utf-8");
-
-// Знайти розділи палітр: ### 4.x. Палітра «НАЗВА» ... до наступного ###
-function extractPalette(sectionTitle) {
-  const start = doc.indexOf(sectionTitle);
-  if (start === -1) return null;
-  const rest = doc.slice(start + sectionTitle.length);
-  const end = rest.indexOf("\n### ");
-  const body = end === -1 ? rest : rest.slice(0, end);
-
-  const palette = {};
-  // Рядки таблиці: | `--змінна` | `#hex` | ...
-  // Ловить #RRGGBB та #RRGGBBAA (альфа — теж колір, §4.4.1)
-  const rowRe = /^\|\s*`(--[a-z-]+)`\s*\|\s*`(#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?)`\s*\|/gm;
-  let m;
-  while ((m = rowRe.exec(body)) !== null) palette[m[1]] = m[2];
-  return palette;
-}
-
-const sections = [...doc.matchAll(/^### (4\.\d+\. Палітра «[^»]+»)/gm)].map((m) => m[1]);
-
-if (sections.length === 0) {
-  console.log("  ⚠️  Розділів палітр не знайдено. Пропущено (кроки 81–82).");
-  process.exit(0);
-}
-
+const themeCss = readFileSync(themePath, "utf8");
+const baseColors = readThemeColors();
+const aliases = { "--surface": "--paper", "--link": "--accent", "--focus": "--accent" };
 let errors = 0;
 
-for (const section of sections) {
-  const name = section.replace(/^4\.\d+\. Палітра «/, "").replace(/»$/, "");
-  console.log(`--- «${name}» (${section.split(".")[0]}) ---`);
-  const p = extractPalette(section);
-
-  // 1. Наявність обов'язкових змінних
-  const missing = REQUIRED.filter((k) => !p[k]);
-  if (missing.length > 0) {
-    console.log(`  ❌ Немає змінних: ${missing.join(", ")}`);
-    errors++;
-    console.log("");
-    continue;
-  }
-  console.log(`  ✅ ${REQUIRED.length} обов'язкових змінних`);
-
-  // 2. Ліміт кольорів: рахуються УНІКАЛЬНІ hex (KZTCH_DS:7 змінних,
-  //    але --rule = --ink, отже6 кольорів; AGENTS.md §4 — ліміт кольорів)
-  const uniqueHex = new Set(Object.values(p).map((v) => v.toLowerCase()));
-  if (uniqueHex.size > 6) {
-    console.log(`  ❌ ${uniqueHex.size} унікальних кольорів (ліміт 6)`);
-    errors++;
-  } else {
-    console.log(`  ✅ ${Object.keys(p).length} змінних / ${uniqueHex.size} унікальних кольорів (ліміт 6)`);
-  }
-
-  // 2b. Альфа-канал заборонено в палітрі (§4.4.1: прозорість — це колір,
-  //     але вона не рахується в ліміті коректно і ламає розрахунок контрасту)
-  let alphaFail = 0;
-  for (const [k, v] of Object.entries(p)) {
-    if (/^#[0-9a-fA-F]{8}$/.test(v)) {
-      console.log(`  ❌ ${k}: ${v} — альфа-канал у палітрі заборонено (§4.4.1)`);
-      errors++;
-      alphaFail++;
-    }
-  }
-  if (alphaFail === 0) console.log("  ✅ Без альфа-каналу");
-
-  // 3. Текстові пари AAA
-  let textFail = 0;
-  for (const [fg, bg] of TEXT_PAIRS) {
-    const r = ratio(p[fg], p[bg]);
-    if (r < 7) {
-      console.log(`  ❌ ${fg} на ${bg}: ${r.toFixed(2)}:1 (AAA ≥ 7)`);
-      errors++;
-      textFail++;
-    }
-  }
-  if (textFail === 0) console.log("  ✅ Текст: всі пари ≥ 7:1 (AAA)");
-
-  // 4. UI-пари
-  let uiFail = 0;
-  for (const [fg, bg] of UI_PAIRS) {
-    const r = ratio(p[fg], p[bg]);
-    if (r < 3) {
-      console.log(`  ❌ ${fg} на ${bg}: ${r.toFixed(2)}:1 (UI ≥ 3)`);
-      errors++;
-      uiFail++;
-    }
-  }
-  if (uiFail === 0) console.log("  ✅ Лінії та фокус: всі пари ≥ 3:1");
-
-  // 5. Розріз bg / surface
-  const bs = ratio(p["--bg"], p["--surface"]);
-  if (bs >= 1.3) {
-    console.log(`  ⚠️  bg/surface ${bs.toFixed(2)}:1 — задрібно`);
-  } else {
-    console.log(`  ✅ bg/surface ${bs.toFixed(2)}:1`);
-  }
-  console.log("");
+function fail(message) {
+  console.error(`❌ ${message}`);
+  errors++;
 }
 
-// Відповідність документа та src/styles/themes.css (TECH_STANDARDS §4, design-system §4.3.5)
-// Документ — канон. CSS має збігатися з ним рядок у рядок за значеннями.
-const cssPath = resolve("src/styles/themes.css");
-console.log("--- CSS ↔ документ (themes.css) ---");
-if (!existsSync(cssPath)) {
-  console.log("  ⚠️  src/styles/themes.css не існує. Пропущено (крок 85).");
-} else {
-  const css = readFileSync(cssPath, "utf-8");
+function luminance(hex) {
+  const values = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const [r, g, b] = values.map((v) => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
 
-  // Витягти блок: від селектора до наступного селектора/фінальної фігурної
-  function block(selector) {
-    const start = css.indexOf(selector);
-    if (start === -1) return null;
-    const open = css.indexOf("{", start);
-    if (open === -1) return null;
-    let depth = 0;
-    for (let i = open; i < css.length; i++) {
-      if (css[i] === "{") depth++;
-      if (css[i] === "}") {
-        depth--;
-        if (depth === 0) return css.slice(open, i + 1);
-      }
-    }
-    return null;
-  }
+function contrast(a, b) {
+  const [light, dark] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (light + 0.05) / (dark + 0.05);
+}
 
-  function vars(blockText) {
-    const out = {};
-    const re = /(--[a-z-]+)\s*:\s*(#[0-9a-fA-F]{6})/g;
-    let m;
-    while ((m = re.exec(blockText)) !== null) out[m[1]] = m[2].toLowerCase();
-    return out;
-  }
+console.log("=== PALETTE-CHECK ===");
+for (const [alias, target] of Object.entries(aliases)) {
+  const declaration = new RegExp(`${alias}:\\s*var\\(${target}\\)\\s*;`);
+  if (!declaration.test(themeCss)) fail(`${alias} має лишатися alias-ом ${target}`);
+  else console.log(`✅ ${alias} → ${target}`);
+}
 
-  // KZTCH_DS: одна світла палітра. Темна тема вилучена (рішення автора
-  // від 2026-11-09): система свідомо світла.
-  const rootBlock = block(":root");
-  const cssPalettes = {
-    "KZTCH": rootBlock ? vars(rootBlock) : {},
-  };
+const colorSources = [
+  resolve("src/styles"),
+  resolve("src/templates"),
+  resolve("src/favicon.svg.njk"),
+  resolve("src/site.webmanifest.njk"),
+  resolve("static/root"),
+  resolve("static/og"),
+  resolve("dist"),
+];
 
-  let cssErrors = 0;
-  for (const section of sections) {
-    const name = section.replace(/^4\.\d+\. Палітра «/, "").replace(/»$/, "");
-    const docP = extractPalette(section);
-    const fileP = cssPalettes[name];
-    if (!fileP) {
-      console.log(`  ❌ «${name}»: блок у themes.css не знайдено`);
-      errors++;
-      cssErrors++;
-      continue;
-    }
+function filesUnder(path) {
+  if (!existsSync(path)) return [];
+  const stat = statSync(path);
+  if (stat.isFile()) return [path];
+  return readdirSync(path, { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory() ? filesUnder(join(path, entry.name)) : [join(path, entry.name)]
+  );
+}
 
-    // 1. Ті самі змінні
-    const docKeys = Object.keys(docP).sort().join(",");
-    const cssKeys = Object.keys(fileP).sort().join(",");
-    if (docKeys !== cssKeys) {
-      console.log(`  ❌ «${name}»: набори змінних різняться`);
-      console.log(`      документ: ${docKeys}`);
-      console.log(`      CSS:      ${cssKeys}`);
-      errors++;
-      cssErrors++;
-      continue;
-    }
-
-    // 2. Ті самі значення
-    const diffs = [];
-    for (const [k, v] of Object.entries(docP)) {
-      if (fileP[k] !== v.toLowerCase()) diffs.push(`${k}: документ ${v}, CSS ${fileP[k]}`);
-    }
-    if (diffs.length > 0) {
-      for (const d of diffs) {
-        console.log(`  ❌ «${name}»: ${d}`);
-        errors++;
-        cssErrors++;
-      }
-    }
-
-    // 3. Темної теми немає (KZTCH_DS — лише світла)
-    if (/prefers-color-scheme:\s*dark/.test(css)) {
-      console.log(`  ❌ «${name}»: у themes.css є prefers-color-scheme: dark (темна тема поза KZTCH_DS)`);
-      errors++;
-      cssErrors++;
-    }
-  }
-  if (cssErrors === 0) {
-    console.log("  ✅ themes.css збігається з документом (1 палітра, без темної теми)");
+const auditedFiles = [...new Set(colorSources.flatMap(filesUnder))]
+  .filter((file) => /\.(?:css|njk|svg|webmanifest)$/i.test(file));
+const allowedHex = new Set(Object.values(baseColors));
+for (const file of auditedFiles) {
+  const content = readFileSync(file, "utf8");
+  for (const match of content.matchAll(/#[0-9a-f]{3,8}\b/gi)) {
+    if (allowedHex.has(match[0].toLowerCase())) continue;
+    const line = content.slice(0, match.index).split("\n").length;
+    fail(`${file.slice(process.cwd().length + 1)}:${line} — недозволений колір ${match[0]}`);
   }
 }
-console.log("");
+console.log(`✅ HEX перевірено у ${auditedFiles.length} вихідних файлах.`);
 
-console.log("=== ПІДСУМКОВО ===");
-if (errors > 0) {
-  console.log(`Помилок: ${errors}`);
-  console.log("РЕЗУЛЬТАТ: палітри не відповідають нормам");
-  process.exit(1);
-} else {
-  console.log("Помилок: 0");
-  console.log("РЕЗУЛЬТАТ: всі палітри відповідають нормам");
-  process.exit(0);
+const legacyTokens = /var\(--(?:canvas|plum|navy|green|ash|charcoal|bone|amber|seal|record|living|rule)(?![a-z-])/;
+for (const file of auditedFiles.filter((path) => /\.(?:css|njk)$/i.test(path))) {
+  const content = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  for (const match of content.matchAll(/\b(?:rgb|rgba|hsl|hsla)\s*\(/gi)) {
+    const line = content.slice(0, match.index).split("\n").length;
+    fail(`${file.slice(process.cwd().length + 1)}:${line} — колір має походити з themes.css, не з ${match[0].trim()}`);
+  }
+  for (const match of content.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const declarations = match[2];
+    if (legacyTokens.test(declarations)) {
+      fail(`${file.slice(process.cwd().length + 1)} — залишився токен старої палітри.`);
+    }
+    if (
+      /color\s*:\s*var\(--(?:ink-dim|text-dim)\)/.test(declarations)
+      && /(?:font(?:-size)?\s*:[^;]*--text-xs)/.test(declarations)
+    ) {
+      const line = content.slice(0, match.index).split("\n").length;
+      fail(`${file.slice(process.cwd().length + 1)}:${line} — тьмяний текст не може бути меншим за 14px.`);
+    }
+  }
 }
+
+const contrastPairs = [
+  { type: "AAA body", name: "--ink on --paper", foreground: baseColors.ink, background: baseColors.paper, minimum: 7 },
+  { type: "AAA body", name: "--ink-dim on --paper", foreground: baseColors["ink-dim"], background: baseColors.paper, minimum: 7 },
+  { type: "AAA body", name: "--text-night on --night", foreground: baseColors["text-night"], background: baseColors.night, minimum: 7 },
+  { type: "AAA body", name: "--text-dim on --night", foreground: baseColors["text-dim"], background: baseColors.night, minimum: 7 },
+  { type: "AA UI", name: "--accent on --paper", foreground: baseColors.accent, background: baseColors.paper, minimum: 4.5 },
+  { type: "AA UI", name: "--accent-night on --night", foreground: baseColors["accent-night"], background: baseColors.night, minimum: 4.5 },
+  { type: "AA UI", name: "--paper on --accent", foreground: baseColors.paper, background: baseColors.accent, minimum: 4.5 },
+  { type: "Non-text", name: "--rule-strong on --paper", foreground: baseColors["rule-strong"], background: baseColors.paper, minimum: 3 },
+  { type: "Non-text", name: "--rule-strong-night on --night", foreground: baseColors["rule-strong-night"], background: baseColors.night, minimum: 3 },
+  { type: "Non-text", name: "--focus on --paper", foreground: baseColors.accent, background: baseColors.paper, minimum: 3 },
+  { type: "Non-text", name: "--focus-night on --night", foreground: baseColors["accent-night"], background: baseColors.night, minimum: 3 },
+];
+
+for (const type of ["AAA body", "AA UI", "Non-text"]) {
+  const minimum = type === "AAA body" ? 7 : type === "AA UI" ? 4.5 : 3;
+  console.log(`--- ${type} (мінімум ${minimum}:1) ---`);
+  for (const pair of contrastPairs.filter((candidate) => candidate.type === type)) {
+    const ratio = contrast(pair.foreground, pair.background);
+    if (ratio < pair.minimum) fail(`${pair.name}: ${ratio.toFixed(2)}:1 (потрібно ${pair.minimum}:1)`);
+    else console.log(`✅ ${pair.name}: ${ratio.toFixed(2)}:1`);
+  }
+}
+
+for (const [file, language] of [
+  ["docs/design-system.md", "uk"],
+  ["content/uk/pages/colophon.md", "uk"],
+  ["content/en/pages/colophon.md", "en"],
+]) {
+  const content = readFileSync(resolve(file), "utf8");
+  if (!content.includes(renderPaletteRatioTable(baseColors, language))) {
+    fail(`${file}: таблиця контрасту не синхронізована з themes.css; запусти npm run build.`);
+  }
+}
+
+for (const row of paletteRatioRows(baseColors)) {
+  console.log(`  ${row[0]} на ${row[1]}: ${row[2]}:1`);
+}
+
+if (errors) console.error(`Помилок: ${errors}`);
+else console.log("Палітра відповідає контрастності.");
+process.exit(errors ? 1 : 0);

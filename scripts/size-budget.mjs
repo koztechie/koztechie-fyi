@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // size-budget.mjs: бюджети ваги ВУЗОЛ-0
-// Рахує вагу dist/ після brotli. Падає (exit 1) при перевищенні.
+// Рахує окремий Brotli q11 розмір файлів у dist/. Падає (exit 1) при перевищенні.
 // Бюджети: TECH_STANDARDS.md §1, AGENTS.md §3. Використання:
 // node scripts/size-budget.mjs [dist/]
 
@@ -57,8 +57,8 @@ console.log(`dist: ${distDir}`);
 console.log(`Файлів: ${files.length}`);
 console.log("");
 
-// 1. HTML + CSS + JS однієї сторінки ≤ 50 КБ
-console.log("--- 1. Сторінка (HTML + CSS + JS) ≤ 50 КБ ---");
+// 1. Brotli q11 розмір HTML сторінки + CSS/JS усього сайту ≤ 50 КіБ
+console.log("--- 1. Сторінка (HTML + усі CSS/JS, Brotli q11) ≤ 50 КіБ ---");
 const htmlFiles = files.filter((f) => f.endsWith(".html"));
 const cssFiles = files.filter((f) => f.endsWith(".css"));
 const jsFiles = files.filter((f) => f.endsWith(".js"));
@@ -77,11 +77,11 @@ if (htmlFiles.length === 0) {
   for (const f of htmlFiles) {
     const pageKB = brotliKB(f) + cssTotal + jsTotal;
     if (pageKB > 50) {
-      fail(`${f.replace(distDir + "/", "")}: ${pageKB.toFixed(1)} КБ (бюджет 50 КБ)`);
+      fail(`${f.replace(distDir + "/", "")}: ${pageKB.toFixed(1)} КіБ (бюджет 50 КіБ)`);
       pageErrors++;
     }
   }
-  if (pageErrors === 0) ok(`${htmlFiles.length} сторінок ≤ 50 КБ (HTML + CSS ${cssTotal.toFixed(1)} + JS ${jsTotal.toFixed(1)})`);
+  if (pageErrors === 0) ok(`${htmlFiles.length} HTML-сторінок ≤ 50 КіБ (HTML окремо + CSS ${cssTotal.toFixed(1)} + JS ${jsTotal.toFixed(1)})`);
 }
 
 // JS: 0 байт — окрема перевірка тут не потрібна (check.mjs 7а), але вагу рахуємо
@@ -101,20 +101,11 @@ if (cssTotal > 15) {
 }
 console.log("");
 
-// 3. Шрифти сумарно ≤ 340 КБ (канон KZTCH_DS: до 8 woff2)
-console.log("--- 3. Шрифти ≤ 340 КБ ---");
+// 3. Системні шрифти: завантажуваних шрифтів у збірці немає.
+console.log("--- 3. Системні шрифти ---");
 const fontFiles = files.filter((f) => f.endsWith(".woff2") || f.endsWith(".woff"));
-let fontTotal = 0;
-for (const f of fontFiles) fontTotal += statSync(f).size / KB;
-if (fontFiles.length > 8) {
-  fail(`${fontFiles.length} файлів (бюджет 8)`);
-} else if (fontTotal > 340) {
-  fail(`${fontFiles.length} файлів, ${fontTotal.toFixed(1)} КБ (бюджет 340 КБ)`);
-} else if (fontFiles.length === 0) {
-  console.log("  ⚠️  Шрифтів немає. Пропущено.");
-} else {
-  ok(`${fontFiles.length} файлів, ${fontTotal.toFixed(1)} КБ (бюджет: 8 файлів / 340 КБ)`);
-}
+if (fontFiles.length > 0) fail(`знайдено ${fontFiles.length} завантажуваних шрифтів`);
+else ok("завантажуваних шрифтів немає");
 console.log("");
 
 // 4. Одне зображення ≤ 80 КБ
@@ -136,7 +127,7 @@ console.log("");
 
 // 5. Favicon (SVG + растрові) ≤ 10 КБ
 console.log("--- 5. Favicon ≤ 10 КБ ---");
-const favFiles = files.filter((f) => /favicon/i.test(f));
+const favFiles = files.filter((f) => /favicon|apple-touch-icon|site\.webmanifest/i.test(f));
 let favTotal = 0;
 for (const f of favFiles) favTotal += brotliKB(f);
 if (favTotal > 10) {
@@ -148,12 +139,11 @@ if (favTotal > 10) {
 }
 console.log("");
 
-// 6. CSS + шрифти + favicon ≤ 365 КБ:
-//    340 КБ шрифтів + 15 КБ CSS + 10 КБ favicon.
-console.log("--- 6. CSS + шрифти + favicon ≤ 365 КБ ---");
-const coreTotal = cssTotal + fontTotal + favTotal;
-if (coreTotal > 365) {
-  fail(`${coreTotal.toFixed(1)} КБ (бюджет 365 КБ)`);
+// 6. CSS + favicon ≤ 25 КБ.
+console.log("--- 6. CSS + favicon ≤ 25 КБ ---");
+const coreTotal = cssTotal + favTotal;
+if (coreTotal > 25) {
+  fail(`${coreTotal.toFixed(1)} КБ (бюджет 25 КБ)`);
 } else {
   ok(`${coreTotal.toFixed(1)} КБ`);
 }

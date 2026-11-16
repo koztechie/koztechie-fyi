@@ -1,0 +1,20 @@
+---
+permalink: /favicon.svg
+eleventyExcludeFromCollections: true
+---
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .tile { fill: {{ themeColors.paper }}; }
+    .frame, .record { fill: none; stroke: {{ themeColors.accent }}; }
+    .signal { fill: {{ themeColors.accent }}; }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: {{ themeColors.night }}; }
+      .frame, .record { stroke: {{ themeColors["text-night"] }}; }
+      .signal { fill: {{ themeColors["accent-night"] }}; }
+    }
+  </style>
+  <rect class="tile" width="64" height="64"/>
+  <path class="frame" d="M8 8h48v48H8z" stroke-width="3"/>
+  <path class="record" d="M20 19v26m24-26L22 32l22 13" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <rect class="signal" x="45" y="17" width="5" height="5"/>
+</svg>

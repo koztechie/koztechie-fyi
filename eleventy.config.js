@@ -1,14 +1,18 @@
+import { readThemeColors } from "./scripts/theme-colors.mjs";
+
 export default function (eleventyConfig) {
   // Passthrough. Явні мапи: input = "." → прості шляхи зберігали б структуру
-  // (src/styles → dist/src/styles), але розмітка шукає /styles/, /fonts/, /img/.
+  // (src/styles → dist/src/styles), але розмітка шукає /styles/ і /img/.
   eleventyConfig.addPassthroughCopy({"static/root": "/"});
-  eleventyConfig.addPassthroughCopy({"static/fonts": "fonts"});
   eleventyConfig.addPassthroughCopy({"static/img": "img"});
-  eleventyConfig.addPassthroughCopy({"src/styles": "styles"});
   eleventyConfig.addPassthroughCopy({"static/og": "og"});
+  eleventyConfig.addPassthroughCopy({"static/nichlyst": "nichlyst"});
 
   // Мови фідів (крок 125): два виходи /feed.xml та /en/feed.xml
   eleventyConfig.addGlobalData("feedLangs", ["uk", "en"]);
+  // Паспорт головної показує дату поточної збірки, а не дату контенту.
+  eleventyConfig.addGlobalData("buildDate", new Date());
+  eleventyConfig.addGlobalData("themeColors", readThemeColors());
 
   // Колекції
   eleventyConfig.addCollection("blog", (api) =>
@@ -23,6 +27,12 @@ export default function (eleventyConfig) {
   eleventyConfig.addCollection("poetry", (api) =>
     api.getFilteredByGlob("content/*/poetry/*.md").sort((a, b) => b.data.entry - a.data.entry)
   );
+  eleventyConfig.addCollection("latestEntries", (api) =>
+    ["blog", "practice", "cemetery", "poetry"]
+      .flatMap((section) => api.getFilteredByGlob(`content/*/${section}/*.md`))
+      .filter((item) => item.data.draft !== true && item.data.date && item.url)
+      .sort((a, b) => new Date(b.data.date) - new Date(a.data.date))
+  );
 
   // Мовні колекції (крок 117): контент за мовою для sitemap/RSS/hreflang.
   // Спаджений за датою спадно; сторінки без дати — в кінець.
@@ -36,6 +46,19 @@ export default function (eleventyConfig) {
   );
   eleventyConfig.addCollection("en", (api) =>
     api.getFilteredByGlob("content/en/**/*").sort(byDateDesc)
+  );
+
+  // Публічні сторінки: ті самі URL, що потрапляють до sitemap.
+  eleventyConfig.addCollection("publicPages", (api) =>
+    api.getAll().filter((item) => {
+      const url = item.url || "";
+      const excluded =
+        item.data.noindex ||
+        item.data.draft === true ||
+        url.startsWith("/404") ||
+        url.startsWith("/sitemap");
+      return url.endsWith("/") && !excluded;
+    })
   );
 
   // Фільтри
@@ -58,16 +81,6 @@ export default function (eleventyConfig) {
     const text = String(content || "").replace(/<[^>]+>/g, " ");
     const words = text.split(/\s+/).filter(Boolean).length;
     return Math.max(1, Math.round(words / 180));
-  });
-
-  // Буквиця: шаблон перевіряє перший символ (design-system.md §5.11.4).
-  // Літера — так; цифра, лапка, тире, список — ні.
-  eleventyConfig.addFilter("dropcapReady", (html) => {
-    const m = String(html || "").match(/<p[^>]*>([\s\S]*?)<\/p>/i);
-    if (!m) return false;
-    const text = m[1].replace(/<[^>]+>/g, "").trim();
-    if (!text) return false;
-    return /^[a-zа-яіїєґ']/i.test(text);
   });
 
   // Множина для лічильника (крок 118): uk — 3 форми, en — 2.

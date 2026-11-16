@@ -10,7 +10,8 @@ eleventyExcludeFromCollections: true
     Крок 125. DECISIONS.md §30, §17.3, ARCHITECTURE.md.
     Повні тексти (§30.1): <description> = весь HTML запису, без обрізок.
     Весь архів (§30.3): /blog/, /practice/, /poetry/, /cemetery/ — без лімітів.
-    <guid> = <link> (§30.4). <pubDate> — RFC 822 (фільтр rfc822Date).
+    <guid> = <link> (§30.4). <pubDate> — RFC 822. lastBuildDate — час збірки.
+    Atom self-link веде на URL відповідного мовного фіду.
     Без реклами, відстеження, соцмереж, «Читати далі» (§30.3).
     Мовна ізоляція: items лише цієї мови.
     autoescape njk екранує <title>/<description>; CDATA потребує | safe.
@@ -29,14 +30,17 @@ eleventyExcludeFromCollections: true
   {%- endif -%}
 {%- endfor -%}
 {%- set items = items | sortByDateDesc -%}
+{%- set feedBuildDate = buildDate -%}
+{%- set feedUrl = siteRoot + ("/en/feed.xml" if feedLang === "en" else "/feed.xml") -%}
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ strings.site.name }}</title>
     <link>{% if feedLang === "en" %}{{ siteRoot }}/en/{% else %}{{ siteRoot }}/{% endif %}</link>
+    <atom:link href="{{ feedUrl }}" rel="self" type="application/rss+xml" />
     <description>{{ strings.site.title }}</description>
     <language>{{ feedLang }}</language>
-    <lastBuildDate>{{ page.date | rfc822Date }}</lastBuildDate>
+    <lastBuildDate>{{ feedBuildDate | rfc822Date }}</lastBuildDate>
     {%- for item in items %}
     {%- set u = item.url if item.url else "" %}
     <item>

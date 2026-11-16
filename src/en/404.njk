@@ -1,0 +1,30 @@
+---
+permalink: /en/404.html
+lang: en
+noindex: true
+eleventyExcludeFromCollections: true
+---
+{#- Англійська сторінка 404; парна до src/404.njk. -#}
+{% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
+
+{% block title %}<title>404 — {{ strings.site.name }}</title>{% endblock %}
+
+{% block description %}
+<meta name="description" content="{{ strings.site.bio_short }}">
+{% endblock %}
+
+{% block hreflang %}{% endblock %}
+
+{% block social_meta %}{% endblock %}
+
+{% block content %}
+<article class="page">
+  <h1>{{ strings.page_404.text }}</h1>
+  <p>{{ strings.page_404.explanation }}</p>
+  <ul>
+    <li><a href="/en/">{{ strings.page_404.home_link }}</a></li>
+    <li><a href="/en/#home-sections-h">{{ strings.page_404.sections_link }}</a></li>
+  </ul>
+</article>
+{% endblock %}

@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci --ignore-scripts && npm run build && npm run check"
+  command = "npm ci --ignore-scripts && npm run build && npm run check && npm run size && npm run linkcheck:external"
   publish = "dist"
 
 [build.environment]

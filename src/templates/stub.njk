@@ -16,7 +16,11 @@
 {%- set ukHref = raw.slice(3) if raw.indexOf("/en/") === 0 else raw -%}
 <article class="translation-pending">
   <h1>{{ strings.stub.title }}</h1>
-  <p>{{ strings.stub.lead }}</p>
-  <p><a href="{{ ukHref }}">{{ strings.stub.link }}</a></p>
+  <p><a href="{{ ukHref }}">{{ strings.stub.link }} <span aria-hidden="true">→</span></a></p>
+  {%- if raw.indexOf("/cemetery/") !== -1 %}
+  <nav class="pagination entry-navigation" aria-label="{{ strings.post.navigation_label }}">
+    <a href="/en/cemetery/">{{ strings.post.archive_project }}</a>
+  </nav>
+  {%- endif %}
 </article>
 {% endblock %}

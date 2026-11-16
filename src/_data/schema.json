@@ -10,5 +10,9 @@
       "https://github.com/koztechie"
     ]
   },
+  "oneTimeOffer": {
+    "uk": "Разова покупка, без підписки.",
+    "en": "One-time purchase; no subscription."
+  },
   "siteUrl": "https://koztechie.fyi/"
 }

@@ -49,6 +49,7 @@
 ├── docs/
 ├── scripts/
 │   ├── check.mjs
+│   ├── bundle-styles.mjs
 │   ├── palette-check.mjs
 │   ├── postbuild.mjs
 │   ├── size-budget.mjs
@@ -70,28 +71,26 @@
 │   │   ├── components.css
 │   │   ├── themes.css
 │   │   ├── print.css
-│   │   └── nichlyst.css
 │   ├── templates/
 │   │   ├── base.njk
 │   │   ├── post.njk
 │   │   ├── list.njk
 │   │   ├── page.njk
 │   │   ├── poetry.njk
-│   │   ├── nichlyst.njk
 │   │   ├── stub.njk                     # Заглушка перекладу
 │   │   ├── 404.njk
 │   │   ├── feed.njk
 │   │   ├── sitemap.njk
 │   │   ├── header.njk
 │   │   └── footer.njk
-│   └── styles.njk                      # Збірка CSS в один файл
 ├── static/
 │   ├── fonts/
 │   ├── img/
 │   └── root/
 │       ├── favicon.svg
-│       ├── favicon-32.png
-│       ├── favicon-16.png
+│       ├── favicon.ico
+│       ├── apple-touch-icon.png
+│       ├── site.webmanifest
 │       ├── robots.txt
 │       └── _headers                    # Netlify Headers
 ├── dist/                               # Вихід (git-ігнор)
@@ -121,9 +120,8 @@
 export default function (eleventyConfig) {
   // Passthrough
   eleventyConfig.addPassthroughCopy({"static/root": "/"});
-  eleventyConfig.addPassthroughCopy("static/fonts");
-  eleventyConfig.addPassthroughCopy("static/img");
-  eleventyConfig.addPassthroughCopy("src/styles");
+  eleventyConfig.addPassthroughCopy({"static/img": "img"});
+  eleventyConfig.addPassthroughCopy({"src/styles": "styles"});
 
   // Колекції
   eleventyConfig.addCollection("blog", (api) =>
@@ -169,6 +167,8 @@ export default function (eleventyConfig) {
 }
 ```
 
+Шрифти не копіюються: інтерфейс використовує системні шрифтові стеки.
+
 **`.eleventyignore`:**
 
 ```
@@ -181,7 +181,7 @@ AGENTS.md
 LICENSE
 ```
 
-**Збірка CSS:** `src/styles.njk` читає 6 CSS-файлів, конкатенує, мініфікує (простий скрипт без залежностей), пише `dist/assets/site.css`.
+**Збірка CSS:** `scripts/bundle-styles.mjs` об'єднує чотири екранні таблиці й додає SHA-256 fingerprint до назв `dist/styles/site.*.css` та `print.*.css`; останній підключається лише для медіа друку. Залежностей для збірки немає.
 
 ---
 
@@ -338,11 +338,12 @@ http://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 ```
 # Заголовки безпеки (PLAN 160): секція /* — на весь сайт.
 /*
-  Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self'; script-src 'none'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
 
 # Примусова заборона ШІ-доступу (PLAN 122): X-Robots-Tag на рівні хостингу.
 # Ті самі шляхи, що в robots.txt: поезія та тексти авторські.

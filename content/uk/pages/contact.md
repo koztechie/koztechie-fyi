@@ -2,7 +2,7 @@
 title: "Контакт"
 lang: uk
 layout: page.njk
-updated: 2026-11-07
+updated: 2026-11-15
 summary: "Як зі мною зв'язатися. Найкращий і єдиний спосіб — електронна пошта."
 og_description: "Контактна сторінка. Як зі мною зв'язатися (найкраще — написати на email)."
 translation_status: complete
@@ -11,7 +11,10 @@ draft: false
 
 Якщо маєте запитання, пропозицію чи просто хочете щось обговорити — пишіть на email.
 
-<a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">Написати листа</a>
+<div class="contact-method">
+  <a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">Написати листа</a>
+  <span class="contact-address">hello@koztechie.fyi</span>
+</div>
 
 ## Що варто знати
 

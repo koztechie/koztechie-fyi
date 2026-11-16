@@ -36,7 +36,7 @@
     {%- endif -%}
   {%- endfor -%}
 {%- endif -%}
-<article class="list">
+<article class="list{% if section === 'cemetery' %} list--cemetery{% endif %}">
   <h1>{{ title }}</h1>
   {%- if intro %}
   <p class="list-intro">{{ intro }}</p>
@@ -55,7 +55,7 @@
   {%- else -%}
     {%- set all = items -%}
   {%- endif -%}
-  <ul class="archive-list">
+  <ul class="archive-list" role="list">
     {%- for item in items %}
     {%- if item.data.draft !== true and item.url %}
     <li>
@@ -77,7 +77,7 @@
     {%- if current > 1 %}
     <a href="{{ pagination.hrefs[current - 2] }}" rel="prev">{{ strings.list.prev }}</a>
     {%- endif %}
-    <span class="pagination-pages">
+    <span class="pagination__pages">
       {%- for href in pagination.hrefs %}
       {%- if loop.index === current %}
       <span class="current" aria-current="page">{{ loop.index }}</span>

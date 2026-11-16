@@ -1,9 +1,7 @@
 {#- page.njk: лейаут статичної сторінки.
     Крок 116. docs/ARCHITECTURE.md, content-model.md §5.5.
     Призначення: /manifest/, /now/, /colophon/, /contact/, /privacy/.
-    h1 + текст. Без буквиці (§5.11.1: службові сторінки — не література).
-    Без entry-line (немає entry, §7.1.2).
-    Курсор ▍ — лише /manifest/ (§7.3.4): клас ставить цей шаблон, не скрипт. -#}
+    h1 + текст. -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
 
@@ -15,13 +13,40 @@
 {%- endif %}
 {% endblock %}
 
+{% block head %}
+{%- if structured_data === "nichlyst" %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["VideoGame", "SoftwareApplication"],
+  "@id": {{ ("https://koztechie.fyi" + page.url + "#game") | json | safe }},
+  "name": {{ title | json | safe }},
+  "description": {{ summary | json | safe }},
+  "url": {{ ("https://koztechie.fyi" + page.url) | json | safe }},
+  "image": {{ ("https://koztechie.fyi" + og_image) | json | safe }},
+  "author": {
+    "@type": "Person",
+    "@id": {{ (schema.siteUrl + "#person") | json | safe }},
+    "name": {{ schema.person.name | json | safe }},
+    "url": {{ schema.siteUrl | json | safe }}
+  },
+  "operatingSystem": "Android",
+  "applicationCategory": "GameApplication",
+  "gamePlatform": "Android",
+  "inLanguage": "uk",
+  "offers": {
+    "@type": "Offer",
+    "description": {{ schema.oneTimeOffer[lang] | json | safe }}
+  }
+}
+</script>
+{%- endif %}
+{% endblock %}
+
 {% block content %}
-{#- Нормалізація: /en/manifest/ → /manifest/ (мовна гілка не змінює розділ). -#}
-{%- set raw = page.url if page.url else "/" -%}
-{%- set cur = raw.slice(3) if raw.indexOf("/en/") === 0 else raw -%}
 <article class="page">
   <h1>{{ title }}</h1>
-  <div class="page-body{% if cur === "/manifest/" %} cursor-blink{% endif %}">
+  <div class="page-body">
     {{ content | safe }}
   </div>
 </article>

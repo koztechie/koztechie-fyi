@@ -4,9 +4,11 @@
     "name_en": "koztechie",
     "title": "Personal blog and portfolio.",
     "bio_short": "Personal blog from Kyiv. Thoughts, notes, and projects. No clickbait, no vanity metrics.",
+    "og_image_alt": "koztechie — a light digital-archive card with framed signal markers and the site name.",
     "date_suffix": ""
   },
   "home": {
+    "browser_title": "koztechie — Eugene Kozlovsky, developer and systems architect",
     "lead": "This is my personal website. It's a collection of my projects, code, and writing. I share what I'm working on in two languages, with no strict publishing schedule.",
     "latest_title": "Latest entries",
     "sections_title": "What's here",
@@ -16,11 +18,11 @@
       "Eugene Kozlovsky",
       "Kyiv, Ukraine"
     ],
-    "cta_text": "Write a letter →",
-    "cta_note": "The best way to reach me.",
+    "cta_text": "Write a letter",
+    "cta_note": "Replies usually take a few days; delays may happen.",
     "passport_label": "About me and this site",
     "pass_label_lang": "Site languages",
-    "pass_label_pages": "Number of pages",
+    "pass_label_pages": "Public pages",
     "pass_label_author": "Author",
     "pass_value_author": "Eugene Kozlovsky",
     "pass_label_alias": "Handle",
@@ -29,8 +31,8 @@
       "uk": "Ukrainian",
       "en": "English"
     },
-    "pass_label_size": "Page size",
-    "pass_size": "up to 50 KB",
+    "pass_label_size": "Page budget",
+    "pass_size": "≤ 50 KiB, Brotli",
     "principles_title": "Core principles",
     "principles": [
       {
@@ -62,8 +64,8 @@
       "contact": "how to get in touch with me."
     },
     "nichlyst_section_title": "Main project",
-    "nichlyst_text": "A mobile game I'm working on right now.",
-    "nichlyst_link": "Learn about NICHLYST →"
+    "nichlyst_text": "In development. It will be released when it’s ready.",
+    "nichlyst_link": "Project page"
   },
   "list": {
     "count": "Total",
@@ -78,6 +80,15 @@
   },
   "post": {
     "entry_prefix": "Post №",
+    "poem_entry_prefix": "Poem №",
+    "written_label": "Written:",
+    "project_label": "Project",
+    "closed_label": "· Closed",
+    "archive_blog": "← All posts",
+    "archive_project": "← Cemetery",
+    "navigation_label": "Entry navigation",
+    "previous_entry": "← Previous entry",
+    "next_entry": "Next entry",
     "warning_prefix": "Warning:",
     "warnings": {
       "війна": "the text contains descriptions of military action",
@@ -86,12 +97,7 @@
       "смерть": "the text contains descriptions of death",
       "залежність": "the text contains descriptions of addiction"
     },
-    "reading_prefix": "About",
-    "reading_forms": [
-      "minute",
-      "minutes"
-    ],
-    "reading_suffix": " of reading"
+    "reading_unit": " min read"
   },
   "case_sections": [
     "Role",
@@ -130,11 +136,13 @@
   },
   "stub": {
     "title": "Not translated",
-    "lead": "Read the original in Ukrainian →",
-    "link": "Читати українською"
+    "link": "Read in Ukrainian"
   },
   "page_404": {
-    "text": "Entry not found."
+    "text": "Entry not found.",
+    "explanation": "There is no page at this address.",
+    "home_link": "Home",
+    "sections_link": "What’s here"
   },
   "now": {
     "updated": "Updated",

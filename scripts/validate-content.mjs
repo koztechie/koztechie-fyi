@@ -57,7 +57,6 @@ const VALID_WARNING = stringsUk?.post?.warnings
   : ["війна", "здоровʼя", "травма", "смерть", "залежність"];
 const VALID_LAYOUT = [
   "page.njk",
-  "nichlyst.njk",
   "post.njk",
   "poetry.njk",
   "list.njk",
@@ -154,6 +153,9 @@ for (const file of files) {
   if (fm.layout && !VALID_LAYOUT.includes(fm.layout)) {
     errors.push(`layout: недопустиме значення «${fm.layout}»`);
   }
+  if (fm.structured_data && fm.structured_data !== "nichlyst") {
+    errors.push(`structured_data: недопустиме значення «${fm.structured_data}»`);
+  }
 
   // 7. Дати (ISO 8601)
   const dateFields = ["date", "updated", "written"];
@@ -161,6 +163,12 @@ for (const file of files) {
     if (fm[field] && !/^\d{4}-\d{2}-\d{2}$/.test(String(fm[field]))) {
       errors.push(`${field}: не ISO 8601 («${fm[field]}»)`);
     }
+  }
+  if (fm.written_period !== undefined && typeof fm.written_period !== "string") {
+    errors.push(`written_period: має бути рядком («${fm.written_period}»)`);
+  }
+  if (fm.written && fm.written_period) {
+    errors.push("written і written_period не можна задавати одночасно");
   }
 
   // 8. Довжини
@@ -336,7 +344,6 @@ function detectType(relPath, fm) {
   if (relPath.includes("/practice/")) return "case";
   if (relPath.includes("/poetry/")) return "poem";
   if (relPath.includes("/blog/")) return "post";
-  if (fm.layout === "nichlyst.njk") return "page";
   if (fm.layout === "page.njk") return "page";
   if (fm.layout === "now.njk") return "page"; // /now/: секції з front matter, тіло опційне
   return "unknown";

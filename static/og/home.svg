@@ -1,34 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- home.svg: OG-картинка головної (PLAN 148). 1200×630 (стандарт Open Graph).
-     Палітра ПАПІР (design-system §4.2): фон #f7f8fa, ink #14181d,
-     ink-dim #434955, accent #0a5266, rule #6b7482.
-     Типографіка: JetBrains Mono (назва/домен), Georgia (теза) — §5.
-     Без кота (DECISIONS §13), без фото, без градієнтів і тіней (§2).
-     Тексти синхронізуються зі словниками: site.name, home.tagline,
-     site.title. Ручна зміна SVG → оновити і static/og/home.png. -->
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <!-- Фон ПАПІР -->
-  <rect width="1200" height="630" fill="#f7f8fa"/>
-
-  <!-- Тонка рамка-межа (§2: без тіней, лише лінія) -->
-  <rect x="40" y="40" width="1120" height="550" fill="none" stroke="#6b7482" stroke-width="1"/>
-
-  <!-- Назва: моноширинний, верхній регістр (§5.8.3) -->
-  <text x="90" y="200" font-family="JetBrains Mono, ui-monospace, monospace"
-        font-size="104" font-weight="700" letter-spacing="6" fill="#14181d">ВУЗОЛ-0</text>
-
-  <!-- Лінійка-роздільник -->
-  <line x1="90" y1="250" x2="1110" y2="250" stroke="#6b7482" stroke-width="1"/>
-
-  <!-- Теза (Georgia — книжковий стек §5.1) -->
-  <text x="90" y="330" font-family="Georgia, 'Times New Roman', serif"
-        font-size="44" fill="#434955">Архів свідчень, коду та спостережень.</text>
-
-  <!-- Слоган (§11, ОБРАНО) -->
-  <text x="90" y="400" font-family="Georgia, 'Times New Roman', serif"
-        font-size="32" font-style="italic" fill="#434955">Текст без прикрас.</text>
-
-  <!-- Домен: акцент (§4.2) -->
-  <text x="90" y="540" font-family="JetBrains Mono, ui-monospace, monospace"
-        font-size="34" letter-spacing="2" fill="#0a5266">koztechie.fyi</text>
+  <rect width="1200" height="630" fill="{{THEME_PAPER}}"/>
+  <rect x="38" y="38" width="1124" height="554" fill="none" stroke="{{THEME_RULE_STRONG}}" stroke-width="2"/>
+  <rect x="38" y="38" width="14" height="554" fill="{{THEME_ACCENT}}"/>
+  <text x="88" y="112" fill="{{THEME_INK}}" font-family="Arial, sans-serif" font-size="34" font-weight="700">koztechie</text>
+  <text x="1110" y="110" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="19" letter-spacing="3" text-anchor="end">ВУЗОЛ / 00</text>
+  <line x1="88" y1="150" x2="1110" y2="150" stroke="{{THEME_RULE_SOFT}}" stroke-width="2"/>
+  <text x="88" y="278" fill="{{THEME_INK}}" font-family="Arial, sans-serif" font-size="70" font-weight="700" letter-spacing="-2">Цифровий архів</text>
+  <text x="88" y="332" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="20" letter-spacing="2">ТЕКСТИ · СИСТЕМИ · СВІДЧЕННЯ</text>
+  <rect x="88" y="398" width="730" height="94" fill="{{THEME_NIGHT}}"/>
+  <path d="M118 444h112m28 0h74m28 0h206m28 0h100" fill="none" stroke="{{THEME_TEXT_NIGHT}}" stroke-width="5"/>
+  <rect x="682" y="428" width="12" height="32" fill="{{THEME_ACCENT_NIGHT}}"/>
+  <circle cx="230" cy="444" r="8" fill="{{THEME_ACCENT_NIGHT}}"/>
+  <text x="1110" y="480" fill="{{THEME_INK}}" font-family="monospace" font-size="22" text-anchor="end">koztechie.fyi</text>
+  <text x="88" y="550" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="17" letter-spacing="2">СИГНАЛ СХОВИЩА</text>
 </svg>

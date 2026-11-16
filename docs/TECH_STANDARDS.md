@@ -17,11 +17,11 @@
 | Метрика | Бюджет | Джерело |
 |---------|--------|---------|
 | HTML + CSS + JS однієї сторінки | ≤ 50 КБ | §3 AGENTS.md |
-| CSS (сумарний, до мініфікації) | ≤ 15 КБ | PLAN.md 104 |
-| Шрифти (сумарний) | ≤ 340 КБ, до 8 `.woff2` (комплект KZTCH_DS) | §3 AGENTS.md, DECISIONS §41 |
+| CSS-файли з `dist/` (сумарно після Brotli) | ≤ 15 КБ | PLAN.md 104 |
+| Шрифтові файли | 0 запитів; системні стеки | DECISIONS §41 |
 | Одине зображення | ≤ 80 КБ | Новий ліміт |
 | Favicon (SVG + растрові) | ≤ 10 КБ | Новий ліміт |
-| CSS + шрифти + favicon (сумарно) | ≤ 400 КБ (шрифти KZTCH_DS завантажуються підмножинами за `unicode-range`) | Оновлено KZTCH_DS |
+| CSS + favicon (сумарно) | ≤ 50 КБ на сторінку разом з HTML | AGENTS.md §3 |
 | Сайт (dist/ без зображень та feed.xml) | ≤ 2 МБ | PLAN.md 75 |
 | Зображення (сумарно) | Без обмеження (архів) | Виняток |
 | Dev-сервер RAM | < 500 МБ | PLAN.md 54 |
@@ -31,6 +31,8 @@
 | Lighthouse | ≥ 95 (всі метрики) | PLAN.md 169 |
 
 **Виняток із бюджету зображень:** `/feed.xml` росте необмежено (повний архів, §30 DECISIONS). Ліміт фіда — 500 КБ; перевищення → попередження, не помилка.
+
+**Методика сторінки:** для кожного HTML береться його окремий Brotli-розмір, до нього додаються окремі Brotli-розміри всіх CSS- і JS-файлів із `dist/` (якість Brotli 11). Зображення та інші медіа не входять. Це відтворювана оцінка; фактичний transfer size конкретного запиту залежить від сервера та узгодження кодування.
 
 **Кодування зображень:** AVIF/OG-картинки — окремий скрипт з кешем у `static/`. Не рахується в 60 с.
 
@@ -71,7 +73,8 @@
 
 **Заборони:**
 - `style=""` в HTML (CSP `style-src 'self'`).
-- `inline script` (CSP `script-src 'self'`).
+- Виконуваний JavaScript заборонений (CSP `script-src 'none'`). Блоки JSON-LD
+  містять структуровані дані й не є виконуваними скриптами.
 - `subgrid` — лише якщо підтримується в Firefox ESR.
 
 ---
@@ -109,37 +112,42 @@
 | Рівень | Механізм |
 |--------|----------|
 | Значення | `var(--bg)`, `var(--ink)`, `var(--accent)` — у `themes.css` |
-| Теми | Немає: одна світла палітра KZTCH (KZTCH_DS, §36.2 DECISIONS) |
+| Токени кольору | `themes.css`; перемикача тем немає |
 | Повторювані правила | Класи в `components.css`. Без міксинів. Без `@extend`. |
 | Медіа-запити | Нативні. Без міксинів-мікромедіа. |
 
-**Порядок завантаження** (6 файлів → 1 на виході):
+**Порядок вихідних стилів**:
 
 ```
-core.css → layout.css → components.css → themes.css → print.css → nichlyst.css
+core.css → layout.css → components.css → themes.css
 ```
 
-`nichlyst.css` вантажиться лише на `/nichlyst/`. `print.css` — лише в медіа
-`print`. Решта — загальним листом.
+Чотири екранні файли збираються в `/styles/site.<hash>.css` і дають один
+render-blocking запит. `/styles/print.<hash>.css` підключається окремим тегом
+`media="print"` і не блокує екранний рендеринг. Обидва імені fingerprinted;
+Окрема палітра та CSS для NICHLYST заплановані на Фазу B (PLAN 201–203).
+До реалізації `/nichlyst/` використовує глобальну тему; плейсхолдера
+`nichlyst.css` немає.
 
 ### 4.1. Архітектура
 
-**6 файлів у `src/styles/`:**
+**5 файлів у `src/styles/`:**
 
 | # | Файл | Призначення |
 |---|------|-------------|
 | 1 | `core.css` | Скидання, змінні, типографічна база |
 | 2 | `layout.css` | Сітка, шапка, підвал |
 | 3 | `components.css` | Картки, мітки, лінійки |
-| 4 | `themes.css` | Значення палітри KZTCH (світла, KZTCH_DS) |
-| 5 | `print.css` | Друк: завжди світла тема |
-| 6 | `nichlyst.css` | Палітра NICHLYST. Лише в `nichlyst.njk` |
+| 4 | `themes.css` | Значення поточної палітри |
+| 5 | `print.css` | Стилі друку |
 
-**Збірка:** На виході — один файл (скрипт без залежностей). Менше запитів на повільному каналі.
+**Збірка:** `scripts/bundle-styles.mjs` об'єднує екранні файли й хешує вміст
+без нових залежностей. `site.*.css` та `print.*.css` кешуються рік з `immutable`;
+`/og/*` — 24 години. HTML лишається з `max-age=0, must-revalidate`.
 
 **CSS-змінні:** `var(--bg)`, `var(--surface)`, `var(--ink)`, `var(--ink-dim)`, `var(--accent)`, `var(--rule)`.
 
-**Hex:** Заборонений скрізь, крім `themes.css` і `nichlyst.css`. `print.css` перевизначає змінні.
+**Hex:** Заборонений скрізь, крім `themes.css` і `print.css`. `print.css` перевизначає змінні. Палітра NICHLYST буде додана у Фазі B за PLAN 202.
 
 **Заборонені патерни:**
 - `box-shadow`, `text-shadow`, `drop-shadow` — без винятків (фокус через `outline`).
@@ -169,7 +177,7 @@ core.css → layout.css → components.css → themes.css → print.css → nich
 
 **JS: 0 байт.**
 
-Жодного JS на сайті. Теми немає — одна світла палітра KZTCH (§36.2 DECISIONS). Мобільне меню — 5 пунктів у шапці, решта у підвалі.
+Жодного JS на сайті. Кольорові токени працюють без перемикача. Мобільна навігація не приховує розділів.
 
 ### 5.1. Що заборонено
 
@@ -189,7 +197,7 @@ core.css → layout.css → components.css → themes.css → print.css → nich
 | Швидкість | На 3G-каналі JS — це затримка першого рендеру. |
 | Аудит | Чистий HTML+CSS читається без DevTools. |
 | Виживання | Через 10 років JS-бандлер зміниться. HTML залишиться. |
-| Тема | Відсутня: світла палітра KZTCH_DS не потребує ні теми, ні JS для неї (§36.2 DECISIONS). |
+| Тема | Немає перемикача; CSS-токени визначають вигляд. |
 
 ### 5.3. Винятки
 
@@ -215,80 +223,19 @@ core.css → layout.css → components.css → themes.css → print.css → nich
 
 ## 6. ШРИФТИ
 
-**Статус: ОНОВЛЕНО** (перехід на KZTCH_DS, 2026-11-09; раніше — «системний
-стек + один woff2», крок 58 від 2026-10-17).
+Використовуються системні стеки з `src/styles/core.css`: `system-ui` для
+тексту й інтерфейсу, `ui-monospace` для службових міток і коду. Жодних
+запитів до зовнішніх шрифтів. Файли старого комплекту не завантажуються.
 
-**Схема:** Комплект дизайн-системи KZTCH_DS — три гарнітури локально
-(self-host), 8 файлів `woff2` з підмножинами `unicode-range`. Жодних
-сторонніх CDN (`AGENTS.md` §3, `DECISIONS.md` §41).
+`hyphens: manual` вимикає автоматичні переноси через нерівномірну підтримку
+українських словників; правий край тексту лишається природним.
 
-### 6.0. Стеки
+Візуальна варіативність системних гарнітур між ОС — прийнята властивість
+стека. Заголовки запитують вагу 800; якщо такої немає, браузер бере найближчу
+доступну. `font-synthesis: none` забороняє синтетичні накреслення. Точне
+відтворення ваги й форми між платформами не гарантується.
 
-**Текст (засічки)** — Source Serif 4:
-
-```css
---font-text: "Source Serif 4", Georgia, "Times New Roman", serif;
-```
-
-**Інтерфейс і заголовки (display)** — Inter Tight:
-
-```css
---font-ui: "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
-```
-
-**Моноширинне** — акценти (IBM Plex Mono):
-
-```css
---font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
-```
-
-Резервні ланки (`Georgia`, `system-ui`) — метрично підігнані через
-`size-adjust` у fallback-`@font-face` (CLC мінімальний).
-
-### 6.1. Комплект woff2
-
-**8 файлів, 332 КБ сумарно** (бюджет: 8 файлів / 340 КБ, `AGENTS.md` §3):
-
-| Гарнітура | Ваги | Файли (latin + cyrillic) | Вага |
-|-----------|------|--------------------------|------|
-| Source Serif 4 | 400, 600 | 4 | 215,8 КБ |
-| Inter Tight | 500, 700, 800 | 2 (файли спільні між вагами) | 61,9 КБ |
-| IBM Plex Mono | 400, 500 | 4 | 46,3 КБ |
-
-**Вимоги:**
-
-| Параметр | Значення |
-|----------|----------|
-| Формат | `woff2` |
-| Сабсети | latin і cyrillic окремо, через `unicode-range` |
-| `font-display` | `optional` (`swap` дає CLS) |
-| Місце | `static/fonts/` |
-| Ліцензії | `static/fonts/LICENSES/` (OFL для кожної гарнітури) |
-
-**Unicode-range** — гліфи, які реально вживаються: `і ї є ґ`, апостроф `ʼ`,
-лапки `«»`, тире `—`, символи дизайн-системи `▍ ≈ № →`.
-
-Гліфи поза діапазоном падають на системний стек. Це нормально.
-
-### 6.2. Чому так
-
-| Аргумент | Пояснення |
-|----------|-----------|
-| Дизайн-система | KZTCH_DS §01 визначає Role-поділ: Display/UI — Inter Tight, Body — Source Serif 4, Mono — IBM Plex Mono |
-| Швидкість | `unicode-range` ріже підмножини: на сторінку потрапляє лише мова контенту (~100–150 КБ) |
-| Бюджет | 8 файлів / 340 КБ — оновлений бюджет (`AGENTS.md` §3) |
-| Живучість | Локальні woff2 + метричні резерви: навіть без них текст читабельний |
-| CDN | Google Fonts заборонено (`AGENTS.md` §3). Чужий CDN — чужа точка відмови. |
-
-### 6.3. Верифікація
-
-| Перевірка | Межа |
-|-----------|------|
-| Запити до сторонніх доменів шрифтів | 0 |
-| `.woff2` файлів | ≤ 8 |
-| Сумарна вага `.woff2` | ≤ 340 КБ |
-| `font-display` | `optional` |
-| Ліцензії OFL | `static/fonts/LICENSES/` |
+Перевірка: `scripts/check.mjs` не допускає сторонніх шрифтових origin.
 
 ---
 
@@ -317,17 +264,26 @@ core.css → layout.css → components.css → themes.css → print.css → nich
 default-src 'self';
 img-src 'self';
 style-src 'self';
-script-src 'self';
+script-src 'none';
+object-src 'none';
 frame-ancestors 'none';
 base-uri 'none';
 form-action 'none'
 ```
+
+Сайт не містить виконуваного JavaScript, тому `script-src 'none'` задано навмисно.
+Якщо скрипти з'являться, спочатку переглянути політику й дозволити лише потрібні
+джерела. Зберігати `style-src 'self'`; якщо знадобиться інлайн-CSS, додати хеші
+вмісту замість `unsafe-inline`.
 
 **Заголовки:**
 - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
 - `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY` — легасі-дублер для `frame-ancestors 'none'`.
+- HSTS `preload` не додавати, доки не перевірено HTTPS для всіх піддоменів;
+  чинний заголовок уже містить `includeSubDomains`.
 
 **Кешування:**
 - Ассети з хешем (`site.<hash>.css`): `Cache-Control: public, max-age=31536000, immutable`.
@@ -336,7 +292,6 @@ form-action 'none'
 **Заборонено:**
 - Будь-які запити до сторонніх origin (шрифти, CDN, пікселі, iframe, embed).
 - `localStorage`, `sessionStorage`, cookies.
-- `X-Frame-Options` (заміна: `frame-ancestors 'none'` у CSP).
 - `maximum-scale`, `user-scalable=no` (viewport).
 
 **EXIF:** Вирізати GPS, модель камери перед публікацією (§36.9 DECISIONS).
@@ -355,6 +310,10 @@ form-action 'none'
 
 **JSON-LD:** `Person`, `WebSite`, `BlogPosting`, `VideoGame`. `Person.name` — одне; решта форм в `alternateName`. `sameAs` — лише GitHub.
 
+**IndieWeb:** паспорт автора на головній розмічено як `h-card` з `p-name` і
+`p-nickname`; посилання на профіль GitHub має `rel="me"`. JSON-LD лишається
+машиночитаним канонічним описом особи.
+
 **Формат дат:** `Intl` для `uk-UA` додає «р.». Перевір результат і приведи до «16 жовтня 2026» через `formatToParts`.
 
 **`prefers-reduced-motion`:** Гліч і курсор ▍ вимикаються.
@@ -367,14 +326,24 @@ form-action 'none'
 
 | # | Перевірка |
 |---|-----------|
-| 1 | Бюджети (після brotli) |
-| 2 | Заборонені CSS-патерни |
-| 3 | Hex поза `themes.css`/`nichlyst.css` |
-| 4 | Сторонні origin у `dist/` |
-| 5 | EXIF у зображеннях |
-| 6 | Один `<h1>`, `alt`, порожні `href`, `lang` |
-| 7 | Дублі `entry` |
-| 8 | Глибина DOM ≤ 15 |
+| 1 | Бюджети HTML/CSS (brotli), нуль JS |
+| 2 | Пасстру-асети, відсутність завантажуваних шрифтів |
+| 3 | Hex-палітра та сторонні origin |
+| 4 | HTML: `h1`, `alt`, `href`, `lang`, глибина DOM |
+| 5 | RSS, sitemap, канонічні URL, редиректи |
+| 6 | Внутрішні посилання, якорі, мовний перемикач |
+| 7 | Клавіатурний фокус і skip-link |
+
+Зовнішні посилання перевіряються окремо: `npm run linkcheck:external`
+виконує HTTPS-запити до унікальних зовнішніх `href` у `dist/` і завершується
+помилкою на недоступній адресі. Перевірки запускаються в GitHub Actions
+(`.github/workflows/qa.yml`) на push, pull request і щотижневому розкладі;
+production-збірка Netlify також запускає `check`, `size` і зовнішній link checker.
+
+Lighthouse CI, axe-core, html-validate та скриншоти Playwright не входять до
+цього workflow: їхні npm-пакети потребують окремого явного дозволу. Поточні
+перевірки вже контролюють вагу кожної сторінки разом зі спільними CSS/JS,
+внутрішні й зовнішні посилання, палітрові пари, RSS та JSON-LD.
 
 ---
 

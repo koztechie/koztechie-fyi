@@ -1,18 +1,21 @@
 #!/usr/bin/env node
-// linkcheck.mjs: нуль битих лінків (PLAN крок 132)
+// linkcheck.mjs: перевірка внутрішніх шляхів та якорів (PLAN крок 132)
 // Перевіряє у dist/: внутрішні href/src (файли існують), якорі (id існує),
 // порожні лінки, <loc> у sitemap.xml, <link>/<guid> у RSS.
-// Зовнішні https — лише канонічні (koztechie.fyi, github.com §277);
-// інші сторонні origin ловить check.mjs розділ 4.
+// Доступність зовнішніх URL перевіряє scripts/external-linkcheck.mjs.
 // Використання: node scripts/linkcheck.mjs [dist/]
 // Експорт: runLinkcheck(distDir) — викликається check.mjs.
 
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
 
-// Канонічні зовнішні origin: домен сайту, github (§277 — єдиний лінк коду),
-// play.google.com (§290 — магазин застосунку NICHLYST, крок 145)
-const ALLOWED_EXTERNAL = [/^https:\/\/koztechie\.fyi\//, /^https:\/\/github\.com\//, /^https:\/\/play\.google\.com\//];
+// Канонічні зовнішні origin: сайт, GitHub і політики використаних сервісів.
+const ALLOWED_EXTERNAL = [
+  /^https:\/\/koztechie\.fyi\//,
+  /^https:\/\/github\.com\/koztechie(?:\/|$)/,
+  /^https:\/\/www\.netlify\.com\/privacy\/?$/,
+  /^https:\/\/www\.revenuecat\.com\/privacy\/?$/,
+];
 
 function walk(dir) {
   const out = [];
@@ -103,7 +106,7 @@ export function runLinkcheck(distDir) {
       // Зовнішні — лише канонічні origin
       if (/^https?:\/\//i.test(link)) {
         if (!ALLOWED_EXTERNAL.some((re) => re.test(link))) {
-          errors.push(`${rel}: недозволений зовнішній origin «${link}» (дозволено koztechie.fyi, github.com)`);
+          errors.push(`${rel}: недозволений зовнішній origin «${link}» (дозволені koztechie.fyi, github.com і вказані політики сервісів)`);
         }
         continue;
       }

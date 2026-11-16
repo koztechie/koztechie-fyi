@@ -14,7 +14,7 @@
 | 2 | Кейс | `/practice/` | `post.njk` | Кейс з 7 обов'язкових секцій |
 | 3 | Кладовище | `/cemetery/` | `post.njk` | Епітафія закритого проєкту |
 | 4 | Вірш | `/poetry/` | `poetry.njk` | Вільний вірш |
-| 5 | Сторінка | `/manifest/`, `/now/`, `/colophon/`, `/contact/`, `/privacy/`, `/nichlyst/` | `page.njk`, `nichlyst.njk` | Статична сторінка |
+| 5 | Сторінка | `/manifest/`, `/now/`, `/colophon/`, `/contact/`, `/privacy/`, `/nichlyst/` | `page.njk` | Статична сторінка |
 | 6 | Розділ | `/blog/`, `/poetry/`, `/cemetery/` (індекси) | `page.njk` | Вступ до розділу |
 
 **Правило:** `/practice/` — лише Кейс. Девлоги та есеї → `/blog/` (`inventory.md`).
@@ -35,12 +35,18 @@
 | `date` | R | R | R | R | — | — |
 | `updated` | O | O | O | O | R | O |
 | `summary` | R | R | авто | авто | R | O |
+| `structured_data` | — | — | — | — | O | — |
+| `og_title` | O | O | O | O | O | O |
+| `og_description` | O | O | O | O | O | O |
+| `og_image` | O | O | O | O | O | O |
+| `og_image_alt` | O | O | O | O | O | O |
 | `content_warning` | O | O | O | O | — | — |
 | `translation_status` | R | R | R | R | R | — |
 | `tags` | O | O | — | — | — | — |
 | `consent` | — | R | — | — | — | — |
 | `first_published` | O | O | O | O | — | — |
 | `written` | — | — | — | O | — | — |
+| `written_period` | — | — | — | O | — | — |
 | `period` | — | — | R | — | — | — |
 | `cause` | — | — | R | — | — | — |
 | `epitaph` | — | — | R | — | — | — |
@@ -67,6 +73,11 @@
 | `date` | date | ISO 8601. Дата першої публікації. Не в URL. Незмінна після публікації. |
 | `updated` | date | ISO 8601. Дата останнього оновлення. Sitemap `lastmod` = `updated` або `date`. |
 | `summary` | string | ≤ 160 символів. Meta, OG, RSS. Для цвинтаря = `epitaph` автоматично. Для вірша = перші 2 рядки автоматично. |
+| `structured_data` | enum | `nichlyst` — додає VideoGame/SoftwareApplication до сторінки NICHLYST. |
+| `og_title` | string | Опційна назва для Open Graph і X Cards; типовий формат — назва сторінки та бренд. |
+| `og_description` | string | Опційний опис для Open Graph і X Cards; за відсутності використовується `summary` або коротке біо сайту. |
+| `og_image` | string | Абсолютний шлях до PNG прев’ю 1200×630 у `static/og/`; типовий файл — `/og/home.png`. |
+| `og_image_alt` | string | Текстовий опис зображення для Open Graph і X Cards; починай із назви бренду. |
 | `content_warning` | enum | `війна`, `здоровʼя`, `травма`, `смерть`, `залежність` (§32.1 DECISIONS). Шаблон будує речення обома мовами. |
 | `translation_status` | enum | `complete`, `partial`, `not_planned`. Валідуй проти наявності en-файлу: `complete` без файлу — помилка. |
 | `tags` | array | ≤ 5. Для групування в архіві. Не для навігації. |
@@ -98,6 +109,7 @@
 | Поле | Тип | Опис |
 |------|-----|------|
 | `written` | date | Опційне. Дата написання. Не використовується для сортування. |
+| `written_period` | string | Опційний період написання, якщо його не можна подати однією датою. Не використовується для сортування. |
 | `first_published` | string | Де вперше з'явився публічно. |
 
 **Розмітка:** Строфа = абзац. Рядок = перенос (`breaks: true` у markdown-it). Відступи — `white-space: pre-wrap` у `poetry.njk`.
@@ -272,7 +284,7 @@ draft: true
 title: "[Назва]"
 title_en: "[English title]"
 lang: "uk"
-layout: "page.njk"  # page.njk | nichlyst.njk
+layout: "page.njk"
 updated: [YYYY-MM-DD]
 summary: "[≤ 160 символів]"
 translation_status: "complete"
