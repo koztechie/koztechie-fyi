@@ -1,0 +1,106 @@
+{#- list.njk: лейаут списку (індекси розділів).
+    Крок 115. docs/ARCHITECTURE.md (дерево шаблонів).
+    Призначення: /blog/, /practice/, /cemetery/, /poetry/ — індекси.
+    Структура: h1 → intro (опційно) → список → пагінація.
+    Пагінація (DECISIONS.md §9.3): «Сторінка 1, 2, 3…» + лічильник
+    («Усього дописів: N» для блогу, спек 2026-11-05; решта — старий формат).
+    Без «∞», без infinite scroll (§9.2).
+    entry-line у списках НЕ виводиться (design-system.md §7.1.2).
+    Тексти — зі словників (кроки 117–119). Хардкод заборонено (крок 118).
+    Джерела елементів (крок 131):
+    - pagination.items — коли задана пагінація (Eleventy);
+    - collections[section] — коли pagination немає. Порожня колекція НЕ
+      блокує генерацію сторінки (пагінація на порожніх даних не пише
+      вихідний файл — виявлено на кроці 131).
+    Мовна ізоляція: лише записи цієї мови. -#}
+{% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
+
+{% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
+
+{% block description %}
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+{% endblock %}
+
+{% block content %}
+{%- set pageLang = lang | default("uk") -%}
+{%- set items = [] -%}
+{%- if pagination and pagination.items.length -%}
+  {%- set items = pagination.items -%}
+{%- elif section and collections[section] -%}
+  {%- for it in collections[section] -%}
+    {%- if (it.data.lang | default("uk")) === pageLang and it.data.date -%}
+      {%- set items = items.concat([it]) -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+<article class="list{% if section === 'cemetery' %} list--cemetery{% endif %}">
+  <h1>{{ title }}</h1>
+  {%- if intro %}
+  <p class="list-intro">{{ intro }}</p>
+  {%- endif %}
+  {%- if content %}
+  <div class="list-body">{{ content | safe }}</div>
+  {%- endif %}
+
+  {%- if items.length %}
+  {#- Загальна кількість: конкатенація всіх сторінок пагінації
+      (set на атрибут об'єкта nunjucks не компілює).
+      Без пагінації all = items. -#}
+  {%- set all = [] -%}
+  {%- if pagination -%}
+    {%- for pg in pagination.pages %}{% set all = all.concat(pg) %}{% endfor %}
+  {%- else -%}
+    {%- set all = items -%}
+  {%- endif -%}
+  <ul class="archive-list" role="list">
+    {%- for item in items %}
+    {%- if item.data.draft !== true and item.url %}
+    <li>
+      <a href="{{ item.url if item.url else "#" }}">{{ item.data.title }}</a>
+      {%- if item.data.date %}
+      <span class="sep" aria-hidden="true"> · </span>
+      <time datetime="{{ item.data.date.toISOString().slice(0, 10) }}">{% if pageLang === "en" %}{{ item.data.date | enDate }}{% else %}{{ item.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
+      {%- endif %}
+    </li>
+    {%- endif %}
+    {%- endfor %}
+  </ul>
+
+  {%- if pagination %}
+  {%- set totalPages = pagination.pages.length -%}
+  {%- set current = pagination.pageNumber + 1 -%}
+  {%- if totalPages > 1 %}
+  <nav class="pagination" aria-label="{{ strings.list.pagination_label }}">
+    {%- if current > 1 %}
+    <a href="{{ pagination.hrefs[current - 2] }}" rel="prev">{{ strings.list.prev }}</a>
+    {%- endif %}
+    <span class="pagination__pages">
+      {%- for href in pagination.hrefs %}
+      {%- if loop.index === current %}
+      <span class="current" aria-current="page">{{ loop.index }}</span>
+      {%- else %}
+      <a href="{{ href }}">{{ loop.index }}</a>
+      {%- endif %}
+      {%- endfor %}
+    </span>
+    {%- if current < totalPages %}
+    <a href="{{ pagination.hrefs[current] }}" rel="next">{{ strings.list.next }}</a>
+    {%- endif %}
+  </nav>
+  {%- endif %}
+  {%- endif %}
+  {%- if count_label and count_unit %}
+  <p class="list-count">{{ count_label }}: {{ all.length }} {{ all.length | plural(count_unit) }}.</p>
+  {%- elif count_label %}
+  <p class="list-count">{{ count_label }}: {{ all.length }}</p>
+  {%- else %}
+  <p class="list-count">{{ strings.list.count }} {{ all.length }} {{ all.length | plural(strings.list.count_unit) }}</p>
+  {%- endif %}
+  {%- else %}
+  <p class="list-empty">{{ empty_label or strings.list.empty }}</p>
+  {%- endif %}
+</article>
+{% endblock %}

@@ -1,0 +1,24 @@
+{
+  "name": "koztechie-fyi",
+  "version": "0.0.0",
+  "private": true,
+  "description": "ВУЗОЛ-0 — архівний вузол koztechie.fyi. Статика на Eleventy, 0 байт JS.",
+  "license": "ISC",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "eleventy --serve",
+    "build": "node scripts/sync-palette-ratios.mjs && eleventy && node scripts/typography.mjs --fix && node scripts/optimize-og.mjs && node scripts/bundle-styles.mjs && node scripts/postbuild.mjs",
+    "check": "node scripts/check.mjs && node scripts/typography.mjs && node scripts/palette-check.mjs",
+    "size": "node scripts/size-budget.mjs",
+    "palette": "node scripts/palette-check.mjs",
+    "validate": "node scripts/validate-content.mjs content/",
+    "linkcheck": "node scripts/linkcheck.mjs",
+    "linkcheck:external": "node scripts/external-linkcheck.mjs"
+  },
+  "dependencies": {
+    "@11ty/eleventy": "3.1.7"
+  }
+}

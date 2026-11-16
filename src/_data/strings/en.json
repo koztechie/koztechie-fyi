@@ -1,0 +1,153 @@
+{
+  "site": {
+    "name": "koztechie",
+    "name_en": "koztechie",
+    "title": "Personal blog and portfolio.",
+    "bio_short": "Personal blog from Kyiv. Thoughts, notes, and projects. No clickbait, no vanity metrics.",
+    "og_image_alt": "koztechie — a light digital-archive card with framed signal markers and the site name.",
+    "date_suffix": ""
+  },
+  "home": {
+    "browser_title": "koztechie — Eugene Kozlovsky, developer and systems architect",
+    "lead": "This is my personal website. It's a collection of my projects, code, and writing. I share what I'm working on in two languages, with no strict publishing schedule.",
+    "latest_title": "Latest entries",
+    "sections_title": "What's here",
+    "thesis": "Developer and systems architect",
+    "doc_updated": "Updated",
+    "meta": [
+      "Eugene Kozlovsky",
+      "Kyiv, Ukraine"
+    ],
+    "cta_text": "Write a letter",
+    "cta_note": "Replies usually take a few days; delays may happen.",
+    "passport_label": "About me and this site",
+    "pass_label_lang": "Site languages",
+    "pass_label_pages": "Public pages",
+    "pass_label_author": "Author",
+    "pass_value_author": "Eugene Kozlovsky",
+    "pass_label_alias": "Handle",
+    "pass_value_alias": "koztechie",
+    "lang_names": {
+      "uk": "Ukrainian",
+      "en": "English"
+    },
+    "pass_label_size": "Page budget",
+    "pass_size": "≤ 50 KiB, Brotli",
+    "principles_title": "Core principles",
+    "principles": [
+      {
+        "title": "Focus on the essence",
+        "text": "I share things I've actually verified in practice and don't pretend to be an expert in everything. No clickbait or made-up stories."
+      },
+      {
+        "title": "A working space",
+        "text": "I openly document my technical decisions, experiments, and mistakes. However, my personal life stays off the site."
+      },
+      {
+        "title": "Contact by email",
+        "text": "You won't find comment sections, live chats, or annoying pop-ups here. If you have a question or proposal, just shoot me an email."
+      },
+      {
+        "title": "No deadlines",
+        "text": "I only update the site when I actually have something to share. Long gaps between posts are completely normal."
+      }
+    ],
+    "sections_desc": {
+      "manifest": "the rules and principles of this site.",
+      "practice": "tools, experiments, and technical notes.",
+      "cemetery": "projects I've finished or abandoned.",
+      "blog": "my thoughts and observations.",
+      "poetry": "my poems.",
+      "nichlyst": "my mobile game (current main project).",
+      "now": "what I'm focused on right now.",
+      "colophon": "how this site was built.",
+      "contact": "how to get in touch with me."
+    },
+    "nichlyst_section_title": "Main project",
+    "nichlyst_text": "In development. It will be released when it’s ready.",
+    "nichlyst_link": "Project page"
+  },
+  "list": {
+    "count": "Total",
+    "count_unit": [
+      "entry",
+      "entries"
+    ],
+    "empty": "Nothing here just yet.",
+    "prev": "Previous",
+    "next": "Next",
+    "pagination_label": "Pagination"
+  },
+  "post": {
+    "entry_prefix": "Post №",
+    "poem_entry_prefix": "Poem №",
+    "written_label": "Written:",
+    "project_label": "Project",
+    "closed_label": "· Closed",
+    "archive_blog": "← All posts",
+    "archive_project": "← Cemetery",
+    "navigation_label": "Entry navigation",
+    "previous_entry": "← Previous entry",
+    "next_entry": "Next entry",
+    "warning_prefix": "Warning:",
+    "warnings": {
+      "війна": "the text contains descriptions of military action",
+      "здоровʼя": "the text contains descriptions of health issues",
+      "травма": "the text contains descriptions of trauma",
+      "смерть": "the text contains descriptions of death",
+      "залежність": "the text contains descriptions of addiction"
+    },
+    "reading_unit": " min read"
+  },
+  "case_sections": [
+    "Role",
+    "Timeframe",
+    "The challenge",
+    "The solution",
+    "What went wrong",
+    "What I'd do differently",
+    "Takeaways"
+  ],
+  "nav": {
+    "home": "Home",
+    "manifest": "Manifesto",
+    "practice": "Practice",
+    "cemetery": "Cemetery",
+    "blog": "Blog",
+    "poetry": "Poetry",
+    "nichlyst": "NICHLYST",
+    "now": "Now",
+    "colophon": "Colophon",
+    "contact": "Contact",
+    "sections_label": "Sections",
+    "footer_sections_label": "Other pages",
+    "lang_label": "Language",
+    "lang_current": "ENG",
+    "lang_other": "УКР",
+    "skip": "Skip to main content"
+  },
+  "footer": {
+    "rss": "RSS",
+    "place": "Made in Kyiv.",
+    "made_in": "Made in Kyiv",
+    "copyright": "© 2026 Eugene Kozlovsky · koztechie",
+    "email": "&#104;ello@koztechie.fyi",
+    "privacy": "Privacy policy"
+  },
+  "stub": {
+    "title": "Not translated",
+    "link": "Read in Ukrainian"
+  },
+  "page_404": {
+    "text": "Entry not found.",
+    "explanation": "There is no page at this address.",
+    "home_link": "Home",
+    "sections_link": "What’s here"
+  },
+  "now": {
+    "updated": "Updated",
+    "working_on": "What I'm doing right now",
+    "reading": "Reading",
+    "energy": "Energy"
+  }
+}

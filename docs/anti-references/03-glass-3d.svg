@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="system-ui, sans-serif">
+  <!-- АНТИРЕФЕРЕНС 3: Гласморфізм, 3D-нахил, конічний градієнт -->
+  <!-- Порушено: design-system.md §2.4, §2.5. AGENTS.md §4 -->
+
+  <!-- Заборонений радіальний фон + «орби» -->
+  <defs>
+    <radialGradient id="bg" cx="25%" cy="20%" r="80%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0b0b1a"/>
+    </radialGradient>
+    <radialGradient id="orb1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orb2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0891b2" stop-opacity=".5"/>
+      <stop offset="100%" stop-color="#0891b2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <circle cx="740" cy="40" r="180" fill="url(#orb1)"/>
+  <circle cx="60" cy="470" r="190" fill="url(#orb2)"/>
+
+  <text x="400" y="55" text-anchor="middle" font-size="24" font-weight="700" fill="#eef2ff">Tech Stack &amp; Expertise</text>
+
+  <!-- Заборонений 3D-нахил: rotateX(8) rotateY(-6), імітовано skew -->
+  <g transform="translate(400,240) skewY(-5) skewX(-4) translate(-400,-240)">
+    <!-- Глас-панель 1: rgba + тінь + radius 24 -->
+    <rect x="55" y="110" width="200" height="180" rx="24" fill="#ffffff10" stroke="#ffffff26"/>
+    <rect x="123" y="130" width="64" height="64" rx="18" fill="url(#glow)"/>
+    <text x="155" y="225" text-anchor="middle" font-size="15" font-weight="600" fill="#eef2ff">Frontend</text>
+    <text x="155" y="248" text-anchor="middle" font-size="10" fill="#b8c0ff">React, Vue, Next.js, TypeScript</text>
+    <rect x="97" y="260" width="116" height="22" rx="11" fill="url(#badge)"/>
+    <text x="155" y="275" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">UI Engineer</text>
+
+    <rect x="300" y="110" width="200" height="180" rx="24" fill="#ffffff10" stroke="#ffffff26"/>
+    <rect x="368" y="130" width="64" height="64" rx="18" fill="url(#glow)"/>
+    <text x="400" y="225" text-anchor="middle" font-size="15" font-weight="600" fill="#eef2ff">Backend</text>
+    <text x="400" y="248" text-anchor="middle" font-size="10" fill="#b8c0ff">Node.js, Python, Go, PostgreSQL</text>
+    <rect x="342" y="260" width="116" height="22" rx="11" fill="url(#badge)"/>
+    <text x="400" y="275" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">API Design</text>
+
+    <rect x="545" y="110" width="200" height="180" rx="24" fill="#ffffff10" stroke="#ffffff26"/>
+    <rect x="613" y="130" width="64" height="64" rx="18" fill="url(#glow)"/>
+    <text x="645" y="225" text-anchor="middle" font-size="15" font-weight="600" fill="#eef2ff">AI &amp; ML</text>
+    <text x="645" y="248" text-anchor="middle" font-size="10" fill="#b8c0ff">LLMs, RAG pipelines, embeddings</text>
+    <rect x="587" y="260" width="116" height="22" rx="11" fill="url(#badge)"/>
+    <text x="645" y="275" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">AI Explorer</text>
+  </g>
+
+  <text x="400" y="400" text-anchor="middle" font-size="11" fill="#ffffff55">backdrop-filter: blur(18px) &#183; perspective: 1200px &#183; conic-gradient &#183; border-radius: 24px</text>
+
+  <!-- Позначки порушень -->
+  <g font-size="11" font-weight="600">
+    <rect x="12" y="12" width="240" height="24" fill="#000c" rx="3"/>
+    <text x="20" y="28" fill="#ff6b6b">§2.4 Гласморфізм (backdrop-filter)</text>
+    <rect x="12" y="42" width="215" height="24" fill="#000c" rx="3"/>
+    <text x="20" y="58" fill="#ff6b6b">§2.5 3D-нахил (perspective)</text>
+    <rect x="12" y="72" width="225" height="24" fill="#000c" rx="3"/>
+    <text x="20" y="88" fill="#ff6b6b">§2.1 градієнти, radius 24px</text>
+  </g>
+</svg>

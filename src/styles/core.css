@@ -1,0 +1,238 @@
+/* core.css: типографічна база
+   Канонічне джерело: docs/design-system.md §5
+   Порядок завантаження: core → layout → components → themes → print
+   TECH_STANDARDS.md §4.1 */
+
+/* Системні шрифтові стеки: без завантажень шрифтових файлів. */
+:root {
+  /* Основний текст — системний гротеск. */
+  --font-text: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Інтерфейс — системний гротеск. */
+  --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Моноширинний стек для міток і коду. */
+  --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+
+  /* Вертикальний ритм та ширина рядка. */
+  --leading: 1.65;
+  --measure: 40rem;
+
+  --container: 84rem;
+  --header-h: 4.5rem;
+  --tap: 44px;
+
+  /* Шкала відступів. */
+  --s1: 0.25rem;  /* 4px  */  --s2: 0.5rem;   /* 8px  */
+  --s3: 0.75rem;  /* 12px */  --s4: 1rem;     /* 16px */
+  --s6: 1.5rem;   /* 24px */  --s8: 2rem;     /* 32px */
+  --s12: 3rem;    /* 48px */  --s16: 4rem;    /* 64px */
+  --s24: 6rem;    /* 96px */
+}
+
+/* Типографічна база (design-system.md §5).
+   Змінні визначені вище; кольори --paper/--ink — у themes.css (порядок не важливий
+   для var(), резолв у computed time). */
+/* Padding враховується у ширині елемента. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-synthesis: none;
+  -webkit-text-size-adjust: 100%;
+  hyphens: manual;
+  /* Тимчасовий запобіжник до виправлення п. 2 і повної матриці ширин; прибрати після перевірки без переповнень. */
+  overflow-x: hidden;
+  font-family: var(--font-text);
+  font-size: var(--text-lg);
+  line-height: var(--leading);
+  color: var(--ink);
+  background: var(--paper);
+  accent-color: var(--accent);
+}
+
+/* Заголовки: стисла ієрархія та системний гротеск. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+h1 {
+  font-size: clamp(2.5rem, 1.5rem + 5vw, 6rem);
+}
+h2 {
+  font-size: clamp(1.75rem, 1.25rem + 2vw, 2.75rem);
+}
+h3 {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+h4,
+h5,
+h6 {
+  font-size: var(--text-base);
+  font-family: var(--font-ui);
+  line-height: 1.4;
+}
+
+/* Ритм абзаців і списків. */
+p,
+ul,
+ol,
+blockquote,
+pre {
+  margin: 0 0 1em;
+  max-width: var(--measure);
+}
+
+/* Відступи заголовків задають компоненти, а не браузерний margin. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 var(--s4);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Виділення тексту використовує контрастні кольори поточного світу. */
+::selection {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+:is(.site-header, .site-footer, .home-hero, .card--nichlyst, pre) ::selection,
+:is(.entry-line, .nichlyst-status, .content-warning, .passport .hl,
+    .pagination .current, .letter-cta a)::selection,
+a:hover::selection {
+  background: var(--paper);
+  color: var(--link);
+}
+
+article.home .card--nichlyst ::selection {
+  color: var(--world-text);
+  background: var(--world-bg);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* UI-стек для шапки й перемикача мови. Футер і мітки мають окремий mono-стек. */
+.site-header,
+.lang-switch {
+  font-family: var(--font-ui);
+}
+
+/* Клавіатурний фокус контрастний і видимий. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+:where([data-world="night"]) :focus-visible {
+  outline-color: var(--world-accent);
+}
+
+/* Фокус не ховається ніде (AGENTS §5: видимий :focus обов'язковий). */
+
+/* Посилання мають постійне підкреслення та видимі стани. */
+a {
+  color: var(--link);
+  -webkit-tap-highlight-color: transparent;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+a:visited {
+  color: var(--link);
+  text-decoration-style: double;
+}
+
+a:active {
+  background: transparent;
+  color: var(--ink);
+  text-decoration-thickness: 3px;
+  font-weight: 800;
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--ink);
+  text-decoration-thickness: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
+  }
+}
+
+/* У режимі високої контрастності використовуємо системний колір кільця фокуса. */
+@media (forced-colors: active) {
+  :focus-visible,
+  .site-header :focus-visible,
+  .site-footer :focus-visible {
+    outline-color: Highlight;
+  }
+
+  .entry--closed .entry-line,
+  .nichlyst-status,
+  article.home .card--nichlyst {
+    forced-color-adjust: auto;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --ink-dim: var(--ink);
+    --rule-strong: var(--ink);
+    --text-dim: var(--text-night);
+  }
+
+  :where([data-world="night"]) {
+    --ink-dim: var(--text-night);
+    --rule-strong: var(--text-night);
+    --world-dim: var(--text-night);
+    --world-rule-strong: var(--text-night);
+  }
+
+  :where([data-world="night"]) :focus-visible {
+    outline-color: var(--world-accent);
+  }
+
+  a {
+    text-decoration-thickness: 3px;
+  }
+}

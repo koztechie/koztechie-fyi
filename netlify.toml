@@ -1,0 +1,9 @@
+[build]
+  command = "npm ci --ignore-scripts && npm run build && npm run check && npm run size && npm run linkcheck:external"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Крок PLAN 158: koztechie.pp.ua → 301 на основний домен — у static/root/_redirects
+# (домен-рівневі редиректи; тут вміст не дублюється — єдине джерело — _redirects).

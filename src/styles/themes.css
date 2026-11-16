@@ -1,0 +1,63 @@
+/* Єдине джерело кольорів для світлого полотна й локального нічного світу. */
+:root {
+  color-scheme: only light;
+
+  --paper: #fafafa;
+  --surface: var(--paper);
+  --ink: #121212;
+  --ink-dim: #545454;
+  --rule-soft: #e2e2e2;
+  --rule-strong: #8a8a8a;
+  --rule-soft-night: #383838;
+  --rule-strong-night: #686868;
+
+  --accent: #821447;
+  --link: var(--accent);
+  --focus: var(--accent);
+
+  --night: #0f0f0f;
+  --text-night: #f2f2f2;
+  --text-dim: #a3a3a3;
+  --accent-night: #f08cb0;
+
+  --paper-day: var(--paper);
+  --surface-day: var(--surface);
+  --ink-day: var(--ink);
+  --ink-dim-day: var(--ink-dim);
+  --rule-soft-day: var(--rule-soft);
+  --rule-strong-day: var(--rule-strong);
+  --accent-day: var(--accent);
+}
+
+/* Світлі токени зберігаються окремо для спільного хрому й друку. */
+:where([data-world="night"]) {
+  --paper: var(--night);
+  --surface: var(--night);
+  --ink: var(--text-night);
+  --ink-dim: var(--text-dim);
+  --rule-soft: var(--rule-soft-night);
+  --rule-strong: var(--rule-strong-night);
+  --accent: var(--accent-night);
+  --link: var(--accent);
+  --focus: var(--accent);
+
+  --world-bg: var(--night);
+  --world-text: var(--text-night);
+  --world-dim: var(--text-dim);
+  --world-accent: var(--accent-night);
+  --world-rule-soft: var(--rule-soft-night);
+  --world-rule-strong: var(--rule-strong-night);
+}
+
+/* Шапка й підвал лишаються світлими зонами переходу між світами. */
+:where([data-world="night"]) :is(.site-header, .site-footer) {
+  --paper: var(--paper-day);
+  --surface: var(--surface-day);
+  --ink: var(--ink-day);
+  --ink-dim: var(--ink-dim-day);
+  --rule-soft: var(--rule-soft-day);
+  --rule-strong: var(--rule-strong-day);
+  --accent: var(--accent-day);
+  --link: var(--accent-day);
+  --focus: var(--accent-day);
+}

@@ -1,0 +1,306 @@
+/* components.css: індекси, стани, текстові елементи */
+
+.entry-line {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  margin: 0 0 var(--s6);
+  padding: 0 var(--s3);
+  color: var(--ink);
+  background: transparent;
+  border-left: 4px solid var(--rule-strong);
+  font: 600 var(--text-sm) / 1.4 var(--font-mono);
+  text-transform: uppercase;
+}
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+}
+
+.lang-switch a,
+.lang-switch .current {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 var(--s2);
+}
+
+.lang-switch .current {
+  font-weight: 700;
+}
+
+.contact-method {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s4);
+  margin: var(--s4) 0 var(--s8);
+}
+
+.contact-address {
+  display: inline-block;
+  max-width: 100%;
+  padding: var(--s2) var(--s3);
+  border-left: 4px solid var(--rule-strong);
+  color: var(--ink);
+  background: var(--surface);
+  font: 500 var(--text-sm) / 1.5 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.nichlyst-gallery {
+  display: grid;
+  gap: var(--s6);
+  max-width: none;
+  margin: var(--s8) 0;
+}
+
+.nichlyst-gallery figure,
+.nichlyst-logo {
+  margin: 0;
+}
+
+.nichlyst-gallery img,
+.nichlyst-logo img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--rule-soft);
+}
+
+.nichlyst-gallery figcaption,
+.nichlyst-logo figcaption {
+  margin-top: var(--s2);
+  color: var(--ink-dim);
+  font: 400 var(--text-sm) / 1.5 var(--font-mono);
+}
+
+.nichlyst-status {
+  display: inline-block;
+  padding: var(--s2) var(--s3);
+  color: var(--ink);
+  background: transparent;
+  border-left: 4px solid currentColor;
+  font: 600 var(--text-sm) / 1.5 var(--font-mono);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.nichlyst-logo {
+  max-width: 16rem;
+  margin: var(--s6) 0 var(--s8);
+  padding: 5%;
+  background: var(--world-bg, var(--paper));
+  border: 1px solid var(--world-rule-strong, var(--rule-strong));
+}
+
+.nichlyst-logo img {
+  border: 0;
+}
+
+.nichlyst-facts {
+  max-width: none;
+  margin: var(--s4) 0 0;
+  font: 500 var(--text-sm) / 1.5 var(--font-mono);
+}
+
+.nichlyst-facts > div {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--s3);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.nichlyst-facts dt {
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+.nichlyst-facts dd {
+  margin: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.page-body h2,
+.entry-body h2 {
+  margin-top: var(--s12);
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+}
+
+.page-body h3,
+.entry-body h3 {
+  margin-top: var(--s8);
+  font-size: var(--text-xl);
+}
+
+.page-body > :first-child,
+.entry-body > :first-child {
+  margin-top: 0;
+}
+
+.page-body > :last-child,
+.entry-body > :last-child {
+  margin-bottom: 0;
+}
+
+.page-body ul,
+.page-body ol,
+.entry-body ul,
+.entry-body ol {
+  padding-left: var(--s6);
+}
+
+.page-body li + li,
+.entry-body li + li {
+  margin-top: var(--s2);
+}
+
+.page-body blockquote,
+.entry-body blockquote {
+  margin-left: 0;
+  padding: var(--s3) 0 var(--s3) var(--s6);
+  border-left: 4px solid var(--rule-strong);
+  color: var(--ink);
+  font-size: var(--text-xl);
+}
+
+.page-body code,
+.entry-body code {
+  padding: 0.1em 0.25em;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-soft);
+  font: 500 0.9em / 1.4 var(--font-mono);
+}
+
+.page-body pre,
+.entry-body pre {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: var(--s4);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  font: 400 var(--text-sm) / 1.6 var(--font-mono);
+}
+
+.page-body pre code,
+.entry-body pre code {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+}
+
+.pagination__pages {
+  display: flex;
+  gap: var(--s2);
+}
+
+.list-body {
+  margin-bottom: var(--s8);
+}
+
+.poetry,
+.entry-body.poetry {
+  max-width: 38rem;
+  color: var(--ink);
+  font-size: var(--text-lg);
+  line-height: 1.8;
+}
+
+.entry-body.poetry {
+  white-space: pre-wrap;
+}
+
+.poem-colophon {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s2);
+  max-width: var(--measure);
+  margin: var(--s8) 0;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule-soft);
+  color: var(--ink-dim);
+  font: 400 var(--text-sm) / 1.5 var(--font-mono);
+}
+
+.poem-colophon__label {
+  font-weight: 600;
+}
+
+.page-body hr,
+.entry-body hr {
+  height: 0;
+  margin: var(--s8) 0;
+  border: 0;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.page-body table,
+.entry-body table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.page-body th,
+.page-body td,
+.entry-body th,
+.entry-body td {
+  padding: var(--s2) var(--s3);
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.page-body th,
+.entry-body th {
+  border-bottom: 2px solid var(--rule-strong);
+  text-align: left;
+}
+
+.page-body table,
+.entry-body table {
+  display: block;
+  overflow-x: auto;
+}
+
+.footnotes,
+.footnotes-list {
+  color: var(--ink-dim);
+  font-size: var(--text-sm);
+}
+
+.footnotes a,
+.footnote-ref a {
+  color: var(--accent);
+}
+
+@media (max-width: 36rem) {
+  .entry-line {
+    margin-bottom: var(--s4);
+  }
+}
+
+@media (forced-colors: active) {
+  .entry-line,
+  .nichlyst-status {
+    color: CanvasText;
+    background: Canvas;
+    border: 1px solid CanvasText;
+    border-left: 4px solid CanvasText;
+  }
+
+  .nichlyst-status {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .contact-address {
+    border-left-color: CanvasText;
+  }
+}

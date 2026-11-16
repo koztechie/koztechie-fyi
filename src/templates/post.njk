@@ -1,0 +1,98 @@
+{#- Запис: індексний номер, заголовок, попередження, метадані, тіло. -#}
+{% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
+
+{% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
+
+{% block og_type %}article{% endblock %}
+
+{% block head %}
+{%- if page.inputPath.indexOf("/blog/") !== -1 %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "@id": {{ ("https://koztechie.fyi" + page.url + "#blogposting") | json | safe }},
+  "mainEntityOfPage": { "@type": "WebPage", "@id": {{ ("https://koztechie.fyi" + page.url) | json | safe }} },
+  "headline": {{ title | json | safe }},
+  "description": {{ summary | json | safe }},
+  "datePublished": {{ date | isoDate | json | safe }},
+  "dateModified": {{ (updated if updated else date) | isoDate | json | safe }},
+  "author": {
+    "@type": "Person",
+    "@id": {{ (schema.siteUrl + "#person") | json | safe }},
+    "name": {{ schema.person.name | json | safe }},
+    "url": {{ schema.siteUrl | json | safe }}
+  },
+  "inLanguage": {{ (lang | default("uk")) | json | safe }}
+}
+</script>
+{%- endif %}
+{% endblock %}
+
+{% block article_meta %}
+{%- if date %}
+<meta property="article:published_time" content="{{ date.toISOString() }}">
+{%- endif %}
+<meta property="article:author" content="https://koztechie.fyi/">
+{% endblock %}
+
+{% block description %}
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+{% endblock %}
+
+{% block content %}
+{%- set isProject = period -%}
+{%- set pageLang = lang | default("uk") -%}
+{%- set recordCollection = "cemetery" if isProject else "blog" -%}
+{%- set archiveHref = ("/en" if pageLang === "en" else "") + ("/cemetery/" if isProject else "/blog/") -%}
+{%- set records = [] -%}
+{%- set currentIndex = -1 -%}
+{%- for item in collections[recordCollection] -%}
+  {%- if (item.data.lang | default("uk")) === pageLang and item.data.draft !== true and item.data.date and item.url -%}
+    {%- if item.url === page.url %}{% set currentIndex = records.length %}{% endif -%}
+    {%- set records = records.concat([item]) -%}
+  {%- endif -%}
+{%- endfor -%}
+<article class="entry{% if isProject %} entry--closed{% endif %}">
+  {%- if isProject %}
+  <p class="entry-line">{{ strings.post.project_label }} <span class="closed-status">{{ strings.post.closed_label }}</span></p>
+  {%- elif entry %}
+  <p class="entry-line">{{ strings.post.entry_prefix }}{{ entry }}</p>
+  {%- endif %}
+  <h1>{{ title }}</h1>
+  {#- Попередження (§32.2): «Під заголовком. Перед текстом. Над часом читання.»
+      Поле — категорія (content-model §5.1). Текст — канон §32.4 у словнику. -#}
+  {%- if content_warning %}
+  <aside class="content-warning">
+    <p>{{ strings.post.warning_prefix }} {{ strings.post.warnings[content_warning] or content_warning }}.</p>
+  </aside>
+  {%- endif %}
+  <p class="entry-meta">
+    {%- if isProject and period %}
+    <span class="closed-period">{{ period }}</span>
+    {%- elif date %}
+    <time datetime="{{ date.toISOString().slice(0, 10) }}">{% if (lang | default("uk")) === "en" %}{{ date | enDate }}{% else %}{{ date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
+    {%- endif %}
+    {%- if not isProject and date and content %} · {% endif %}
+    {%- if not isProject and content %}
+    {% set mins = content | readingTime %}{{ mins }}{{ strings.post.reading_unit }}
+    {%- endif %}
+  </p>
+
+  <div class="entry-body">
+    {{ content | safe }}
+  </div>
+  <nav class="pagination entry-navigation" aria-label="{{ strings.post.navigation_label }}">
+    <a href="{{ archiveHref }}">{{ strings.post.archive_project if isProject else strings.post.archive_blog }}</a>
+    {%- if records.length > 1 and currentIndex > 0 %}
+    <a href="{{ records[currentIndex - 1].url }}" rel="prev">{{ strings.post.previous_entry }}</a>
+    {%- endif %}
+    {%- if records.length > 1 and currentIndex >= 0 and currentIndex < records.length - 1 %}
+    <a href="{{ records[currentIndex + 1].url }}" rel="next">{{ strings.post.next_entry }} <span aria-hidden="true">→</span></a>
+    {%- endif %}
+  </nav>
+</article>
+{% endblock %}

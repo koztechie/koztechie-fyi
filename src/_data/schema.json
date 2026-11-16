@@ -1,0 +1,18 @@
+{
+  "person": {
+    "name": "Eugene Kozlovsky",
+    "alternateName": [
+      "Євгеній Козловський",
+      "Yevhenii Kozlovskyi",
+      "koztechie"
+    ],
+    "sameAs": [
+      "https://github.com/koztechie"
+    ]
+  },
+  "oneTimeOffer": {
+    "uk": "Разова покупка, без підписки.",
+    "en": "One-time purchase; no subscription."
+  },
+  "siteUrl": "https://koztechie.fyi/"
+}

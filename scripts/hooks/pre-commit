@@ -1,0 +1,21 @@
+#!/bin/sh
+# pre-commit: блокує заборонені файли, запускає автономний чекліст
+# Активується: git config core.hooksPath scripts/hooks
+# Правила: AGENTS.md §5, TECH_STANDARDS.md §2
+
+# 1. Блокування забороненого у коміті
+forbidden=$(git diff --cached --name-only | grep -E '^(dist/|node_modules/)|(^|/)\.env($|\.)' || true)
+if [ -n "$forbidden" ]; then
+  echo "❌ pre-commit: заборонені файли у коміті:"
+  echo "$forbidden"
+  echo "Правило: AGENTS.md §5. dist/, node_modules/, .env — ніколи."
+  exit 1
+fi
+
+# 2. Автономний чекліст
+if ! npm run check --silent; then
+  echo "❌ pre-commit: npm run check не пройдено. Коміт зупинено."
+  exit 1
+fi
+
+exit 0

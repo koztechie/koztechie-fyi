@@ -1,0 +1,54 @@
+{#- header.njk: паршал шапки.
+    Крок 108. docs/design-system.md §9.6.
+    Логотип — текст, не картинка (§9.6.4).
+    Активний розділ — aria-current="page" (крок 110, §9.6.3).
+    Активний розділ — моно-мітка з контрастною CSS-заливкою, не в розмітці.
+    Перемикач мови — §8.1 (крок 111).
+    Тексти — зі словників (кроки 117, 118). Хардкод заборонено. -#}
+{%- set strings = strings[lang] | default(strings.uk) -%}
+{#- Нормалізація URL: /en/blog/ → /blog/ (мовна гілка не змінює розділ). -#}
+{%- set raw = page.url if page.url else "/" -%}
+{%- set isEn = raw.indexOf("/en/") === 0 -%}
+{%- if isEn %}{% set cur = raw.slice(3) %}{% set mirror = raw.slice(3) %}{% else %}{% set cur = raw %}{% set mirror = "/en" + raw %}{% endif -%}
+{#- Дзеркало або заглушка (§8.1.1, §19.5): лінк веде на дзеркало, якщо воно
+    існує в збірці; інакше — на заглушку /en/. Від en до uk — завжди дзеркало
+    (оригінал існує за визначенням). -#}
+{%- set mirrorPage = collections.all | findByUrl(mirror) -%}
+{%- if mirrorPage %}{% set otherHref = mirror %}{% elif isEn %}{% set otherHref = "/" %}{% else %}{% set otherHref = "/en/" %}{% endif -%}
+{#- Мовна навігація (крок 131): на en-сторінці лінки ведуть по /en/-дереву,
+    якщо дзеркало існує; інакше — на uk-оригінал. Логотип — на головну
+    поточної мови. -#}
+{%- set navPrefix = "/en" if isEn else "" -%}
+<div class="site-header__inner">
+  <a class="site-logo" href="{{ navPrefix }}/"{% if cur === "/" %} aria-current="page"{% endif %}><img class="site-logo__mark" src="/favicon.svg" width="28" height="28" alt="">{{ strings.site.name }}</a>
+  <nav class="site-nav" aria-label="{{ strings.nav.sections_label }}">
+    {%- set nav = [
+      { href: "/nichlyst/", key: "nichlyst" },
+      { href: "/blog/", key: "blog" },
+      { href: "/cemetery/", key: "cemetery" },
+      { href: "/poetry/", key: "poetry" }
+    ] -%}
+    {%- for item in nav %}
+    {%- set itemHref = item.href -%}
+    {%- if isEn -%}
+      {%- set cand = "/en" + item.href -%}
+      {%- if collections.all | findByUrl(cand) %}{% set itemHref = cand %}{% endif -%}
+    {%- endif -%}
+    {%- set active = cur === item.href or (item.href !== "/" and cur.indexOf(item.href) === 0) %}
+    <a href="{{ itemHref }}"{% if active %} aria-current="page"{% endif %}>{{ strings.nav[item.key] }}</a>
+    {%- endfor %}
+  </nav>
+  {#- Мітка «УКР / ENG» (§8.1.2). УКР завжди перша (§8.1.1). Поточна мова —
+      span, не лінк. Розділювач — прихований від скрінрідерів. -#}
+  <nav class="lang-switch" aria-label="{{ strings.nav.lang_label }}">
+    {%- if isEn %}
+    <a href="{{ otherHref }}" hreflang="uk">{{ strings.nav.lang_other }}</a>
+    <span aria-hidden="true">/</span>
+    <span class="current" aria-current="true">{{ strings.nav.lang_current }}</span>
+    {%- else %}
+    <span class="current" aria-current="true">{{ strings.nav.lang_current }}</span>
+    <span aria-hidden="true">/</span>
+    <a href="{{ otherHref }}" hreflang="en">{{ strings.nav.lang_other }}</a>
+    {%- endif %}
+  </nav>
+</div>

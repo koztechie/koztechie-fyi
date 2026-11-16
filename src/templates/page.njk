@@ -1,0 +1,53 @@
+{#- page.njk: лейаут статичної сторінки.
+    Крок 116. docs/ARCHITECTURE.md, content-model.md §5.5.
+    Призначення: /manifest/, /now/, /colophon/, /contact/, /privacy/.
+    h1 + текст. -#}
+{% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
+
+{% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
+
+{% block description %}
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+{% endblock %}
+
+{% block head %}
+{%- if structured_data === "nichlyst" %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["VideoGame", "SoftwareApplication"],
+  "@id": {{ ("https://koztechie.fyi" + page.url + "#game") | json | safe }},
+  "name": {{ title | json | safe }},
+  "description": {{ summary | json | safe }},
+  "url": {{ ("https://koztechie.fyi" + page.url) | json | safe }},
+  "image": {{ ("https://koztechie.fyi" + og_image) | json | safe }},
+  "author": {
+    "@type": "Person",
+    "@id": {{ (schema.siteUrl + "#person") | json | safe }},
+    "name": {{ schema.person.name | json | safe }},
+    "url": {{ schema.siteUrl | json | safe }}
+  },
+  "operatingSystem": "Android",
+  "applicationCategory": "GameApplication",
+  "gamePlatform": "Android",
+  "inLanguage": "uk",
+  "offers": {
+    "@type": "Offer",
+    "description": {{ schema.oneTimeOffer[lang] | json | safe }}
+  }
+}
+</script>
+{%- endif %}
+{% endblock %}
+
+{% block content %}
+<article class="page">
+  <h1>{{ title }}</h1>
+  <div class="page-body">
+    {{ content | safe }}
+  </div>
+</article>
+{% endblock %}

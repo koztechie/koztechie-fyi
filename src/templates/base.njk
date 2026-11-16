@@ -1,0 +1,110 @@
+{#- base.njk: базовий шаблон усіх сторінок.
+    Крок 105. docs/design-system.md §9.
+    Мовна схема: DECISIONS.md §19. uk — корінь, en — /en/.
+    Вибір словника (крок 117): {% set strings = strings[lang] | default(strings.uk) %}
+    — КОЖЕН дочірній шаблон робить цей set після extends (set у батька
+    не видимий у блоці дитини в Eleventy).
+    Блоки для розширення: head, title, description, header, footer.
+    Шапка: паршал header.njk (крок 108). Підвал: паршал footer.njk (крок 109). -#}
+<!doctype html>
+<html lang="{{ lang | default("uk") }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light">
+  {#- Крок 106. viewport без maximum-scale/user-scalable=no
+      (доступність, TECH_STANDARDS §9). -#}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% block title %}<title>{{ (strings[lang] | default(strings.uk) | default(strings)).site.name }}</title>{% endblock %}
+  {#- Опис за замовчуванням: коротка версія біо (DECISIONS.md §10, ~85 символів).
+      Сторінки перевизначають блок description.
+      Ланцюг fallback: дочірні шаблони роблять set strings (вибраний словник) —
+      тоді strings[lang] і strings.uk вже undefined, і default повертає сам strings.
+      Без set (strings = {uk,en}) — спрацьовує strings[lang]. -#}
+  {% block description %}
+  <meta name="description" content="{{ (strings[lang] | default(strings.uk) | default(strings)).site.bio_short }}">
+  {% endblock %}
+  {#- noindex (§35.2, заглушки «Not translated»): поле в даних уже виключає
+      сторінку з sitemap (sitemap.njk) і hreflang (блок hreflang), але самої
+      індексації ніщо не блокувало — robots.txt дозволяє все. Тег закриває
+      прогалину (виявлено 2026-11-06); парність з даними контролює check7и. -#}
+  {%- if noindex %}
+  <meta name="robots" content="noindex">
+  {%- endif %}
+  {#- Системний колір з src/styles/themes.css. -#}
+  <meta name="theme-color" content="{{ themeColors.paper }}">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  {#- RSS auto-discovery для обох фідів (TECH_STANDARDS §9, крок 125).
+      Назва фіда — з самого каналу (<title>), не з атрибута лінка. -#}
+  <link rel="alternate" type="application/rss+xml" href="https://koztechie.fyi/feed.xml">
+  <link rel="alternate" type="application/rss+xml" href="https://koztechie.fyi/en/feed.xml">
+  {#- Крок 112. hreflang + canonical (TECH_STANDARDS §9): взаємні, абсолютні,
+      з self-reference. x-default — українська (коренева) версія, для головної
+      це https://koztechie.fyi/ (DECISIONS.md §19.0).
+      hreflang="en" НЕ вказує на noindex-заглушку «Not translated»:
+      умова enPage.noindex (контракт для i18n, крок 117).
+      404 перевизначає блок порожнім (§17.1: поза sitemap та hreflang). -#}
+  {% block hreflang %}
+  {%- set rawUrl = page.url if page.url else "/" -%}
+  {%- set isEn = rawUrl.indexOf("/en/") === 0 -%}
+  {%- set ukPath = rawUrl.slice(3) if isEn else rawUrl -%}
+  {%- set enPath = "/en" + ukPath -%}
+  {%- set site = "https://koztechie.fyi" -%}
+  {%- set enPage = collections.all | findByUrl(enPath) -%}
+  <link rel="canonical" href="{{ site + rawUrl }}">
+  <link rel="alternate" hreflang="uk" href="{{ site + ukPath }}">
+  {%- if enPage and not enPage.data.noindex %}
+  <link rel="alternate" hreflang="en" href="{{ site + enPath }}">
+  {%- endif %}
+  <link rel="alternate" hreflang="x-default" href="{{ site + ukPath }}">
+  {% endblock %}
+  {#- Open Graph і X Cards. Сторінки можуть задавати власні og_image та
+      og_image_alt; невизначені поля повертаються до прев'ю головної. -#}
+  {%- set socialStrings = strings[lang] | default(strings.uk) | default(strings) -%}
+  {%- set socialTitle = og_title if og_title else (socialStrings.site.name if title === socialStrings.site.name else title + " — " + socialStrings.site.name) -%}
+  {%- set socialDescription = og_description if og_description else (summary if summary else socialStrings.site.bio_short) -%}
+  {%- set defaultSocialImage = "/og/home-en-v2.png" if lang === "en" else "/og/home-v2.png" -%}
+  {%- set socialImage = "https://koztechie.fyi" + (og_image if og_image else defaultSocialImage) -%}
+  {%- set socialImageAlt = og_image_alt if og_image_alt else socialStrings.site.og_image_alt -%}
+  {% block social_meta %}
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  {% block article_meta %}{% endblock %}
+  <meta property="og:site_name" content="{{ socialStrings.site.name }}">
+  <meta property="og:title" content="{{ socialTitle }}">
+  <meta property="og:description" content="{{ socialDescription }}">
+  <meta property="og:url" content="https://koztechie.fyi{{ page.url if page.url else "/" }}">
+  <meta property="og:image" content="{{ socialImage }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:alt" content="{{ socialImageAlt }}">
+  <meta property="og:locale" content="{% if (lang | default('uk')) === 'en' %}en_US{% else %}uk_UA{% endif %}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ socialTitle }}">
+  <meta name="twitter:description" content="{{ socialDescription }}">
+  <meta name="twitter:image" content="{{ socialImage }}">
+  <meta name="twitter:image:alt" content="{{ socialImageAlt }}">
+  {% endblock %}
+  <link rel="stylesheet" href="/styles/site.css">
+  <link rel="stylesheet" href="/styles/print.css" media="print">
+  {% block head %}{% endblock %}
+</head>
+<body{% if page.url.indexOf("/nichlyst/") !== -1 or page.url.indexOf("/cemetery/") !== -1 %} data-world="night"{% endif %}>
+  {#- Skip-link (TECH_STANDARDS §63): перший елемент — клавіатурна навігація
+      відразу до вмісту, оминаючи шапку. Видимий лише при фокусі (layout.css). -#}
+  <a class="skip-link" href="#main">{{ (strings[lang] | default(strings.uk) | default(strings)).nav.skip }}</a>
+  <header class="site-header">
+    {% block header %}{% include "header.njk" %}{% endblock %}
+  </header>
+
+  <main id="main">
+    {% block content %}{{ content | safe }}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    {% block footer %}{% include "footer.njk" %}{% endblock %}
+  </footer>
+</body>
+</html>

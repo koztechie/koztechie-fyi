@@ -1,0 +1,9 @@
+/* TEAM */
+Author: koztechie
+Website: https://koztechie.fyi/
+Source: https://github.com/koztechie
+Contact: https://koztechie.fyi/contact/
+
+/* SITE */
+Built with: Eleventy, HTML, CSS, Markdown
+Hosting: Netlify

@@ -1,0 +1,26 @@
+# Залежності
+node_modules/
+
+# Збірка
+dist/
+_site/
+
+# Середовище
+.env
+.env.local
+
+# ОС
+.DS_Store
+Thumbs.db
+
+# Редактори
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Приватне (поза репозиторієм, але захист від випадкового додавання)
+red-lines.md
+
+# Локальний стан Netlify MCP/CLI (створюється під час деплою)
+.netlify/

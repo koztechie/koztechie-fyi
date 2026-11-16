@@ -1,0 +1,60 @@
+name: QA
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Build and site checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install ImageMagick
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes imagemagick
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build site
+        run: npm run build
+
+      - name: Validate generated site
+        run: npm run check
+
+      - name: Validate content
+        run: npm run validate
+
+      - name: Check palette contrast
+        run: npm run palette
+
+      - name: Check page and asset budgets
+        run: npm run size
+
+      - name: Check internal links
+        run: npm run linkcheck
+
+      - name: Check external links
+        run: npm run linkcheck:external
