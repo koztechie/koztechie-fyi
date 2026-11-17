@@ -731,6 +731,37 @@ if (!existsSync(pkgPath)) {
 }
 console.log("");
 
+// 7с-а. Pa11y покриває кожен HTML-файл build — F-13a.
+console.log("--- 7с-а. Покриття Pa11y ---");
+const pa11yUrlsFile = process.env.PA11Y_URLS_FILE
+  ? resolve(process.env.PA11Y_URLS_FILE)
+  : null;
+if (!pa11yUrlsFile) {
+  console.log("  ℹ️  pa11y-urls.json не передано; перевірку виконає CI після генерації списку");
+} else if (!existsSync(pa11yUrlsFile)) {
+  console.log(`  ❌ Файл URL-списку Pa11y відсутній: ${pa11yUrlsFile}`);
+  totalErrors++;
+} else if (!existsSync(distDir)) {
+  console.log(`  ❌ dist відсутній: ${distDir}`);
+  totalErrors++;
+} else {
+  try {
+    const pa11yConfig = JSON.parse(readFileSync(pa11yUrlsFile, "utf-8"));
+    const htmlCount = walkDir(distDir).filter((file) => file.endsWith(".html")).length;
+    const urlCount = Array.isArray(pa11yConfig.urls) ? pa11yConfig.urls.length : -1;
+    if (urlCount !== htmlCount) {
+      console.log(`  ❌ Pa11y URL: ${urlCount}; HTML у dist: ${htmlCount}`);
+      totalErrors++;
+    } else {
+      console.log(`  ✅ Pa11y покриває ${urlCount} URL для ${htmlCount} HTML-файлів`);
+    }
+  } catch (error) {
+    console.log(`  ❌ pa11y-urls.json невалідний: ${error.message}`);
+    totalErrors++;
+  }
+}
+console.log("");
+
 // 7е. Узгодженість версії Node — TECH_STANDARDS §2, package.json engines
 console.log("--- 7е. Версія Node ---");
 let nodeErrors = 0;

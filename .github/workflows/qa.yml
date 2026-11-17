@@ -155,8 +155,6 @@ jobs:
       - name: Start local static server
         run: |
           mkdir -p qa-artifacts
-          cp dist/sitemap.xml dist/pa11y-sitemap.xml
-          sed -i 's#https://koztechie.fyi#http://127.0.0.1:4173#g' dist/pa11y-sitemap.xml
           nohup python3 -m http.server 4173 --directory dist > qa-artifacts/static-server.log 2>&1 &
           for attempt in $(seq 1 15); do
             curl --fail --silent http://127.0.0.1:4173/ >/dev/null && break
@@ -169,9 +167,15 @@ jobs:
 
       - name: Pa11y CI with axe
         run: |
-          PUPPETEER_EXECUTABLE_PATH="$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')" \
-            npx pa11y-ci --config ../../.pa11yci.json --sitemap http://127.0.0.1:4173/pa11y-sitemap.xml
-        working-directory: scripts/tools
+          node -e '
+          const {readdirSync,statSync,readFileSync,writeFileSync}=require("fs"),{join}=require("path");
+          const walk=d=>readdirSync(d).flatMap(n=>{const p=join(d,n);return statSync(p).isDirectory()?walk(p):p.endsWith(".html")?[p]:[]});
+          const urls=walk("dist").map(p=>"http://127.0.0.1:4173/"+p.slice(5).replace(/index\.html$/,""));
+          const defaults=JSON.parse(readFileSync(".pa11yci.json","utf8")).defaults;
+          writeFileSync("pa11y-urls.json",JSON.stringify({defaults,urls},null,2));'
+          PA11Y_URLS_FILE=pa11y-urls.json npm run check
+          PUPPETEER_EXECUTABLE_PATH="$(node -e 'process.stdout.write(require("./scripts/tools/node_modules/playwright").chromium.executablePath())')" \
+            npx --prefix scripts/tools pa11y-ci --config .pa11yci.json --config pa11y-urls.json
 
       - name: Validate HTML specification
         run: npx html-validate --config ../../.htmlvalidate.json "../../dist/**/*.html"
