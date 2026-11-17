@@ -42,13 +42,13 @@
       span, не лінк. Розділювач — прихований від скрінрідерів. -#}
   <nav class="lang-switch" aria-label="{{ strings.nav.lang_label }}">
     {%- if isEn %}
-    <a href="{{ otherHref }}" hreflang="uk">{{ strings.nav.lang_other }}</a>
+     <a href="{{ otherHref }}" hreflang="uk" lang="uk">{{ strings.nav.lang_other }}</a>
     <span aria-hidden="true">/</span>
     <span class="current" aria-current="true">{{ strings.nav.lang_current }}</span>
     {%- else %}
     <span class="current" aria-current="true">{{ strings.nav.lang_current }}</span>
     <span aria-hidden="true">/</span>
-    <a href="{{ otherHref }}" hreflang="en">{{ strings.nav.lang_other }}</a>
+     <a href="{{ otherHref }}" hreflang="en" lang="en">{{ strings.nav.lang_other }}</a>
     {%- endif %}
   </nav>
 </div>

@@ -1462,12 +1462,13 @@ console.log("--- 7л. Перемикач мов ---");
       }
 
       // Лінк іншої мови
-      const other = inner.match(/<a\s+href="([^"]*)"\s+hreflang="(uk|en)"[^>]*>([^<]*)<\/a>/);
+      const other = inner.match(/<a\s+href="([^"]*)"\s+hreflang="(uk|en)"\s+lang="([^"]*)"[^>]*>([^<]*)<\/a>/);
       if (!other) {
         fail(rel, "немає лінка іншої мови");
       } else {
-        const [, href, hl, text] = other;
+        const [, href, hl, linkLang, text] = other;
         if (hl === pageLang) fail(rel, `hreflang лінка «${hl}» збігається з мовою сторінки`);
+        if (linkLang !== hl) fail(rel, `lang лінка «${linkLang}» ≠ hreflang «${hl}»`);
         const expectText = pageLang === "en" ? "УКР" : "ENG";
         if (text.trim() !== expectText) fail(rel, `текст лінка «${text.trim()}» ≠ «${expectText}»`);
         if (!href.startsWith("/")) fail(rel, `лінк іншої мови не внутрішній: «${href}»`);
