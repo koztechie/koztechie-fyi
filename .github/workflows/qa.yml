@@ -149,7 +149,7 @@ jobs:
         working-directory: scripts/tools
 
       - name: Lighthouse CI
-        run: npx @lhci/cli autorun --config=../../.lighthouserc.json
+        run: npx @lhci/cli autorun --config=../../.lighthouserc.json --collect.staticDistDir=../../dist --upload.outputDir=../../qa-artifacts/lhci
         working-directory: scripts/tools
 
       - name: Start local static server
