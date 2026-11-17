@@ -17,39 +17,162 @@ concurrency:
 jobs:
   static:
     name: Build and site checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Prepare failure artifacts
+        run: mkdir -p qa-artifacts/logs
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
+
+      - name: Install pinned ImageMagick
+        run: |
+          sudo apt-get update
+          IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          case "$IM_VERSION" in
+            8:6.9.*) ;;
+            *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
+          esac
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}"
+          magick -version || convert -version
 
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
       - name: Build site
-        run: npm run build
+        run: npm run build 2>&1 | tee qa-artifacts/logs/build.log
 
-      - name: Validate generated site
-        run: npm run check
+      - name: Compare favicon and OG raster references
+        run: |
+          set -euo pipefail
+          mkdir -p qa-artifacts/visual
+          IM_BIN="$(command -v magick || command -v convert)"
+          COMPARE_BIN="$(command -v compare || true)"
+          if [ -z "$COMPARE_BIN" ]; then
+            echo "ImageMagick compare command not found"
+            exit 1
+          fi
+          compare_ae() {
+            local actual="$1"
+            local reference="$2"
+            local output
+            output="$("$COMPARE_BIN" -metric AE "$actual" "$reference" "qa-artifacts/visual/$(basename "$actual").diff.png" 2>&1 >/dev/null || true)"
+            printf '%s' "$output" | awk '{print $1}'
+          }
 
-      - name: Validate content
-        run: npm run validate
+          favicon_ae="$("$IM_BIN" dist/favicon.svg -resize 64x64 png:- | "$COMPARE_BIN" -metric AE - docs/reference/favicon-64.png null: 2>&1 >/dev/null || true)"
+          favicon_ae="$(printf '%s' "$favicon_ae" | awk '{print $1}')"
+          echo "favicon AE: ${favicon_ae:-invalid}"
+          test "${favicon_ae:-999999}" -le 0
 
-      - name: Check palette contrast
-        run: npm run palette
+          for reference in docs/reference/og/*.png; do
+            name="$(basename "$reference")"
+            actual="dist/og/$name"
+            test -f "$actual"
+            ae="$(compare_ae "$actual" "$reference")"
+            echo "$name AE: ${ae:-invalid}"
+            test "${ae:-999999}" -le 0
+          done
 
-      - name: Check page and asset budgets
-        run: npm run size
+      - name: Run unified QA gate
+        env:
+          LINKCHECK_STRICT: "1"
+        run: npm run qa:all 2>&1 | tee qa-artifacts/logs/qa-all.log
 
-      - name: Check internal links
-        run: npm run linkcheck
+      - name: Upload QA artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: qa-failure-${{ github.run_id }}
+          path: |
+            dist/
+            qa-artifacts/logs/
+            qa-artifacts/visual/
+          if-no-files-found: warn
+          retention-days: 7
 
-      - name: Check external links
-        run: npm run linkcheck:external
+  live-probe:
+    name: Production live probe
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Probe production
+        run: npm run live-probe
+
+  measured-quality:
+    name: Measured quality budgets
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install ImageMagick for build
+        run: |
+          sudo apt-get update
+          IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          case "$IM_VERSION" in
+            8:6.9.*) ;;
+            *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
+          esac
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}"
+
+      - name: Install locked dependencies and build
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+
+      - name: Lighthouse CI
+        run: npx --yes @lhci/cli@0.14.0 autorun --config=.lighthouserc.json
+
+      - name: Start local static server
+        run: |
+          mkdir -p qa-artifacts
+          cp dist/sitemap.xml dist/pa11y-sitemap.xml
+          sed -i 's#https://koztechie.fyi#http://127.0.0.1:4173#g' dist/pa11y-sitemap.xml
+          nohup python3 -m http.server 4173 --directory dist > qa-artifacts/static-server.log 2>&1 &
+          for attempt in $(seq 1 15); do
+            curl --fail --silent http://127.0.0.1:4173/ >/dev/null && break
+            sleep 1
+          done
+
+      - name: Pa11y CI with axe
+        run: npx --yes pa11y-ci@3.1.0 --config .pa11yci.json --sitemap http://127.0.0.1:4173/pa11y-sitemap.xml
+
+      - name: Validate HTML specification
+        run: npx --yes html-validate@8.29.0 --config .htmlvalidate.json "dist/**/*.html"
+
+      - name: Install Chromium for reflow matrix
+        run: npx --yes playwright@1.65.1 install --with-deps chromium
+
+      - name: Playwright reflow matrix and screenshot diffs
+        run: node scripts/reflow-check.mjs
+
+      - name: Upload measured-quality artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: measured-quality-${{ github.run_id }}
+          path: |
+            qa-artifacts/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 7

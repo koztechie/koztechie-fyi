@@ -18,10 +18,15 @@ mkdirSync(outputDir, { recursive: true });
 writeFileSync(resolve(outputDir, screenFile), screenContent);
 writeFileSync(resolve(outputDir, printFile), printContent);
 
-for (const file of readdirSync(outputDir)) {
-  if (/^(?:site|print)(?:\.[a-f0-9]{12})?\.css$/.test(file) && file !== screenFile && file !== printFile) {
+for (const prefix of ["site", "print"]) {
+  const candidates = readdirSync(outputDir)
+    .filter((file) => new RegExp(`^${prefix}\\.[a-f0-9]{12}\\.css$`).test(file))
+    .sort((a, b) => statSync(resolve(outputDir, b)).mtimeMs - statSync(resolve(outputDir, a)).mtimeMs);
+  for (const file of candidates.slice(3)) {
     unlinkSync(resolve(outputDir, file));
   }
+}
+for (const file of readdirSync(outputDir)) {
   if (["core.css", "layout.css", "components.css", "themes.css"].includes(file)) {
     unlinkSync(resolve(outputDir, file));
   }

@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   mkdtempSync,
   readdirSync,
@@ -208,6 +209,22 @@ if (
 ) {
   throw new Error("favicon.svg не має світлої та темної схем із токенів themes.css.");
 }
+const faviconStyle = faviconMarkup.match(/<style>([\s\S]*?)<\/style>/)?.[1];
+if (faviconStyle === undefined) {
+  throw new Error("favicon.svg не має inline <style> для CSP-хешу.");
+}
+const faviconStyleHash = createHash("sha256").update(faviconStyle).digest("base64");
+const headersPath = resolve("dist/_headers");
+const headers = readFileSync(headersPath, "utf8");
+const cspHash = `'sha256-${faviconStyleHash}'`;
+const hashedHeaders = headers.replace(
+  /style-src 'self'(?:\s+'sha256-[^']+')*/,
+  `style-src 'self' ${cspHash}`,
+);
+if (hashedHeaders === headers) {
+  throw new Error("dist/_headers: не знайдено style-src 'self' для CSP-хешу favicon.");
+}
+writeFileSync(headersPath, hashedHeaders);
 let manifest;
 try {
   manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
@@ -229,6 +246,7 @@ try {
       "-resize", `${size}x${size}`,
       "-dither", "None",
       "-colors", "3",
+      "-define", "png:exclude-chunk=date,time",
       "-define", "png:compression-level=9",
       `PNG8:${path}`,
     ]);
@@ -244,4 +262,4 @@ try {
 }
 
 console.log(`optimize-og: ${optimizedCount} OG-зображень у межі ≤15 КіБ`);
-console.log(`optimize-og: ${htmlFiles.length} theme-color, ${altPairCount} OG/X alt-пар перевірено; favicon і manifest синхронізовано`);
+console.log(`optimize-og: ${htmlFiles.length} theme-color, ${altPairCount} OG/X alt-пар перевірено; favicon CSP hash синхронізовано`);

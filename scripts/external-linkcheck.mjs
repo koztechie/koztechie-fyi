@@ -7,6 +7,8 @@ import { join, resolve } from "node:path";
 const distDir = resolve(process.argv[2] || "dist");
 const ownHost = "koztechie.fyi";
 const timeoutMs = 12_000;
+const maxAttempts = 3;
+const retryBackoffMs = [1_000, 3_000, 9_000];
 
 function walk(dir) {
   const files = [];
@@ -49,7 +51,7 @@ async function request(url, method) {
   });
 }
 
-async function check(url) {
+async function checkOnce(url) {
   let response = await request(url, "HEAD");
   if (!response.ok) {
     response = await request(url, "GET");
@@ -58,27 +60,83 @@ async function check(url) {
   return response;
 }
 
+function isHardFailure(status) {
+  return status >= 400 && status < 500 && status !== 429;
+}
+
+function isRetryableResponse(status) {
+  return status === 429 || status >= 500;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function check(url) {
+  let lastError;
+  let lastResponse;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    if (attempt > 0) {
+      const delay = retryBackoffMs[attempt - 1];
+      console.log(`  ↻ retry ${attempt + 1}/${maxAttempts} через ${delay / 1_000}с: ${url}`);
+      await sleep(delay);
+    }
+
+    try {
+      const response = await checkOnce(url);
+      lastResponse = response;
+      if (!isRetryableResponse(response.status) || isHardFailure(response.status)) {
+        return response;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (lastError) throw lastError;
+  return lastResponse;
+}
+
 console.log("=== EXTERNAL-LINKCHECK ===");
 console.log(`Унікальних зовнішніх HTTPS-посилань: ${links.size}`);
+console.log(`Retry: ${maxAttempts} спроби; backoff 1с/3с/9с; strict=${process.env.LINKCHECK_STRICT === "1" ? "так" : "ні"}`);
 
-let errors = 0;
+let hardErrors = 0;
+let softErrors = 0;
 for (const [url, sources] of links) {
   try {
     const response = await check(url);
-    if (!response.ok) {
-      console.error(`❌ ${response.status} ${url} (у ${[...sources].join(", ")})`);
-      errors++;
+    if (!response?.ok) {
+      const source = ` (у ${[...sources].join(", ")})`;
+      if (response && isHardFailure(response.status)) {
+        console.error(`❌ HARD ${response.status} ${url}${source}`);
+        hardErrors++;
+      } else {
+        const mode = process.env.LINKCHECK_STRICT === "1" ? "HARD" : "SOFT";
+        const output = process.env.LINKCHECK_STRICT === "1" ? console.error : console.warn;
+        output(`⚠ ${mode} ${response?.status || "network"} ${url}${source}`);
+        if (process.env.LINKCHECK_STRICT === "1") hardErrors++;
+        else softErrors++;
+      }
     } else {
       console.log(`✅ ${response.status} ${url}`);
     }
   } catch (error) {
-    console.error(`❌ Не вдалося перевірити ${url}: ${error.message} (у ${[...sources].join(", ")})`);
-    errors++;
+    const mode = process.env.LINKCHECK_STRICT === "1" ? "HARD" : "SOFT";
+    const output = process.env.LINKCHECK_STRICT === "1" ? console.error : console.warn;
+    output(`⚠ ${mode} network ${url}: ${error.message} (у ${[...sources].join(", ")})`);
+    if (process.env.LINKCHECK_STRICT === "1") hardErrors++;
+    else softErrors++;
   }
 }
 
-if (errors) {
-  console.error(`РЕЗУЛЬТАТ: ${errors} зовнішніх посилань недоступні`);
+if (hardErrors) {
+  console.error(`РЕЗУЛЬТАТ: ${hardErrors} HARD-відмов; SOFT: ${softErrors}`);
   process.exit(1);
 }
-console.log("РЕЗУЛЬТАТ: усі зовнішні посилання доступні");
+if (softErrors) {
+  console.warn(`РЕЗУЛЬТАТ: доступні посилання перевірено; SOFT-відмов: ${softErrors}`);
+} else {
+  console.log("РЕЗУЛЬТАТ: усі зовнішні посилання доступні");
+}

@@ -37,7 +37,8 @@
 
 ## Як зібрати
 
-**Вимоги:** Node.js 22 (див. `.nvmrc`), npm.
+**Вимоги:** Node.js 22 (див. `.nvmrc`), npm і системний ImageMagick
+(build-only; для генерації OG-зображень та favicon).
 
 ```bash
 npm ci --ignore-scripts    # встановлення (одна залежність)
@@ -49,10 +50,11 @@ npm run check              # автономний чекліст
 **Перевірка до коміту:**
 
 ```bash
-git config core.hooksPath scripts/hooks   # pre-commit: npm run check
+git config core.hooksPath scripts/hooks   # pre-commit: npm run qa:all
 ```
 
-**Збірка на Netlify:** `npm ci --ignore-scripts && npm run build && npm run check`.
+**Збірка на Netlify:** спочатку перевіряється системний ImageMagick, потім
+виконується `npm ci --ignore-scripts && npm run build && npm run qa:all`.
 
 Деталі: `docs/ARCHITECTURE.md` (механіка Eleventy), `docs/environment.md`
 (заміри на цій машині).
@@ -111,16 +113,17 @@ draft: true
 
 ```bash
 node scripts/validate-content.mjs    # поля, дати, slug, consent, entry
-node scripts/voice-lint.mjs          # заборонені слова, UTM
+node scripts/voice-lint.mjs content/  # заборонені слова, UTM
 npm run check                        # бюджети, CSS, h1, alt, DOM
 npm run size                         # вага dist/: сторінка, CSS, шрифти, favicon
 npm run palette                      # контраст палітр: AAA ≥ 7:1, ліміт 6 кольорів
+npm run qa:all                       # єдина послідовність усіх gate-перевірок
 ```
 
 ### 5. Публікуєш
 
 1. Зніми `draft: true`.
-2. `npm run build && npm run check`.
+2. `npm run build && npm run qa:all`.
 3. Коміт, push.
 4. Англійська версія — окремим файлом у `content/en/` з тим самим `slug`.
    Без файлу — `translation_status: "not_planned"`.

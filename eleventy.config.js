@@ -8,10 +8,26 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({"static/og": "og"});
   eleventyConfig.addPassthroughCopy({"static/nichlyst": "nichlyst"});
 
+  // Клавіатурний доступ до горизонтального скролу таблиць і блоків коду.
+  eleventyConfig.amendLibrary("md", (md) => {
+    const fence = md.renderer.rules.fence.bind(md.renderer.rules);
+    md.renderer.rules.fence = (tokens, idx, opts, env, self) =>
+      fence(tokens, idx, opts, env, self).replace(/^<pre/, '<pre tabindex="0"');
+
+    const tableOpen = md.renderer.rules.table_open?.bind(md.renderer.rules)
+      || ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options));
+    md.renderer.rules.table_open = (tokens, idx, options, env, self) =>
+      '<div class="table-scroll" tabindex="0" role="region" aria-label="Таблиця (прокрутка)">'
+      + tableOpen(tokens, idx, options, env, self);
+
+    const tableClose = md.renderer.rules.table_close?.bind(md.renderer.rules)
+      || ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options));
+    md.renderer.rules.table_close = (tokens, idx, options, env, self) =>
+      tableClose(tokens, idx, options, env, self) + "</div>";
+  });
+
   // Мови фідів (крок 125): два виходи /feed.xml та /en/feed.xml
   eleventyConfig.addGlobalData("feedLangs", ["uk", "en"]);
-  // Паспорт головної показує дату поточної збірки, а не дату контенту.
-  eleventyConfig.addGlobalData("buildDate", new Date());
   eleventyConfig.addGlobalData("themeColors", readThemeColors());
 
   // Колекції
@@ -47,6 +63,18 @@ export default function (eleventyConfig) {
   eleventyConfig.addCollection("en", (api) =>
     api.getFilteredByGlob("content/en/**/*").sort(byDateDesc)
   );
+  eleventyConfig.addCollection("missingMirrors", (api) => {
+    const enUrls = new Set(api.getFilteredByGlob("content/en/**/*.md").map((item) => item.url));
+    return api
+      .getFilteredByGlob("content/uk/{blog,practice,poetry,cemetery}/*.md")
+      .filter((item) => item.data.draft !== true && item.url && !enUrls.has("/en" + item.url))
+      .map((item) => ({
+        data: item.data,
+        inputPath: item.inputPath,
+        url: item.url,
+        stubUrl: "/en" + item.url,
+      }));
+  });
 
   // Публічні сторінки: ті самі URL, що потрапляють до sitemap.
   eleventyConfig.addCollection("publicPages", (api) =>
@@ -108,6 +136,10 @@ export default function (eleventyConfig) {
   // JSON для JSON-LD (крок 151). autoescape njk ламає лапки — у парі з | safe.
   eleventyConfig.addFilter("json", (v) => JSON.stringify(v));
 
+  // Безпечне розділення CDATA, якщо текст містить послідовність ]]>
+  // (XML не дозволяє їй з'являтися всередині одного CDATA-блоку).
+  eleventyConfig.addFilter("cdataSafe", (s) => String(s).replace(/\]\]>/g, "]]]]><![CDATA[>"));
+
   // ISO 8601 для sitemap <lastmod> (DECISIONS.md §17.4, §20).
   // Приймає Date або ISO-рядок (updated з YAML часто лишається рядком).
   eleventyConfig.addFilter("isoDate", (value) => {
@@ -145,6 +177,20 @@ export default function (eleventyConfig) {
   eleventyConfig.addFilter("sortByDateDesc", (items) => {
     const toTime = (v) => (v instanceof Date ? v.getTime() : v ? new Date(v).getTime() : 0);
     return [...(items || [])].sort((a, b) => toTime(b.data?.date) - toTime(a.data?.date));
+  });
+
+  eleventyConfig.addFilter("sortByUrl", (items) =>
+    [...(items || [])].sort((a, b) => String(a.url || "").localeCompare(String(b.url || "")))
+  );
+
+  // Детермінована дата паспорта та RSS: максимум updated/date публічних сторінок.
+  eleventyConfig.addFilter("latestPublicDate", (items) => {
+    const dates = (items || [])
+      .map((item) => item.data?.updated || item.data?.date)
+      .filter(Boolean)
+      .map((value) => new Date(value))
+      .filter((date) => !isNaN(date.getTime()));
+    return dates.length ? new Date(Math.max(...dates.map((date) => date.getTime()))) : null;
   });
 
   // Конфіг

@@ -2,7 +2,8 @@
   "site": {
     "name": "koztechie",
     "name_en": "koztechie",
-    "title": "Personal blog and portfolio.",
+    "title": "Personal blog and archive.",
+    "feed_title": "koztechie — English",
     "bio_short": "Personal blog from Kyiv. Thoughts, notes, and projects. No clickbait, no vanity metrics.",
     "og_image_alt": "koztechie — a light digital-archive card with framed signal markers and the site name.",
     "date_suffix": ""
@@ -136,7 +137,8 @@
   },
   "stub": {
     "title": "Not translated",
-    "link": "Read in Ukrainian"
+    "link": "Read in Ukrainian",
+    "summary": "This page has not been translated into English."
   },
   "page_404": {
     "text": "Entry not found.",

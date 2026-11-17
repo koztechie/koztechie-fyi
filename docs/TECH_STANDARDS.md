@@ -40,12 +40,15 @@
 
 ## 2. ЗАЛЕЖНОСТІ
 
-**Єдина залежність:** `@11ty/eleventy` `3.1.7` — точна версія (без `^`). Затверджено: `DECISIONS.md` §38.
+**Залежності:** одна npm-залежність — `@11ty/eleventy` `3.1.7` — точна
+версія (без `^`), і системний ImageMagick як build-only CLI для OG-зображень
+та favicon. Затверджено: `DECISIONS.md` §38 і §42.4.
 
 **Правила:**
 - `package-lock.json` у коміті.
 - `npm ci --ignore-scripts`.
 - `.nvmrc` закріплює версію Node.
+- ImageMagick перевіряється перед збіркою; версія друкується в CI/Netlify log.
 - RSS, sitemap, форматування дат — шаблони та власні фільтри. Без плагінів.
 - Без підсвічування синтаксису коду (плагін = залежність).
 - Кодувальники зображень (`cwebp`, `avifenc`) — зовнішні CLI поза npm.
@@ -277,13 +280,13 @@ form-action 'none'
 вмісту замість `unsafe-inline`.
 
 **Заголовки:**
-- `Strict-Transport-Security: max-age=31536000; includeSubDomains`
+- `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
 - `Referrer-Policy: strict-origin-when-cross-origin`
-- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=()`
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: DENY` — легасі-дублер для `frame-ancestors 'none'`.
-- HSTS `preload` не додавати, доки не перевірено HTTPS для всіх піддоменів;
-  чинний заголовок уже містить `includeSubDomains`.
+- HSTS `preload` увімкнено після перевірки HTTPS для `www`; окремий домен
+  `pp.ua` не входить до `includeSubDomains`.
 
 **Кешування:**
 - Ассети з хешем (`site.<hash>.css`): `Cache-Control: public, max-age=31536000, immutable`.

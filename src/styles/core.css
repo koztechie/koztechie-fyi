@@ -49,14 +49,17 @@ body {
   font-synthesis: none;
   -webkit-text-size-adjust: 100%;
   hyphens: manual;
-  /* Тимчасовий запобіжник до виправлення п. 2 і повної матриці ширин; прибрати після перевірки без переповнень. */
-  overflow-x: hidden;
   font-family: var(--font-text);
   font-size: var(--text-lg);
   line-height: var(--leading);
   color: var(--ink);
   background: var(--paper);
   accent-color: var(--accent);
+}
+
+/* Skip-link цілить у main; контейнер не потребує власного кільця фокуса. */
+main:focus {
+  outline: none;
 }
 
 /* Заголовки: стисла ієрархія та системний гротеск. */
@@ -118,8 +121,7 @@ h6 {
 
 :is(.site-header, .site-footer, .home-hero, .card--nichlyst, pre) ::selection,
 :is(.entry-line, .nichlyst-status, .content-warning, .passport .hl,
-    .pagination .current, .letter-cta a)::selection,
-a:hover::selection {
+    .pagination .current, .letter-cta a)::selection {
   background: var(--paper);
   color: var(--link);
 }
@@ -179,10 +181,8 @@ a:active {
   background: transparent;
   color: var(--ink);
   text-decoration-thickness: 3px;
-  font-weight: 800;
 }
 
-a:hover,
 a:focus-visible {
   color: var(--ink);
   text-decoration-thickness: 3px;
@@ -192,10 +192,10 @@ a:focus-visible {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-    scroll-behavior: auto;
-    transition-duration: 0.01ms;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

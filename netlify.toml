@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci --ignore-scripts && npm run build && npm run check && npm run size && npm run linkcheck:external"
+  command = "command -v magick || command -v convert || (echo 'ImageMagick required' && exit 1); magick -version || convert -version; npm ci --ignore-scripts && npm run build && npm run qa:all"
   publish = "dist"
 
 [build.environment]

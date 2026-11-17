@@ -14,16 +14,26 @@ eleventyExcludeFromCollections: true
     Без <priority> та <changefreq> (§17.4). -#}
 {%- set origin = "https://koztechie.fyi" -%}
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 {%- set entries = [] -%}
-{%- for item in collections.publicPages -%}
-  {%- set mod = item.data.updated or item.data.date -%}
-  {%- set lastmod = mod | isoDate -%}
-  {%- set entries = entries.concat([{ url: item.url, lastmod: lastmod }]) -%}
+{%- for item in collections.publicPages | sortByUrl -%}
+  {%- set raw = item.url -%}
+  {%- set isEn = raw.indexOf("/en/") === 0 -%}
+  {%- set ukPath = raw.slice(3) if isEn else raw -%}
+  {%- set enPath = "/en" + ukPath -%}
+  {%- set ukPage = collections.all | findByUrl(ukPath) -%}
+  {%- set enPage = collections.all | findByUrl(enPath) -%}
+  {%- if ukPage and enPage and not ukPage.data.noindex and not enPage.data.noindex -%}
+    {%- set mod = item.data.updated or item.data.date -%}
+    {%- set lastmod = mod | isoDate -%}
+    {%- set entries = entries.concat([{ url: item.url, ukPath: ukPath, enPath: enPath, lastmod: lastmod }]) -%}
+  {%- endif -%}
 {%- endfor -%}
 {%- for e in entries %}
   <url>
     <loc>{{ origin }}{{ e.url }}</loc>
+    <xhtml:link rel="alternate" hreflang="uk" href="{{ origin }}{{ e.ukPath }}"/>
+    <xhtml:link rel="alternate" hreflang="en" href="{{ origin }}{{ e.enPath }}"/>
     {%- if e.lastmod %}
     <lastmod>{{ e.lastmod }}</lastmod>
     {%- endif %}
