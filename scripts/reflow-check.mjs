@@ -2,11 +2,14 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
 
 const origin = "http://127.0.0.1:4173";
-const referencesDir = "test-references";
-const actualDir = "qa-artifacts/reflow";
+const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const referencesDir = join(repoRoot, "test-references");
+const actualDir = join(repoRoot, "qa-artifacts/reflow");
+const toolsDir = join(repoRoot, "scripts/tools");
 const update = process.env.UPDATE_SCREENSHOTS === "1";
 const pages = [
   ["home", "/"],
@@ -32,7 +35,7 @@ function makeImagesEager(directory) {
 }
 
 // Full-page capture scrolls the document; eager loading removes lazy-image timing races.
-makeImagesEager("dist");
+makeImagesEager(join(repoRoot, "dist"));
 mkdirSync(actualDir, { recursive: true });
 if (update) mkdirSync(referencesDir, { recursive: true });
 
@@ -52,7 +55,7 @@ for (const [name, path] of pages) {
       `${width},900`,
       `${origin}${path}`,
       actual,
-    ], { stdio: "inherit" });
+    ], { cwd: toolsDir, stdio: "inherit" });
 
     if (update) {
       execFileSync("cp", [actual, reference]);

@@ -689,6 +689,8 @@ if (!existsSync(pkgPath)) {
     console.log(`  ❌ devDependencies не порожні: ${devDeps.join(", ")}`);
     depErrors++;
     totalErrors++;
+  } else {
+    console.log("  ✅ devDependencies порожні");
   }
 
   // package-lock.json обов'язковий при наявності package.json
@@ -696,6 +698,31 @@ if (!existsSync(pkgPath)) {
     console.log("  ❌ package-lock.json відсутній (TECH_STANDARDS §2)");
     depErrors++;
     totalErrors++;
+  }
+
+  // CI-інструменти ізольовані в окремому workspace, не в root dependencies.
+  const toolsDir = join(resolve("."), "scripts", "tools");
+  const toolsPkgPath = join(toolsDir, "package.json");
+  const toolsLockPath = join(toolsDir, "package-lock.json");
+  if (!existsSync(toolsPkgPath)) {
+    console.log("  ❌ scripts/tools/package.json відсутній");
+    depErrors++;
+    totalErrors++;
+  } else {
+    const toolsPkg = JSON.parse(readFileSync(toolsPkgPath, "utf-8"));
+    const toolsDeps = Object.entries(toolsPkg.dependencies || {});
+    for (const [name, range] of toolsDeps) {
+      if (typeof range !== "string" || /[\^~>=*]|\s-\s|latest|next/.test(range)) {
+        console.log(`  ❌ scripts/tools/${name}: «${range}» — версія має бути точною`);
+        depErrors++;
+        totalErrors++;
+      }
+    }
+    if (!existsSync(toolsLockPath)) {
+      console.log("  ❌ scripts/tools/package-lock.json відсутній");
+      depErrors++;
+      totalErrors++;
+    }
   }
 
   if (depErrors === 0) {

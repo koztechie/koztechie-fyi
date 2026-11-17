@@ -144,8 +144,13 @@ jobs:
           npm ci --ignore-scripts
           npm run build
 
+      - name: Install locked QA tools
+        run: npm ci --ignore-scripts
+        working-directory: scripts/tools
+
       - name: Lighthouse CI
-        run: npx --yes @lhci/cli@0.14.0 autorun --config=.lighthouserc.json
+        run: npx @lhci/cli autorun --config=../../.lighthouserc.json
+        working-directory: scripts/tools
 
       - name: Start local static server
         run: |
@@ -159,16 +164,20 @@ jobs:
           done
 
       - name: Pa11y CI with axe
-        run: npx --yes pa11y-ci@3.1.0 --config .pa11yci.json --sitemap http://127.0.0.1:4173/pa11y-sitemap.xml
+        run: npx pa11y-ci --config ../../.pa11yci.json --sitemap http://127.0.0.1:4173/pa11y-sitemap.xml
+        working-directory: scripts/tools
 
       - name: Validate HTML specification
-        run: npx --yes html-validate@8.29.0 --config .htmlvalidate.json "dist/**/*.html"
+        run: npx html-validate --config ../../.htmlvalidate.json "../../dist/**/*.html"
+        working-directory: scripts/tools
 
       - name: Install Chromium for reflow matrix
-        run: npx --yes playwright@1.65.1 install --with-deps chromium
+        run: npx playwright install --with-deps chromium
+        working-directory: scripts/tools
 
       - name: Playwright reflow matrix and screenshot diffs
-        run: node scripts/reflow-check.mjs
+        run: node ../reflow-check.mjs
+        working-directory: scripts/tools
 
       - name: Upload measured-quality artifacts on failure
         if: failure()
