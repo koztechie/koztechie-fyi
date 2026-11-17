@@ -82,7 +82,7 @@ Everything on this site is written, tested, and built on this machine.
 
 ## GitHub
 
-The site code is public: <a href="https://github.com/koztechie/koztechie-fyi" rel="me">koztechie/koztechie-fyi</a>. Profile: <a href="https://github.com/koztechie" rel="me">koztechie</a>.
+The site code is public: <a href="https://github.com/koztechie/koztechie-fyi" rel="me">koztechie/koztechie-fyi</a>. Profile: <a href="https://github.com/koztechie" rel="me">github.com/koztechie</a>.
 
 The code is licensed under the ISC License (`LICENSE`). Texts, poetry, photographs, and other materials are protected by copyright; all rights reserved (`COPYRIGHT`).
 

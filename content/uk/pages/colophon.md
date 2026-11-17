@@ -80,7 +80,7 @@ front matter; збірка перевіряє їхню відповідніст�
 
 ## GitHub
 
-Код сайту у відкритому репозиторії: <a href="https://github.com/koztechie/koztechie-fyi" rel="me">koztechie/koztechie-fyi</a>. Профіль: <a href="https://github.com/koztechie" rel="me">koztechie</a>.
+Код сайту у відкритому репозиторії: <a href="https://github.com/koztechie/koztechie-fyi" rel="me">koztechie/koztechie-fyi</a>. Профіль: <a href="https://github.com/koztechie" rel="me">github.com/koztechie</a>.
 
 Код поширюється за ліцензією ISC (`LICENSE`). Тексти, поезія, фотографії та інші матеріали захищені авторським правом; усі права застережено (`COPYRIGHT`).
 
