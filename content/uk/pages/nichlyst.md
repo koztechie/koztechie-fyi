@@ -28,15 +28,15 @@ NICHLYST — це сюжетна гра для Android про роботу з п
 <div class="nichlyst-gallery">
   <figure>
     <img src="/nichlyst/first-knock.webp" width="900" height="883" alt="Перший день гри: свідчення Хоми та три варіанти відповіді архівіста." loading="lazy" decoding="async">
-    <figcaption>День 1. Перше свідчення й вибір відповіді. <a href="/nichlyst/first-knock.webp" download>Завантажити кадр</a></figcaption>
+    <figcaption>День 1. Перше свідчення й вибір відповіді. <a href="/nichlyst/first-knock.webp" download aria-label="Завантажити кадр: день 1, перше свідчення (WebP, 27 КБ)">Завантажити кадр</a></figcaption>
   </figure>
   <figure>
     <img src="/nichlyst/choice-recorded.webp" width="900" height="883" alt="Наслідок вибору: запис свідчення в реєстрі та кнопка продовження." loading="lazy" decoding="async">
-    <figcaption>Наслідок рішення. <a href="/nichlyst/choice-recorded.webp" download>Завантажити кадр</a></figcaption>
+    <figcaption>Наслідок рішення. <a href="/nichlyst/choice-recorded.webp" download aria-label="Завантажити кадр: наслідок рішення (WebP, 36 КБ)">Завантажити кадр</a></figcaption>
   </figure>
   <figure>
     <img src="/nichlyst/title-screen.webp" width="900" height="883" alt="Стартовий екран NICHLYST із назвою гри та кнопкою відкриття архіву." loading="lazy" decoding="async">
-    <figcaption>Стартовий екран. <a href="/nichlyst/title-screen.webp" download>Завантажити кадр</a></figcaption>
+    <figcaption>Стартовий екран. <a href="/nichlyst/title-screen.webp" download aria-label="Завантажити кадр: стартовий екран (WebP, 6 КБ)">Завантажити кадр</a></figcaption>
   </figure>
 </div>
 

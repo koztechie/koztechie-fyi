@@ -28,15 +28,15 @@ You keep an archive in a fictional underground node. Read testimonies and decide
 <div class="nichlyst-gallery">
   <figure>
     <img src="/nichlyst/first-knock.webp" width="900" height="883" alt="Day 1 of the game: Khoma's testimony and three response choices for the archivist." loading="lazy" decoding="async">
-    <figcaption>Day 1. The first testimony and response choices. <a href="/nichlyst/first-knock.webp" download>Download screenshot</a></figcaption>
+    <figcaption>Day 1. The first testimony and response choices. <a href="/nichlyst/first-knock.webp" download aria-label="Download screenshot: day 1, first testimony (WebP, 27 KB)">Download screenshot</a></figcaption>
   </figure>
   <figure>
     <img src="/nichlyst/choice-recorded.webp" width="900" height="883" alt="The result of a choice: testimony recorded in the ledger, with a continue button." loading="lazy" decoding="async">
-    <figcaption>Consequence of a decision. <a href="/nichlyst/choice-recorded.webp" download>Download screenshot</a></figcaption>
+    <figcaption>Consequence of a decision. <a href="/nichlyst/choice-recorded.webp" download aria-label="Download screenshot: consequence of a decision (WebP, 36 KB)">Download screenshot</a></figcaption>
   </figure>
   <figure>
     <img src="/nichlyst/title-screen.webp" width="900" height="883" alt="NICHLYST title screen with the game title and an Open Archive button." loading="lazy" decoding="async">
-    <figcaption>Title screen. <a href="/nichlyst/title-screen.webp" download>Download screenshot</a></figcaption>
+    <figcaption>Title screen. <a href="/nichlyst/title-screen.webp" download aria-label="Download screenshot: title screen (WebP, 6 KB)">Download screenshot</a></figcaption>
   </figure>
 </div>
 

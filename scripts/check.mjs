@@ -1646,6 +1646,46 @@ console.log("--- 7т. hreflang у sitemap ---");
 }
 console.log("");
 
+// 7у. Унікальні доступні імена посилань — WCAG 2.4.4/2.5.3, F-01.
+console.log("--- 7у. Імена посилань не дезамбіґуються однаковим текстом ---");
+let linkNameErrors = 0;
+const linkNameHtmlFiles = walkDir(distDir).filter((file) => file.endsWith(".html"));
+for (const file of linkNameHtmlFiles) {
+  const rel = file.replace(distDir + "/", "");
+  const html = readFileSync(file, "utf-8");
+  const names = new Map();
+  for (const match of html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)) {
+    const attrs = match[1];
+    const href = attrs.match(/\bhref\s*=\s*["']([^"']+)["']/i)?.[1];
+    if (!href) continue;
+    const ariaLabel = attrs.match(/\baria-label\s*=\s*["']([^"']+)["']/i)?.[1];
+    const text = match[2]
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;|&apos;/gi, "'")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/\s+/g, " ")
+      .trim();
+    const accessibleName = (ariaLabel ?? text).replace(/\s+/g, " ").trim();
+    if (!accessibleName) continue;
+    if (!names.has(accessibleName)) names.set(accessibleName, new Set());
+    names.get(accessibleName).add(href);
+  }
+  for (const [name, hrefs] of names) {
+    if (hrefs.size > 1) {
+      console.log(`  ❌ ${rel}: «${name}» має кілька href: ${[...hrefs].join(", ")}`);
+      linkNameErrors++;
+      totalErrors++;
+    }
+  }
+}
+if (linkNameErrors === 0) {
+  console.log(`  ✅ Усі доступні імена посилань однозначні (${linkNameHtmlFiles.length} HTML-файлів)`);
+}
+
 // 7м. Таб-навігація — крок 134. TECH_STANDARDS §9; фокус за KZTCH_DS §02
 // (3px, колір --k-fg; чорний на білому = 21:1). AGENTS.md §5 (видимий
 // :focus, клавіатурна навігація).

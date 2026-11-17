@@ -20,7 +20,7 @@
     поточної мови. -#}
 {%- set navPrefix = "/en" if isEn else "" -%}
 <div class="site-header__inner">
-  <a class="site-logo" href="{{ navPrefix }}/"{% if cur === "/" %} aria-current="page"{% endif %}><img class="site-logo__mark" src="/favicon.svg" width="28" height="28" alt="">{{ strings.site.name }}</a>
+  <a class="site-logo" href="{{ navPrefix }}/" aria-label="{{ strings.site.name }} — {{ strings.nav.home }}"{% if cur === "/" %} aria-current="page"{% endif %}><img class="site-logo__mark" src="/favicon.svg" width="28" height="28" alt="">{{ strings.site.name }}</a>
   <nav class="site-nav" aria-label="{{ strings.nav.sections_label }}">
     {%- set nav = [
       { href: "/nichlyst/", key: "nichlyst" },
