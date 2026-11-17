@@ -47,6 +47,12 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
+      - name: Set commit-pinned build epoch
+        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> "$GITHUB_ENV"
+
+      - name: Verify build determinism
+        run: npm run check:determinism
+
       - name: Build site
         run: npm run build 2>&1 | tee qa-artifacts/logs/build.log
 

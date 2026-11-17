@@ -29,6 +29,8 @@ export default function (eleventyConfig) {
   // Мови фідів (крок 125): два виходи /feed.xml та /en/feed.xml
   eleventyConfig.addGlobalData("feedLangs", ["uk", "en"]);
   eleventyConfig.addGlobalData("themeColors", readThemeColors());
+  const epoch = Number(process.env.SOURCE_DATE_EPOCH);
+  eleventyConfig.addGlobalData("buildDate", Number.isFinite(epoch) ? new Date(epoch * 1000) : new Date());
 
   // Колекції
   eleventyConfig.addCollection("blog", (api) =>

@@ -18,7 +18,6 @@ eleventyExcludeFromCollections: true
     Пагінація на feedLangs (глобальні дані): вбудований масив Eleventy
     у pagination.data не підтримується. -#}
 {%- set strings = strings[feedLang] | default(strings.uk) -%}
-{%- set buildDate = collections.publicPages | latestPublicDate -%}
 {%- set siteRoot = "https://koztechie.fyi" -%}
 {%- set sections = ["/blog/", "/practice/", "/poetry/", "/cemetery/"] -%}
 {%- set items = [] -%}
