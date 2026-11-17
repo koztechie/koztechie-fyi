@@ -23,7 +23,9 @@ function makeImagesEager(directory) {
       makeImagesEager(path);
     } else if (entry.isFile() && entry.name.endsWith(".html")) {
       const source = readFileSync(path, "utf8");
-      const eager = source.replaceAll('loading="lazy"', 'loading="eager"');
+      const eager = source
+        .replaceAll('loading="lazy"', 'loading="eager"')
+        .replaceAll('decoding="async"', 'decoding="sync"');
       if (eager !== source) writeFileSync(path, eager);
     }
   }
