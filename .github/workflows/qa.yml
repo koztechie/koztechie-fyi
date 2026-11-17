@@ -54,10 +54,14 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p qa-artifacts/visual
-          IM_BIN="$(command -v magick || command -v convert)"
           COMPARE_BIN="$(command -v compare || true)"
           if [ -z "$COMPARE_BIN" ]; then
             echo "ImageMagick compare command not found"
+            exit 1
+          fi
+          RSVG_BIN="$(command -v rsvg-convert || true)"
+          if [ -z "$RSVG_BIN" ]; then
+            echo "librsvg2-bin is required for deterministic SVG rasterization"
             exit 1
           fi
           compare_ae() {
@@ -68,7 +72,7 @@ jobs:
             printf '%s' "$output" | awk '{print $1}'
           }
 
-          favicon_ae="$("$IM_BIN" dist/favicon.svg -resize 64x64 png:- | "$COMPARE_BIN" -metric AE - docs/reference/favicon-64.png null: 2>&1 >/dev/null || true)"
+          favicon_ae="$("$RSVG_BIN" --width 64 --height 64 dist/favicon.svg | "$COMPARE_BIN" -metric AE - docs/reference/favicon-64.png null: 2>&1 >/dev/null || true)"
           favicon_ae="$(printf '%s' "$favicon_ae" | awk '{print $1}')"
           echo "favicon AE: ${favicon_ae:-invalid}"
           test "${favicon_ae:-999999}" -le 0
