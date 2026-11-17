@@ -127,8 +127,8 @@ h6 {
 }
 
 article.home .card--nichlyst ::selection {
-  color: var(--world-text);
   background: var(--world-bg);
+  color: var(--world-accent);
 }
 
 button,

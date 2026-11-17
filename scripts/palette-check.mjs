@@ -101,14 +101,15 @@ const contrastPairs = [
   { type: "AA UI", name: "--accent on --paper", foreground: baseColors.accent, background: baseColors.paper, minimum: 4.5 },
   { type: "AA UI", name: "--accent-night on --night", foreground: baseColors["accent-night"], background: baseColors.night, minimum: 4.5 },
   { type: "AA UI", name: "--paper on --accent", foreground: baseColors.paper, background: baseColors.accent, minimum: 4.5 },
+  { type: "AA UI (selection)", name: "--world-accent on --world-bg", foreground: baseColors["accent-night"], background: baseColors.night, minimum: 4.5 },
   { type: "Non-text", name: "--rule-strong on --paper", foreground: baseColors["rule-strong"], background: baseColors.paper, minimum: 3 },
   { type: "Non-text", name: "--rule-strong-night on --night", foreground: baseColors["rule-strong-night"], background: baseColors.night, minimum: 3 },
   { type: "Non-text", name: "--focus on --paper", foreground: baseColors.accent, background: baseColors.paper, minimum: 3 },
   { type: "Non-text", name: "--focus-night on --night", foreground: baseColors["accent-night"], background: baseColors.night, minimum: 3 },
 ];
 
-for (const type of ["AAA body", "AA UI", "Non-text"]) {
-  const minimum = type === "AAA body" ? 7 : type === "AA UI" ? 4.5 : 3;
+for (const type of ["AAA body", "AA UI", "AA UI (selection)", "Non-text"]) {
+  const minimum = type === "AAA body" ? 7 : type === "Non-text" ? 3 : 4.5;
   console.log(`--- ${type} (мінімум ${minimum}:1) ---`);
   for (const pair of contrastPairs.filter((candidate) => candidate.type === type)) {
     const ratio = contrast(pair.foreground, pair.background);
