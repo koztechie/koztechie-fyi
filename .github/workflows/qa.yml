@@ -163,16 +163,18 @@ jobs:
             sleep 1
           done
 
+      - name: Install Chromium for reflow matrix
+        run: npx playwright install --with-deps chromium
+        working-directory: scripts/tools
+
       - name: Pa11y CI with axe
-        run: npx pa11y-ci --config ../../.pa11yci.json --sitemap http://127.0.0.1:4173/pa11y-sitemap.xml
+        run: |
+          PUPPETEER_EXECUTABLE_PATH="$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')" \
+            npx pa11y-ci --config ../../.pa11yci.json --sitemap http://127.0.0.1:4173/pa11y-sitemap.xml
         working-directory: scripts/tools
 
       - name: Validate HTML specification
         run: npx html-validate --config ../../.htmlvalidate.json "../../dist/**/*.html"
-        working-directory: scripts/tools
-
-      - name: Install Chromium for reflow matrix
-        run: npx playwright install --with-deps chromium
         working-directory: scripts/tools
 
       - name: Playwright reflow matrix and screenshot diffs
