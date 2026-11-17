@@ -11,7 +11,7 @@ season: "November 2026"
 working_on:
   - label: "koztechie.fyi"
     url: "/en/"
-    detail: "— isolated the pinned QA tools in a separate workspace; CI checks the site and production is green again."
+    detail: "— isolated the pinned QA tools and removed external link checks from the Netlify path; CI checks the site and production is green again."
   - label: "NICHLYST"
     url: "/en/nichlyst/"
     detail: "— updating the game page and press kit."

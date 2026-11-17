@@ -11,7 +11,7 @@ season: "листопад 2026 року"
 working_on:
   - label: "koztechie.fyi"
     url: "/"
-    detail: "— завершив ізоляцію pinned QA-інструментів в окремому workspace; CI перевіряє сайт і production знову зелений."
+    detail: "— завершив ізоляцію pinned QA-інструментів і виніс зовнішню перевірку посилань зі шляху Netlify; CI перевіряє сайт і production знову зелений."
   - label: "NICHLYST"
     url: "/nichlyst/"
     detail: "— доповнюю сторінку гри й прескіт."

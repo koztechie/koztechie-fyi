@@ -110,16 +110,33 @@ jobs:
           retention-days: 7
 
   live-probe:
-    name: Production live probe
+    name: Scheduled external checks
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-22.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build site for external link check
+        run: npm run build
+
       - name: Probe production
         run: npm run live-probe
+
+      - name: Check external links
+        env:
+          LINKCHECK_STRICT: "1"
+        run: npm run linkcheck:external
 
   measured-quality:
     name: Measured quality budgets

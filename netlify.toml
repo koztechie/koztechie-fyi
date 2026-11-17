@@ -1,5 +1,5 @@
 [build]
-  command = "command -v magick || command -v convert || (echo 'ImageMagick required' && exit 1); magick -version || convert -version; npm ci --ignore-scripts && npm run build && npm run qa:all"
+  command = "command -v magick || command -v convert || (echo 'ImageMagick required' && exit 1); npm ci --ignore-scripts && npm run build && npm run check && npm run validate && npm run size && npm run voice-lint && npm run linkcheck"
   publish = "dist"
 
 [build.environment]
