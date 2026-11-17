@@ -320,22 +320,34 @@ if (missingReducedMotion.length > 0) {
 }
 console.log("");
 
-// 2д. Screen-reader separators: · дозволений лише в aria-hidden span.
+// 2д. Символи навігації та розділювачі дозволені лише в aria-hidden span.
 console.log("--- 2д. SR-розділювачі ---");
-const visibleDotSeparators = [];
+const srSymbolPattern = /[·←→▍]/;
+const visibleSymbols = [];
+const stripHiddenSpans = (content) =>
+  content.replace(/<span\b[^>]*aria-hidden\s*=\s*["']true["'][^>]*>[\s\S]*?<\/span>/gi, "");
 if (existsSync(resolve("src/templates"))) {
   for (const file of walkDir(resolve("src/templates")).filter((path) => path.endsWith(".njk"))) {
     const template = readFileSync(file, "utf-8")
-      .replace(/\{#[\s\S]*?#\}/g, "")
-      .replace(/<span\b[^>]*aria-hidden\s*=\s*["']true["'][^>]*>[\s\S]*?<\/span>/gi, "");
-    if (template.includes("·")) visibleDotSeparators.push(file);
+      .replace(/\{#[\s\S]*?#\}/g, "");
+    if (srSymbolPattern.test(stripHiddenSpans(template))) visibleSymbols.push(file);
   }
 }
-if (visibleDotSeparators.length > 0) {
-  console.log(`  ❌ · поза aria-hidden у: ${visibleDotSeparators.map((file) => file.slice(resolve("src/templates").length + 1)).join(", ")}`);
+if (existsSync(resolve("src/_data/strings"))) {
+  for (const file of walkDir(resolve("src/_data/strings")).filter((path) => path.endsWith(".json"))) {
+    if (srSymbolPattern.test(readFileSync(file, "utf-8"))) visibleSymbols.push(file);
+  }
+}
+if (existsSync(distDir)) {
+  for (const file of walkDir(distDir).filter((path) => path.endsWith(".html"))) {
+    if (srSymbolPattern.test(stripHiddenSpans(readFileSync(file, "utf-8")))) visibleSymbols.push(file);
+  }
+}
+if (visibleSymbols.length > 0) {
+  console.log(`  ❌ символи · ← → ▍ поза aria-hidden у: ${visibleSymbols.map((file) => file.replace(`${resolve("src/templates")}/`, "").replace(`${resolve("src/_data/strings")}/`, "").replace(`${distDir}/`, "")).join(", ")}`);
   totalErrors++;
 } else {
-  console.log("  ✅ Усі ·-розділювачі приховані від screen reader");
+  console.log("  ✅ Символи · ← → ▍ поза aria-hidden відсутні у шаблонах, словниках і HTML");
 }
 console.log("");
 

@@ -60,7 +60,7 @@
 {%- endfor -%}
 <article class="entry{% if isProject %} entry--closed{% endif %}">
   {%- if isProject %}
-  <p class="entry-line">{{ strings.post.project_label }} <span class="closed-status">{{ strings.post.closed_label }}</span></p>
+  <p class="entry-line">{{ strings.post.project_label }} <span class="closed-status"><span class="sep" aria-hidden="true"> · </span>{{ strings.post.closed_label }}</span></p>
   {%- elif entry %}
   <p class="entry-line">{{ strings.post.entry_prefix }}{{ entry }}</p>
   {%- endif %}
@@ -88,9 +88,9 @@
     {{ content | safe }}
   </div>
   <nav class="pagination entry-navigation" aria-label="{{ strings.post.navigation_label }}">
-    <a href="{{ archiveHref }}">{{ strings.post.archive_project if isProject else strings.post.archive_blog }}</a>
+    <a href="{{ archiveHref }}"><span aria-hidden="true">← </span>{{ strings.post.archive_project if isProject else strings.post.archive_blog }}</a>
     {%- if records.length > 1 and currentIndex > 0 %}
-    <a href="{{ records[currentIndex - 1].url }}" rel="prev">{{ strings.post.previous_entry }}</a>
+    <a href="{{ records[currentIndex - 1].url }}" rel="prev"><span aria-hidden="true">← </span>{{ strings.post.previous_entry }}</a>
     {%- endif %}
     {%- if records.length > 1 and currentIndex >= 0 and currentIndex < records.length - 1 %}
     <a href="{{ records[currentIndex + 1].url }}" rel="next">{{ strings.post.next_entry }} <span aria-hidden="true">→</span></a>
