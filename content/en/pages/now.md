@@ -2,7 +2,7 @@
 title: "Now"
 lang: en
 layout: now.njk
-updated: 2026-11-16
+updated: 2026-11-17
 summary: "What I'm working on: this website and the development of NICHLYST."
 og_description: "My /now page. A quick update on what I'm working on right now."
 translation_status: complete
@@ -11,7 +11,7 @@ season: "November 2026"
 working_on:
   - label: "koztechie.fyi"
     url: "/en/"
-    detail: "— completed the theme refresh: night mode for NICHLYST and the Cemetery, automatic stubs for untranslated entries, versioned OG cards, and a new favicon."
+    detail: "— isolated the pinned QA tools in a separate workspace; CI checks the site and production is green again."
   - label: "NICHLYST"
     url: "/en/nichlyst/"
     detail: "— updating the game page and press kit."
