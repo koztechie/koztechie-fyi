@@ -219,6 +219,10 @@
   white-space: pre-wrap;
 }
 
+.entry-body.poetry p {
+  margin: 0;
+}
+
 .poem-colophon {
   display: flex;
   flex-wrap: wrap;

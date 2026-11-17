@@ -1813,6 +1813,13 @@ console.log("--- 7н. Skip-link ---");
       if (tables.length !== tableRegions.length || wrongTableRegions.length > 0) {
         fail(`${rel}: кожна <table> має language-aware .table-scroll[tabindex="0"][role="region"] з aria-label «${expectedTableLabel}»`);
       }
+      const poetryBodies = doc.match(/<div\s+class="entry-body poetry">[\s\S]*?<\/div>/gi) || [];
+      const invalidPoetryBodies = poetryBodies.filter(
+        (body) => !/^<div\s+class="entry-body poetry"><p\b/i.test(body)
+      );
+      if (invalidPoetryBodies.length > 0) {
+        fail(`${rel}: перша дитина .entry-body.poetry має бути <p> без попереднього whitespace`);
+      }
       const thTags = doc.match(/<th\b[^>]*>/gi) || [];
       const invalidTh = thTags.filter((tag) => !/\bscope\s*=\s*["'][^"']+["']/i.test(tag));
       if (invalidTh.length > 0) {
