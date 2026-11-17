@@ -10,4 +10,5 @@ noindex: true
 ---
 {%- set strings = strings[lang] | default(strings.uk) -%}
 {%- set title = item.data.title + " (not translated)" -%}
+{%- set title_uk = item.data.title -%}
 {%- set summary = strings.stub.summary -%}

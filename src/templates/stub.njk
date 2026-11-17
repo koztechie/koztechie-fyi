@@ -3,6 +3,7 @@
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
 {%- set title = item.data.title + " (not translated)" if item else title -%}
+{%- set title_uk = item.data.title if item else (title_uk | default("")) -%}
 {%- set summary = strings.stub.summary if item else summary -%}
 
 {% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
@@ -21,7 +22,8 @@
 {%- set ukHref = raw.slice(3) if raw.indexOf("/en/") === 0 else raw -%}
 <article class="translation-pending">
   <h1>{{ strings.stub.title }}</h1>
-  <p><a href="{{ ukHref }}">{{ strings.stub.link }} <span aria-hidden="true">→</span></a></p>
+  <p lang="uk">{{ title_uk }}</p>
+  <p><a href="{{ ukHref }}" hreflang="uk">{{ strings.stub.link }} <span aria-hidden="true">→</span></a></p>
   {%- if raw.indexOf("/cemetery/") !== -1 %}
   <nav class="pagination entry-navigation" aria-label="{{ strings.post.navigation_label }}">
     <a href="/en/cemetery/">{{ strings.post.archive_project }}</a>

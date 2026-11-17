@@ -1533,6 +1533,31 @@ console.log("--- 7л-а. Заглушки перекладів ---");
     stubErrors++;
     totalErrors++;
   };
+  const readFrontmatterField = (file, field) => {
+    const source = readFileSync(file, "utf-8");
+    return source.match(new RegExp(`^${field}:\\s*["']([^"']*)["']`, "m"))?.[1] || "";
+  };
+  const checkStub = (stubUrl, sourceTitle) => {
+    const stubFile = join(distDir, stubUrl.slice(1), "index.html");
+    if (!existsSync(stubFile)) {
+      fail(`${stubUrl}: немає згенерованої заглушки`);
+      return;
+    }
+    const html = readFileSync(stubFile, "utf-8");
+    if (!/<meta\s+name="robots"\s+content="noindex"/i.test(html)) {
+      fail(`${stubUrl}: заглушка не має meta robots noindex`);
+    }
+    if (/<link\s+rel="alternate"\s+hreflang=/i.test(html)) {
+      fail(`${stubUrl}: заглушка не повинна містити hreflang у head`);
+    }
+    const titleMatch = html.match(/<p\s+lang="uk">([\s\S]*?)<\/p>/i);
+    if (!titleMatch || titleMatch[1].trim() !== sourceTitle) {
+      fail(`${stubUrl}: заглушка не містить український source title`);
+    }
+    if (!new RegExp(`<a\\b[^>]*href="${stubUrl.slice(3)}"[^>]*hreflang="uk"`, "i").test(html)) {
+      fail(`${stubUrl}: посилання на оригінал не має hreflang="uk"`);
+    }
+  };
 
   for (const ukFile of ukFiles) {
     const rel = ukFile.slice(ukRoot.length + 1);
@@ -1542,18 +1567,22 @@ console.log("--- 7л-а. Заглушки перекладів ---");
     const slug = rel.slice(section.length + 1, -3);
     if (enFiles.has(rel)) continue;
     const stubUrl = `/en/${section}/${slug}/`;
-    const stubFile = join(distDir, stubUrl.slice(1), "index.html");
-    if (!existsSync(stubFile)) {
-      fail(`${stubUrl}: немає згенерованої заглушки`);
-      continue;
-    }
-    const html = readFileSync(stubFile, "utf-8");
-    if (!/<meta\s+name="robots"\s+content="noindex"/i.test(html)) {
-      fail(`${stubUrl}: заглушка не має meta robots noindex`);
-    }
-    if (/<link\s+rel="alternate"\s+hreflang=/i.test(html)) {
-      fail(`${stubUrl}: заглушка не повинна містити hreflang`);
-    }
+    checkStub(stubUrl, readFrontmatterField(ukFile, "title"));
+  }
+
+  const manualStubFiles = existsSync(enRoot)
+    ? walkDir(enRoot).filter((file) => {
+        if (!file.endsWith(".md")) return false;
+        const source = readFileSync(file, "utf-8");
+        return /^layout:\s*stub\.njk\s*$/m.test(source);
+      })
+    : [];
+  for (const enFile of manualStubFiles) {
+    const rel = enFile.slice(enRoot.length + 1);
+    const parts = rel.split("/");
+    const slug = parts[parts.length - 1].slice(0, -3);
+    const stubUrl = `/en/${parts[0]}/${slug}/`;
+    checkStub(stubUrl, readFrontmatterField(enFile, "title_uk"));
   }
 
   if (stubErrors === 0) {

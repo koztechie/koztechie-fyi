@@ -1,5 +1,6 @@
 ---
 title: "Svitlogics (not translated)"
+title_uk: "Svitlogics"
 lang: en
 slug: svitlogics
 entry: 2
