@@ -33,7 +33,7 @@
   "operatingSystem": "Android",
   "applicationCategory": "GameApplication",
   "gamePlatform": "Android",
-  "inLanguage": "uk",
+  "inLanguage": {{ (lang | default("uk")) | json | safe }},
   "offers": {
     "@type": "Offer",
     "description": {{ schema.oneTimeOffer[lang] | json | safe }}

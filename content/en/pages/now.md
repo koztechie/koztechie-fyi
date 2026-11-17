@@ -11,7 +11,7 @@ season: "November 2026"
 working_on:
   - label: "koztechie.fyi"
     url: "/en/"
-    detail: "— completed the theme refresh: night mode for NICHLYST and the Cemetery, with versioned OG cards and a new favicon."
+    detail: "— completed the theme refresh: night mode for NICHLYST and the Cemetery, automatic stubs for untranslated entries, versioned OG cards, and a new favicon."
   - label: "NICHLYST"
     url: "/en/nichlyst/"
     detail: "— updating the game page and press kit."

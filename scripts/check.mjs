@@ -5,6 +5,7 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
+import { createHash } from "node:crypto";
 import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
 
 const distDir = resolve(process.argv[2] || "dist");
@@ -104,8 +105,9 @@ if (existsSync(distDir)) {
     : [];
   const siteBundles = builtStyles.filter((file) => /^site\.[a-f0-9]{12}\.css$/.test(file));
   const printBundles = builtStyles.filter((file) => /^print\.[a-f0-9]{12}\.css$/.test(file));
-  if (siteBundles.length !== 1 || printBundles.length !== 1 || builtStyles.length !== 2) {
-    console.log("  ❌ dist/styles/ має містити лише один fingerprinted site.css і один print.css");
+  if (siteBundles.length === 0 || siteBundles.length > 3 ||
+      printBundles.length === 0 || printBundles.length > 3 || builtStyles.length > 6) {
+    console.log("  ❌ dist/styles/ має містити максимум 3 site.css і 3 print.css");
     totalErrors++;
   }
 
@@ -126,7 +128,7 @@ if (existsSync(distDir)) {
     }
   }
   if (stylesheetErrors > 0) totalErrors += stylesheetErrors;
-  else console.log(`  ✅ Stylesheet: один fingerprinted екранний файл + print.css для друку (${htmlWithStyle.length} сторінок)`);
+  else console.log(`  ✅ Stylesheet: fingerprinted CSS на місці (${siteBundles.length} site + ${printBundles.length} print; ${htmlWithStyle.length} сторінок)`);
 } else {
   console.log("  ⚠️  dist/ не існує. Пропущено.");
 }
@@ -231,6 +233,112 @@ if (existsSync(stylesDir)) {
 }
 console.log("");
 
+// 2а. Reflow: приховування горизонтального переповнення заборонене.
+console.log("--- 2а. Reflow: без overflow-x:hidden ---");
+const overflowHiddenFiles = existsSync(stylesDir)
+  ? walkDir(stylesDir)
+      .filter((file) => file.endsWith(".css"))
+      .filter((file) => /overflow-x\s*:\s*hidden\b/i.test(readFileSync(file, "utf-8")))
+  : [];
+if (overflowHiddenFiles.length > 0) {
+  for (const file of overflowHiddenFiles) {
+    console.log(`  ❌ ${file.slice(stylesDir.length + 1)} — overflow-x:hidden приховує переповнення`);
+    totalErrors++;
+  }
+} else {
+  console.log("  ✅ overflow-x:hidden у src/styles відсутній");
+}
+console.log("");
+
+// 2б. Тач-цілі навігації — WCAG 2.5.8 та DECISIONS.md §9.5.
+console.log("--- 2б. Тач-цілі навігації ---");
+const tapSelectors = [".site-nav a", ".archive-list a", ".pagination a", ".footer-nav a", ".lang-switch a"];
+const cssRules = existsSync(stylesDir)
+  ? walkDir(stylesDir)
+      .filter((file) => file.endsWith(".css"))
+      .flatMap((file) => {
+        const css = readFileSync(file, "utf-8").replace(/\/\*[\s\S]*?\*\//g, "");
+        return [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((match) => ({
+          selectors: match[1].split(",").map((selector) => selector.trim()),
+          declarations: match[2],
+        }));
+      })
+  : [];
+const missingTapRules = tapSelectors.filter((selector) =>
+  !cssRules.some((rule) =>
+    rule.selectors.includes(selector) && /min-height\s*:\s*var\(--tap\)/.test(rule.declarations)
+  )
+);
+if (missingTapRules.length > 0) {
+  console.log(`  ❌ Немає min-height: var(--tap) для: ${missingTapRules.join(", ")}`);
+  totalErrors++;
+} else {
+  console.log(`  ✅ ${tapSelectors.length} навігаційних селекторів мають min-height: var(--tap)`);
+}
+console.log("");
+
+// 2в. Стабільна ширина тексту: hover/active не змінюють font-weight.
+console.log("--- 2в. Стабільна вага станів посилань ---");
+const unstableLinkStates = [];
+if (existsSync(stylesDir)) {
+  for (const file of walkDir(stylesDir).filter((path) => path.endsWith(".css"))) {
+    const css = readFileSync(file, "utf-8").replace(/\/\*[\s\S]*?\*\//g, "");
+    for (const match of css.matchAll(/([^{}]*(?:a:hover|a:active)[^{}]*)\{([^{}]*)\}/g)) {
+      if (/font-weight\s*:/.test(match[2])) {
+        unstableLinkStates.push(file.slice(stylesDir.length + 1));
+      }
+    }
+  }
+}
+if (unstableLinkStates.length > 0) {
+  console.log(`  ❌ font-weight у hover/active правилах: ${[...new Set(unstableLinkStates)].join(", ")}`);
+  totalErrors++;
+} else {
+  console.log("  ✅ hover/active не змінюють font-weight");
+}
+console.log("");
+
+// 2г. Reduced motion — кожне скасування має бути !important.
+console.log("--- 2г. Reduced motion ---");
+const reducedMotionCss = existsSync(join(stylesDir, "core.css"))
+  ? readFileSync(join(stylesDir, "core.css"), "utf-8").match(
+      /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*?)\n\}/
+    )?.[1] || ""
+  : "";
+const reducedMotionRequired = [
+  /animation-duration\s*:\s*0\.01ms\s*!important/,
+  /animation-iteration-count\s*:\s*1\s*!important/,
+  /transition-duration\s*:\s*0\.01ms\s*!important/,
+  /scroll-behavior\s*:\s*auto\s*!important/,
+];
+const missingReducedMotion = reducedMotionRequired.filter((pattern) => !pattern.test(reducedMotionCss));
+if (missingReducedMotion.length > 0) {
+  console.log(`  ❌ Неповний reduced-motion reset: ${missingReducedMotion.length} правил без !important`);
+  totalErrors++;
+} else {
+  console.log("  ✅ Reduced-motion reset містить усі !important правила");
+}
+console.log("");
+
+// 2д. Screen-reader separators: · дозволений лише в aria-hidden span.
+console.log("--- 2д. SR-розділювачі ---");
+const visibleDotSeparators = [];
+if (existsSync(resolve("src/templates"))) {
+  for (const file of walkDir(resolve("src/templates")).filter((path) => path.endsWith(".njk"))) {
+    const template = readFileSync(file, "utf-8")
+      .replace(/\{#[\s\S]*?#\}/g, "")
+      .replace(/<span\b[^>]*aria-hidden\s*=\s*["']true["'][^>]*>[\s\S]*?<\/span>/gi, "");
+    if (template.includes("·")) visibleDotSeparators.push(file);
+  }
+}
+if (visibleDotSeparators.length > 0) {
+  console.log(`  ❌ · поза aria-hidden у: ${visibleDotSeparators.map((file) => file.slice(resolve("src/templates").length + 1)).join(", ")}`);
+  totalErrors++;
+} else {
+  console.log("  ✅ Усі ·-розділювачі приховані від screen reader");
+}
+console.log("");
+
 // 4. Сторонні origin у dist/
 console.log("--- 4. Сторонні origin у dist/ ---");
 const externalRegex = /https?:\/\/(?!koztechie\.fyi|localhost|127\.0\.0\.1)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -257,6 +365,32 @@ if (existsSync(distDir)) {
   }
   if (extErrors === 0) {
     console.log("  ✅ Сторонніх origin немає (окрім namespace)");
+  }
+} else {
+  console.log("  ⚠️  dist/ не існує. Пропущено.");
+}
+console.log("");
+
+// 4а. GitHub identity links — rel="me" для профілю та відкритого репозиторію.
+console.log("--- 4а. GitHub rel=\"me\" ---");
+if (existsSync(distDir)) {
+  const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+  let githubErrors = 0;
+  for (const file of htmlFiles) {
+    const content = readFileSync(file, "utf-8");
+    const rel = file.replace(distDir + "/", "");
+    const githubLinks = content.match(/<a\b[^>]*href\s*=\s*["']https:\/\/github\.com\/[^"']+["'][^>]*>/gi) || [];
+    for (const link of githubLinks) {
+      const relMatch = link.match(/\brel\s*=\s*["']([^"']+)["']/i);
+      if (!relMatch || !/\bme\b/.test(relMatch[1])) {
+        console.log(`  ❌ ${rel} — GitHub-посилання без rel="me"`);
+        githubErrors++;
+        totalErrors++;
+      }
+    }
+  }
+  if (githubErrors === 0) {
+    console.log(`  ✅ GitHub-посилання мають rel="me" (${htmlFiles.length} HTML перевірено)`);
   }
 } else {
   console.log("  ⚠️  dist/ не існує. Пропущено.");
@@ -818,6 +952,19 @@ console.log("--- 7з. UI без хардкоду ---");
       totalErrors += descErrors;
       if (descErrors === 0) console.log("  ✅ sections_desc: 9 розділів × 2 мови — усі описи на місці");
     }
+
+    // Voice-lint F17: позиціонування сайту не називає вузол портфоліо.
+    for (const [name, dict] of [["uk.json", ukObj], ["en.json", enObj]]) {
+      const title = dict?.site?.title || "";
+      if (/\bпортфоліо\b|\bportfolio\b/i.test(title)) {
+        console.log(`  ❌ voice-lint ${name}: site.title містить заборонене позиціонування «${title}»`);
+        totalErrors++;
+      }
+    }
+    if (!/\bпортфоліо\b|\bportfolio\b/i.test(ukObj?.site?.title || "") &&
+        !/\bпортфоліо\b|\bportfolio\b/i.test(enObj?.site?.title || "")) {
+      console.log("  ✅ voice-lint: site.title не містить «портфоліо» / «portfolio»");
+    }
   } else {
     console.log("  ⚠️  src/_data/strings або src/templates не існують. Пропущено.");
   }
@@ -924,6 +1071,61 @@ console.log("--- 7и. robots.txt і _headers ---");
       }
     }
 
+    const faviconPath = join(distDir, "favicon.svg");
+    const builtHeadersPath = join(distDir, "_headers");
+    if (!existsSync(faviconPath) || !existsSync(builtHeadersPath)) {
+      console.log("  ❌ CSP favicon: dist/favicon.svg або dist/_headers відсутній");
+      policyErrors++;
+      totalErrors++;
+    } else {
+      const faviconStyle = readFileSync(faviconPath, "utf-8").match(/<style>([\s\S]*?)<\/style>/)?.[1];
+      const builtHeaders = readFileSync(builtHeadersPath, "utf-8");
+      const expectedHash = faviconStyle === undefined
+        ? ""
+        : `'sha256-${createHash("sha256").update(faviconStyle).digest("base64")}'`;
+      const styleSource = builtHeaders.match(/style-src\s+([^;]+)/)?.[1]?.trim() || "";
+      if (!expectedHash || styleSource !== `'self' ${expectedHash}`) {
+        console.log(`  ❌ CSP favicon: style-src не відповідає поточному favicon.svg (очікується ${expectedHash || "inline style hash"})`);
+        policyErrors++;
+        totalErrors++;
+      } else {
+        console.log("  ✅ CSP favicon: hash inline-стилю відповідає favicon.svg");
+      }
+    }
+
+    if (!headers.includes("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload")) {
+      console.log("  ❌ _headers: HSTS не містить preload");
+      policyErrors++;
+      totalErrors++;
+    }
+    if (!headers.includes("Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=()")) {
+      console.log("  ❌ _headers: Permissions-Policy не блокує interest-cohort і browsing-topics");
+      policyErrors++;
+      totalErrors++;
+    }
+
+    const securityPath = join(distDir, ".well-known", "security.txt");
+    if (!existsSync(securityPath)) {
+      console.log("  ❌ /.well-known/security.txt відсутній");
+      policyErrors++;
+      totalErrors++;
+    } else {
+      const security = readFileSync(securityPath, "utf-8");
+      const securityLines = security.trimEnd().split("\n");
+      const requiredSecurity = [
+        /^Contact:\s+mailto:\S+$/m,
+        /^Expires:\s+\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/m,
+        /^Preferred-Languages:\s+uk,\s*en$/m,
+      ];
+      if (securityLines.length !== 10 || requiredSecurity.some((pattern) => !pattern.test(security))) {
+        console.log("  ❌ security.txt: очікуються 10 рядків, Contact, Expires і Preferred-Languages");
+        policyErrors++;
+        totalErrors++;
+      } else {
+        console.log("  ✅ security.txt: 10 рядків, Contact/Expires/Preferred-Languages на місці");
+      }
+    }
+
     // noindex для не-production (PLAN 162): логіка у scripts/postbuild.mjs
     const postbuildPath = join(resolve("scripts"), "postbuild.mjs");
     if (!existsSync(postbuildPath)) {
@@ -956,13 +1158,27 @@ console.log("--- 7и. robots.txt і _headers ---");
     const notFoundPages = ["404.html", "en/404.html"].filter((file) =>
       existsSync(join(distDir, file)),
     ).length;
-    const expected = noindexData + notFoundPages;
+    const ukPosts = walkDir(resolve("content/uk"))
+      .filter((f) => f.endsWith(".md"))
+      .map((f) => f.slice(resolve("content/uk").length + 1))
+      .filter((rel) => /^(blog|practice|poetry|cemetery)\/[^/]+\.md$/.test(rel));
+    const enPosts = new Set(
+      walkDir(resolve("content/en"))
+        .filter((f) => f.endsWith(".md"))
+        .map((f) => f.slice(resolve("content/en").length + 1))
+    );
+    const generatedStubs = ukPosts.filter((rel) => {
+      const source = join(resolve("content/uk"), rel);
+      const frontmatter = readFileSync(source, "utf-8").match(/^---\n([\s\S]*?)\n---/);
+      return !(frontmatter && /^draft:\s*true\s*$/m.test(frontmatter[1])) && !enPosts.has(rel);
+    }).length;
+    const expected = noindexData + generatedStubs + notFoundPages;
     if (expected !== robotsMeta) {
-      console.log(`  ❌ noindex-парність: очікувано ${expected} (${noindexData} noindex + ${notFoundPages} 404) ↔ знайдено ${robotsMeta} robots-meta`);
+      console.log(`  ❌ noindex-парність: очікувано ${expected} (${noindexData} content + ${generatedStubs} stub + ${notFoundPages} 404) ↔ знайдено ${robotsMeta} robots-meta`);
       policyErrors++;
       totalErrors++;
-    } else if (noindexData > 0) {
-      console.log(`  ✅ noindex-парність: ${noindexData} заглушка + ${notFoundPages} 404 ↔ ${robotsMeta} robots-meta`);
+    } else if (noindexData > 0 || generatedStubs > 0) {
+      console.log(`  ✅ noindex-парність: ${noindexData} content + ${generatedStubs} stub + ${notFoundPages} 404 ↔ ${robotsMeta} robots-meta`);
     }
   }
 
@@ -987,10 +1203,24 @@ console.log("--- 7і. RSS фіди ---");
   } else {
     const startErrors = totalErrors;
     let totalItems = 0;
+    const channelTitles = new Map();
     const feeds = [
       { path: join(distDir, "feed.xml"), lang: "uk", root: "https://koztechie.fyi/" },
       { path: join(distDir, "en", "feed.xml"), lang: "en", root: "https://koztechie.fyi/en/" },
     ];
+    const stringsData = {};
+    for (const lang of ["uk", "en"]) {
+      const file = join(resolve("src/_data/strings"), `${lang}.json`);
+      stringsData[lang] = existsSync(file) ? JSON.parse(readFileSync(file, "utf-8")) : {};
+    }
+    const feedTemplate = readFileSync(resolve("src/feed.njk"), "utf-8");
+    const configSource = readFileSync(resolve("eleventy.config.js"), "utf-8");
+    if (!/\{\{\s*item\.templateContent\s*\|\s*cdataSafe\s*\|\s*safe\s*\}\}/.test(feedTemplate)) {
+      feedErrors("feed.njk: cdataSafe не застосований до item.templateContent");
+    }
+    if (!configSource.includes('addFilter("cdataSafe"') || !configSource.includes('replace(/\\]\\]>/g')) {
+      feedErrors("eleventy.config.js: фільтр cdataSafe відсутній або не санітизує ]]>");
+    }
 
     for (const feed of feeds) {
       const label = feed.lang === "uk" ? "/feed.xml" : "/en/feed.xml";
@@ -1015,9 +1245,15 @@ console.log("--- 7і. RSS фіди ---");
       const channel = xml.match(/<channel>([\s\S]*?)<\/channel>/)?.[1] || "";
       const channelItem = channel.indexOf("<item>");
       const channelHead = channelItem >= 0 ? channel.slice(0, channelItem) : channel;
-      if (!/<title>[^\s<][\s\S]*?<\/title>/.test(channelHead)) feedErrors(`${label}: канал без <title>`);
+      const channelTitle = channelHead.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.trim();
+      if (!channelTitle) feedErrors(`${label}: канал без <title>`);
+      else channelTitles.set(feed.lang, channelTitle);
       if (!/<link>https:\/\/koztechie\.fyi[^<]*<\/link>/.test(channelHead)) feedErrors(`${label}: канал без <link>`);
-      if (!/<description>[^\s<][\s\S]*?<\/description>/.test(channelHead)) feedErrors(`${label}: канал без <description>`);
+      const channelDescription = channelHead.match(/<description>([\s\S]*?)<\/description>/)?.[1]?.trim();
+      if (!channelDescription) feedErrors(`${label}: канал без <description>`);
+      else if (channelDescription !== stringsData[feed.lang]?.site?.title) {
+        feedErrors(`${label}: description не збігається з site.title`);
+      }
       if (!new RegExp(`<language>${feed.lang}<\\/language>`).test(channelHead)) feedErrors(`${label}: <language> ≠ ${feed.lang}`);
       const chanLink = channelHead.match(/<link>([^<]*)<\/link>/)?.[1];
       if (chanLink !== feed.root) feedErrors(`${label}: link каналу «${chanLink}» ≠ «${feed.root}»`);
@@ -1081,6 +1317,10 @@ console.log("--- 7і. RSS фіди ---");
           if (re.test(whole)) feedErrors(`${n}: заборонено за §30.3 — знайдено «${re.source}»`);
         }
       }
+    }
+
+    if (channelTitles.size === 2 && channelTitles.get("uk") === channelTitles.get("en")) {
+      feedErrors(`назви uk/en каналів однакові: «${channelTitles.get("uk")}»`);
     }
 
     const headersFile = join(resolve("static/root"), "_headers");
@@ -1195,6 +1435,159 @@ console.log("--- 7л. Перемикач мов ---");
 }
 console.log("");
 
+// 7л-а. Автоматичні заглушки неперекладених записів — DECISIONS §35.2.
+// Кожен опублікований uk-запис без en-файла має /en/.../index.html з noindex.
+console.log("--- 7л-а. Заглушки перекладів ---");
+{
+  const contentRoot = resolve("content");
+  const ukRoot = join(contentRoot, "uk");
+  const enRoot = join(contentRoot, "en");
+  const sections = new Set(["blog", "practice", "poetry", "cemetery"]);
+  const ukFiles = existsSync(ukRoot)
+    ? walkDir(ukRoot).filter((file) => {
+        const rel = file.slice(ukRoot.length + 1).split("/");
+        return file.endsWith(".md") && rel.length === 2 && sections.has(rel[0]);
+      })
+    : [];
+  const enFiles = new Set(
+    existsSync(enRoot)
+      ? walkDir(enRoot)
+          .filter((file) => file.endsWith(".md"))
+          .map((file) => file.slice(enRoot.length + 1))
+      : []
+  );
+  let stubErrors = 0;
+  const fail = (message) => {
+    console.log(`  ❌ ${message}`);
+    stubErrors++;
+    totalErrors++;
+  };
+
+  for (const ukFile of ukFiles) {
+    const rel = ukFile.slice(ukRoot.length + 1);
+    const frontmatter = readFileSync(ukFile, "utf-8").match(/^---\s*\n([\s\S]*?)\n---/);
+    if (frontmatter && /^draft:\s*true\s*$/m.test(frontmatter[1])) continue;
+    const section = rel.split("/")[0];
+    const slug = rel.slice(section.length + 1, -3);
+    if (enFiles.has(rel)) continue;
+    const stubUrl = `/en/${section}/${slug}/`;
+    const stubFile = join(distDir, stubUrl.slice(1), "index.html");
+    if (!existsSync(stubFile)) {
+      fail(`${stubUrl}: немає згенерованої заглушки`);
+      continue;
+    }
+    const html = readFileSync(stubFile, "utf-8");
+    if (!/<meta\s+name="robots"\s+content="noindex"/i.test(html)) {
+      fail(`${stubUrl}: заглушка не має meta robots noindex`);
+    }
+    if (/<link\s+rel="alternate"\s+hreflang=/i.test(html)) {
+      fail(`${stubUrl}: заглушка не повинна містити hreflang`);
+    }
+  }
+
+  if (stubErrors === 0) {
+    console.log(`  ✅ Перевірено ${ukFiles.length} українських записів: stub-URL повні, noindex присутній`);
+  }
+}
+console.log("");
+
+// 7т. hreflang у sitemap — F30.
+// Кожна sitemap-пара має взаємні uk/en entries і ті самі цілі, що HTML head.
+console.log("--- 7т. hreflang у sitemap ---");
+{
+  let sitemapErrors = 0;
+  const fail = (msg) => {
+    console.log(`  ❌ ${msg}`);
+    sitemapErrors++;
+    totalErrors++;
+  };
+  const sitemapFile = join(distDir, "sitemap.xml");
+
+  if (!existsSync(sitemapFile)) {
+    fail("dist/sitemap.xml відсутній");
+  } else {
+    const origin = "https://koztechie.fyi";
+    const xml = readFileSync(sitemapFile, "utf-8");
+    if (!/xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/.test(xml)) {
+      fail("sitemap.xml не оголошує xmlns:xhtml");
+    }
+
+    const entries = new Map();
+    for (const match of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
+      const block = match[1];
+      const loc = (block.match(/<loc>([^<]+)<\/loc>/) || [])[1];
+      if (!loc) {
+        fail("sitemap entry без loc");
+        continue;
+      }
+      const links = {};
+      for (const link of block.matchAll(/<xhtml:link\b([^>]*)\/?>/g)) {
+        const attrs = Object.fromEntries(
+          [...link[1].matchAll(/([\w:-]+)\s*=\s*"([^"]*)"/g)].map(([, key, value]) => [key, value])
+        );
+        if (attrs.hreflang) links[attrs.hreflang] = attrs.href;
+      }
+      if (entries.has(loc)) fail(`дубль sitemap loc: ${loc}`);
+      entries.set(loc, links);
+    }
+
+    const htmlLinks = (html) => {
+      const links = {};
+      for (const link of html.matchAll(/<link\b([^>]*)>/gi)) {
+        const attrs = Object.fromEntries(
+          [...link[1].matchAll(/([\w:-]+)\s*=\s*"([^"]*)"/g)].map(([, key, value]) => [key.toLowerCase(), value])
+        );
+        if (attrs.rel === "alternate" && attrs.hreflang) links[attrs.hreflang] = attrs.href;
+      }
+      return links;
+    };
+
+    for (const [loc, links] of entries) {
+      const url = new URL(loc);
+      const raw = url.pathname;
+      const isEn = raw.indexOf("/en/") === 0;
+      const ukPath = isEn ? raw.slice(3) : raw;
+      const enPath = "/en" + ukPath;
+      const expected = { uk: origin + ukPath, en: origin + enPath };
+
+      for (const lang of ["uk", "en"]) {
+        if (links[lang] !== expected[lang]) {
+          fail(`${raw}: sitemap hreflang=${lang} має «${links[lang] || "відсутній"}», очікується «${expected[lang]}»`);
+        }
+      }
+
+      const counterpart = entries.get(expected.en);
+      if (!counterpart) fail(`${raw}: відсутній взаємний sitemap entry ${expected.en}`);
+      else if (counterpart.uk !== expected.uk || counterpart.en !== expected.en) {
+        fail(`${raw}: взаємний sitemap entry не містить тієї самої uk/en пари`);
+      }
+
+      const htmlFile = raw === "/"
+        ? join(distDir, "index.html")
+        : join(distDir, raw.slice(1), "index.html");
+      if (!existsSync(htmlFile)) {
+        fail(`${raw}: HTML-сторінка для порівняння відсутня`);
+        continue;
+      }
+      const html = readFileSync(htmlFile, "utf-8");
+      if (/<meta\s+name="robots"\s+content="noindex"/i.test(html)) {
+        fail(`${raw}: noindex-сторінка потрапила до sitemap`);
+      }
+      const rendered = htmlLinks(html);
+      for (const lang of ["uk", "en"]) {
+        if (rendered[lang] !== expected[lang]) {
+          fail(`${raw}: HTML hreflang=${lang} не збігається із sitemap`);
+        }
+      }
+    }
+
+    if (sitemapErrors === 0) {
+      console.log(`  ✅ ${entries.size} sitemap entries: взаємні uk/en пари збігаються з HTML hreflang`);
+    }
+  }
+}
+console.log("");
+
 // 7м. Таб-навігація — крок 134. TECH_STANDARDS §9; фокус за KZTCH_DS §02
 // (3px, колір --k-fg; чорний на білому = 21:1). AGENTS.md §5 (видимий
 // :focus, клавіатурна навігація).
@@ -1214,7 +1607,8 @@ console.log("--- 7м. Таб-навігація ---");
     fail("CSS: немає правила :focus-visible з outline 3px solid");
   }
   // 2. Ніхто не ховає фокус
-  const hidden = cssAll.match(/outline\s*:\s*(none|0)\b/g);
+  const cssWithoutMainFocusReset = cssAll.replace(/main:focus\b\s*\{[^}]*\}/g, "");
+  const hidden = cssWithoutMainFocusReset.match(/outline\s*:\s*(none|0)\b/g);
   if (hidden) fail(`CSS: ховає фокус — ${hidden.join(" та ")} (AGENTS §5 забороняє)`);
   // 3. Focus-обідок не вимикається через outline-color: transparent
   if (/outline-color\s*:\s*transparent/.test(cssAll)) fail("CSS: outline-color: transparent ховає фокус");
@@ -1290,13 +1684,31 @@ console.log("--- 7н. Skip-link ---");
       if (firstAnchor !== -1 && skipTagPos !== firstAnchor) {
         fail(`${rel}: skip-link не перший лінк (порядок Tab починається не з нього)`);
       }
-      // main id
-      if (!/<main\s+id="main"/.test(doc)) {
+      // main id і фокусована ціль skip-link
+      const mainTag = doc.match(/<main\b[^>]*>/i)?.[0] || "";
+      if (!/\bid="main"/i.test(mainTag)) {
         fail(`${rel}: <main> без id="main" (ціль #main не існує)`);
+      }
+      if (!/\btabindex\s*=\s*"-1"/i.test(mainTag)) {
+        fail(`${rel}: <main id="main"> без tabindex="-1" (skip-link не фокусується на цілі)`);
+      }
+
+      const tables = doc.match(/<table\b[^>]*>/gi) || [];
+      const wrappedTables = doc.match(
+        /<div\s+class="table-scroll"\s+tabindex="0"\s+role="region"\s+aria-label="Таблиця \(прокрутка\)">\s*<table\b/gi
+      ) || [];
+      if (tables.length !== wrappedTables.length) {
+        fail(`${rel}: кожна <table> має бути всередині .table-scroll[tabindex="0"]`);
+      }
+
+      const preTags = doc.match(/<pre\b[^>]*>/gi) || [];
+      const unfocusablePre = preTags.filter((tag) => !/\btabindex\s*=\s*"0"/i.test(tag));
+      if (unfocusablePre.length > 0) {
+        fail(`${rel}: кожен <pre> має tabindex="0"`);
       }
     }
     if (skErrors === 0) {
-      console.log(`  ✅ Skip-link: ${htmlFiles.length} сторінок — перший лінк, ціль #main, CSS:focus є`);
+      console.log(`  ✅ Skip-link: ${htmlFiles.length} сторінок — ціль #main фокусована, таблиці й pre доступні з клавіатури`);
     }
   } else {
     console.log("  ⚠️  dist/ не існує. Пропущено.");
@@ -1319,6 +1731,11 @@ console.log("--- 7о. JSON-LD ---");
     console.log("  ⚠️  dist/ не існує. Пропущено.");
   } else {
     const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+    const siteTitles = {};
+    for (const lang of ["uk", "en"]) {
+      const file = join(resolve("src/_data/strings"), `${lang}.json`);
+      siteTitles[lang] = existsSync(file) ? JSON.parse(readFileSync(file, "utf-8")).site?.title : "";
+    }
     let blocks = 0;
 
     for (const file of htmlFiles) {
@@ -1338,6 +1755,11 @@ console.log("--- 7о. JSON-LD ---");
         if (data["@context"] !== "https://schema.org") {
           fail(`${rel}: @context ≠ https://schema.org (отримано «${data["@context"]}»)`);
         }
+        const htmlLangMatch = content.match(/<html\b[^>]*\blang\s*=\s*["']([^"']+)["']/i);
+        const htmlLang = htmlLangMatch?.[1] || null;
+        if (!htmlLang) {
+          fail(`${rel}: <html lang> відсутній для перевірки JSON-LD.inLanguage`);
+        }
         const graph = Array.isArray(data["@graph"]) ? data["@graph"] : data["@type"] ? [data] : null;
         if (!graph) {
           fail(`${rel}: немає ні @graph, ні @type`);
@@ -1346,10 +1768,16 @@ console.log("--- 7о. JSON-LD ---");
 
         for (const node of graph) {
           const types = new Set(Array.isArray(node["@type"]) ? node["@type"] : [node["@type"]]);
+          if (Object.prototype.hasOwnProperty.call(node, "inLanguage") &&
+              (typeof node.inLanguage !== "string" || node.inLanguage !== htmlLang)) {
+            fail(`${rel}: JSON-LD.inLanguage «${node.inLanguage}» не відповідає <html lang> «${htmlLang}»`);
+          }
           if (types.has("Person")) {
             if (typeof node.name !== "string" || !node.name.trim()) fail(`${rel}: Person.name порожній`);
             if (!/^https:\/\/koztechie\.fyi\//.test(node.url || "")) fail(`${rel}: Person.url відсутній або некоректний`);
-            if (!/^https:\/\/koztechie\.fyi\/.+\.png$/.test(node.image || "")) fail(`${rel}: Person.image відсутній або некоректний`);
+            if (node.image !== "https://koztechie.fyi/og/home-v2.png") {
+              fail(`${rel}: Person.image ≠ default OG image (очікується https://koztechie.fyi/og/home-v2.png)`);
+            }
             if (typeof node.jobTitle !== "string" || !node.jobTitle.trim()) fail(`${rel}: Person.jobTitle порожній`);
             const alt = node.alternateName;
             if (!Array.isArray(alt) || alt.length === 0) {
@@ -1374,10 +1802,20 @@ console.log("--- 7о. JSON-LD ---");
             if (typeof node.url !== "string" || !/^https:\/\/koztechie\.fyi\//.test(node.url)) {
               fail(`${rel}: WebSite.url ≠ https://koztechie.fyi/ — «${node.url}»`);
             }
-            if (typeof node.description !== "string" || !node.description.trim()) fail(`${rel}: WebSite.description порожній`);
+            if (typeof node.description !== "string" || !node.description.trim()) {
+              fail(`${rel}: WebSite.description порожній`);
+            } else if (node.description !== siteTitles[htmlLang]) {
+              fail(`${rel}: WebSite.description не збігається з site.title мови ${htmlLang}`);
+            }
           }
           if (types.has("BlogPosting")) {
             if (typeof node.headline !== "string" || !node.headline.trim()) fail(`${rel}: BlogPosting.headline порожній`);
+            if (typeof node.image !== "string" || !/^https:\/\/koztechie\.fyi\/.+\.png$/.test(node.image)) {
+              fail(`${rel}: BlogPosting.image відсутній або некоректний`);
+            }
+            if (node.publisher?.["@id"] !== "https://koztechie.fyi/#person") {
+              fail(`${rel}: BlogPosting.publisher має посилатися на https://koztechie.fyi/#person`);
+            }
             if (!/^\d{4}-\d{2}-\d{2}$/.test(node.datePublished || "")) fail(`${rel}: BlogPosting.datePublished не ISO date`);
             if (!/^\d{4}-\d{2}-\d{2}$/.test(node.dateModified || "")) fail(`${rel}: BlogPosting.dateModified не ISO date`);
             if (node.author?.["@type"] !== "Person" || !node.author.name || !node.author.url) {

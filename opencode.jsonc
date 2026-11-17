@@ -1,0 +1,82 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Проєкт: ВУЗОЛ-0 (koztechie.fyi).
+  // Робоча тека сесії — корінь репозиторію. Запуск: opencode з кореня.
+  // Мова взаємодії та голос — у AGENTS.md (читається автоматично).
+
+  // Модель проєкту. Не змінювати без зафіксованого рішення.
+  "model": "opencode-go/mimo-v2.5",
+
+  // AGENTS.md — фундаментальні правила. Явний запис: якщо зміниться
+  // механіка автоматичного читання, правила все одно завантажаться.
+  "instructions": ["AGENTS.md"],
+
+  // Дозволи. Глобальні правила посилюються проєктними.
+  // Політика залежностей: AGENTS.md §3, DECISIONS.md §38.4.
+  "permissions": [
+    {
+      "action": "shell",
+      "resource": "npm install *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "npm i *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "npm add *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "npx *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "git push *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "git commit *",
+      "effect": "ask"
+    }
+  ],
+
+  // Не стежити за артефактами збірки та залежностями.
+  // Бюджети: TECH_STANDARDS.md §1.
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      "node_modules/**",
+      "dist/**",
+      "_site/**",
+      "*.log"
+    ]
+  },
+
+  // Команди проєкту. Шаблони українською, відповідно до AGENTS.md §2.
+  // Повний шаблон сесії: docs/session-template.md.
+  "commands": {
+    "start": {
+      "description": "Запуск сесії за протоколом (STATE.md §2)",
+      "template": "Прочитай docs/STATE.md і docs/PLAN.md. Повідом поточний крок і фазу. Далі виконай 3–7 кроків плану (максимум 90 хвилин на сесію) повністю з тестами та верифікацією. Онови docs/STATE.md (лог та поточний крок). Комітуй і запуш. Заверши блоком «ЗМІНЕНІ ФАЙЛИ». Мова: українська. Без знака оклику. Без заборонених слів. Нові npm-пакети: лише з [ДОЗВОЛЕНО NPM]."
+    },
+    "check": {
+      "description": "Повний автономний чекліст проєкту",
+      "template": "Виконай node scripts/check.mjs та node scripts/validate-content.mjs. Повідом лише помилки та їхні рядки. Без похвали, без порад."
+    },
+    "state": {
+      "description": "Показати поточний крок плану та лог останніх сесій",
+      "template": "Прочитай docs/STATE.md. Повідом: поточний крок, фазу, останні 3 записи логу. Без коментарів."
+    },
+    "next": {
+      "description": "Наступні кроки з docs/PLAN.md",
+      "template": "Прочитай docs/STATE.md (поточний крок) та docs/PLAN.md (цей крок і наступні 4). Повідом нумеровано. Без оцінок."
+    }
+  }
+}

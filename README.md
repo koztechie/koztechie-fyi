@@ -26,18 +26,19 @@
 │   ├── en/          англійський контент
 │   └── shared/      спільні файли
 ├── src/
-│   ├── styles/      5 CSS-файлів
+│   ├── styles/      6 CSS-файлів
 │   └── templates/   шаблони Eleventy
 ├── static/          шрифти, зображення, favicon
 ├── scripts/         автономні скрипти (без залежностей)
-├── docs/            технічна документація
+├── docs/            канонічна документація
 ├── eleventy.config.js
 └── netlify.toml
 ```
 
 ## Як зібрати
 
-**Вимоги:** Node.js 22 (див. `.nvmrc`), npm.
+**Вимоги:** Node.js 22 (див. `.nvmrc`), npm і системний ImageMagick
+(build-only; для генерації OG-зображень та favicon).
 
 ```bash
 npm ci --ignore-scripts    # встановлення (одна залежність)
@@ -49,13 +50,14 @@ npm run check              # автономний чекліст
 **Перевірка до коміту:**
 
 ```bash
-git config core.hooksPath scripts/hooks   # pre-commit: npm run check
+git config core.hooksPath scripts/hooks   # pre-commit: npm run qa:all
 ```
 
-**Збірка на Netlify:** `npm ci --ignore-scripts && npm run build && npm run check`.
+**Збірка на Netlify:** спочатку перевіряється системний ImageMagick, потім
+виконується `npm ci --ignore-scripts && npm run build && npm run qa:all`.
 
-Деталі: `docs/ARCHITECTURE.md` (механіка Eleventy),
-`docs/TECH_STANDARDS.md` (бюджети й перевірки).
+Деталі: `docs/ARCHITECTURE.md` (механіка Eleventy), `docs/environment.md`
+(заміри на цій машині).
 
 ## Як написати пост
 
@@ -111,16 +113,17 @@ draft: true
 
 ```bash
 node scripts/validate-content.mjs    # поля, дати, slug, consent, entry
-node scripts/voice-lint.mjs          # заборонені слова, UTM
+node scripts/voice-lint.mjs content/  # заборонені слова, UTM
 npm run check                        # бюджети, CSS, h1, alt, DOM
 npm run size                         # вага dist/: сторінка, CSS, шрифти, favicon
-  npm run palette                      # контраст палітр: AAA ≥ 7:1
+npm run palette                      # контраст палітр: AAA ≥ 7:1, ліміт 6 кольорів
+npm run qa:all                       # єдина послідовність усіх gate-перевірок
 ```
 
 ### 5. Публікуєш
 
 1. Зніми `draft: true`.
-2. `npm run build && npm run check`.
+2. `npm run build && npm run qa:all`.
 3. Коміт, push.
 4. Англійська версія — окремим файлом у `content/en/` з тим самим `slug`.
    Без файлу — `translation_status: "not_planned"`.
@@ -134,11 +137,10 @@ npm run size                         # вага dist/: сторінка, CSS, ш
 
 | Документ | Що містить |
 |----------|-----------|
-| `docs/ARCHITECTURE.md` | Структура й механіка Eleventy |
-| `docs/DECISIONS.md` | Технічні та редакційні рішення |
-| `docs/TECH_STANDARDS.md` | Бюджети, перевірки й стандарти |
-| `docs/content-model.md` | Типи контенту й поля |
-| `docs/design-system.md` | Візуальна система й токени |
-| `docs/deploy.md` | Збірка та розгортання |
-| `docs/sitemap.md` | Призначення маршрутів |
-| `docs/runbook.md`, `docs/recovery.md` | Діагностика й відновлення |
+| `docs/DECISIONS.md` | Канон рішень. 41 розділ |
+| `docs/PLAN.md` | План: 3 фази, 318 кроків, 11 брам |
+| `docs/STATE.md` | Машина станів. Поточний крок, лог сесій |
+| `docs/TECH_STANDARDS.md` | Бюджети, заборони, верифікація |
+| `docs/content-model.md` | 6 контент-типів, схема полів, шаблони |
+| `docs/sitemap.md` | Призначення кожного URL |
+| `docs/environment.md` | Машина, заміри, бюджети |

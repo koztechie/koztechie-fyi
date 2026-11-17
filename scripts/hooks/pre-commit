@@ -12,9 +12,9 @@ if [ -n "$forbidden" ]; then
   exit 1
 fi
 
-# 2. Автономний чекліст
-if ! npm run check --silent; then
-  echo "❌ pre-commit: npm run check не пройдено. Коміт зупинено."
+# 2. Єдина QA-брама
+if ! npm run qa:all --silent; then
+  echo "❌ pre-commit: npm run qa:all не пройдено. Коміт зупинено."
   exit 1
 fi
 

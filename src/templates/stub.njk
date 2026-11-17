@@ -2,8 +2,13 @@
     Формат і тексти — зі словників (strings.stub), хардкод заборонено. -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
+{%- set title = item.data.title + " (not translated)" if item else title -%}
+{%- set summary = strings.stub.summary if item else summary -%}
 
 {% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
+
+{# Заглушка не є мовним дзеркалом: поза hreflang за DECISIONS §35.2. #}
+{% block hreflang %}<link rel="canonical" href="https://koztechie.fyi{{ page.url }}">{% endblock %}
 
 {% block description %}
 {%- if summary %}

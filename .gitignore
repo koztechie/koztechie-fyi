@@ -24,3 +24,6 @@ red-lines.md
 
 # Локальний стан Netlify MCP/CLI (створюється під час деплою)
 .netlify/
+.lighthouseci/
+qa-artifacts/
+test-results/

@@ -16,6 +16,7 @@
   "mainEntityOfPage": { "@type": "WebPage", "@id": {{ ("https://koztechie.fyi" + page.url) | json | safe }} },
   "headline": {{ title | json | safe }},
   "description": {{ summary | json | safe }},
+  "image": {{ ("https://koztechie.fyi" + (og_image if og_image else "/og/home-v2.png")) | json | safe }},
   "datePublished": {{ date | isoDate | json | safe }},
   "dateModified": {{ (updated if updated else date) | isoDate | json | safe }},
   "author": {
@@ -24,6 +25,7 @@
     "name": {{ schema.person.name | json | safe }},
     "url": {{ schema.siteUrl | json | safe }}
   },
+  "publisher": { "@id": {{ (schema.siteUrl + "#person") | json | safe }} },
   "inLanguage": {{ (lang | default("uk")) | json | safe }}
 }
 </script>
@@ -66,7 +68,7 @@
   {#- Попередження (§32.2): «Під заголовком. Перед текстом. Над часом читання.»
       Поле — категорія (content-model §5.1). Текст — канон §32.4 у словнику. -#}
   {%- if content_warning %}
-  <aside class="content-warning">
+  <aside class="content-warning" role="note">
     <p>{{ strings.post.warning_prefix }} {{ strings.post.warnings[content_warning] or content_warning }}.</p>
   </aside>
   {%- endif %}
@@ -76,7 +78,7 @@
     {%- elif date %}
     <time datetime="{{ date.toISOString().slice(0, 10) }}">{% if (lang | default("uk")) === "en" %}{{ date | enDate }}{% else %}{{ date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
     {%- endif %}
-    {%- if not isProject and date and content %} · {% endif %}
+    {%- if not isProject and date and content %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
     {%- if not isProject and content %}
     {% set mins = content | readingTime %}{{ mins }}{{ strings.post.reading_unit }}
     {%- endif %}

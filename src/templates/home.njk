@@ -9,6 +9,7 @@
     Тексти — зі словників. Хардкод заборонено (крок 118). -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
+{%- set buildDate = collections.publicPages | latestPublicDate %}
 
 {% block title %}<title>{{ strings.home.browser_title }}</title>{% endblock %}
 
@@ -38,7 +39,7 @@
       "alternateName": {{ schema.person.alternateName | json | safe }},
       "sameAs": {{ schema.person.sameAs | json | safe }},
       "url": {{ schema.siteUrl | json | safe }},
-      "image": {{ (schema.siteUrl + "og/home.png") | json | safe }},
+      "image": {{ (schema.siteUrl + "og/home-v2.png") | json | safe }},
       "jobTitle": {{ strings.home.thesis | json | safe }}
     },
     {
@@ -139,7 +140,7 @@
         {%- set cand = "/en" + item.href -%}
         {%- if collections.all | findByUrl(cand) %}{% set itemHref = cand %}{% endif -%}
       {%- endif %}
-      <li><a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a> — {{ strings.home.sections_desc[item.key] }}</li>
+       <li><a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a><span class="desc">{{ strings.home.sections_desc[item.key] }}</span></li>
       {%- endfor %}
     </ul>
   </section>
@@ -160,7 +161,7 @@
       <li>
         <a href="{{ post.url }}">{{ post.data.title }}</a>
         <span class="sep" aria-hidden="true"> · </span>
-        <span class="entry-meta"><time datetime="{{ post.data.date.toISOString().slice(0, 10) }}">{% if pageLang === "en" %}{{ post.data.date | enDate }}{% else %}{{ post.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time> · {{ mins }}{{ strings.post.reading_unit }}</span>
+        <span class="entry-meta"><time datetime="{{ post.data.date.toISOString().slice(0, 10) }}">{% if pageLang === "en" %}{{ post.data.date | enDate }}{% else %}{{ post.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time><span class="sep" aria-hidden="true"> · </span>{{ mins }}{{ strings.post.reading_unit }}</span>
       </li>
       {%- endfor %}
     </ul>

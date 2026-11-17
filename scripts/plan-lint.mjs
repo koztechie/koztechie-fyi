@@ -110,6 +110,30 @@ while ((refMatch = refPattern.exec(contentNoCode)) !== null) {
   }
 }
 
+// Перевірка 7: кожен ACCEPT у плані має запис у реєстрі прийнятих ризиків.
+const acceptPattern = /\bACCEPT\s+((?:[A-Z]\d+)(?:\s*[/,]\s*(?:ACCEPT\s+)?[A-Z]\d+)*)/g;
+const planAccepts = [];
+let acceptMatch;
+while ((acceptMatch = acceptPattern.exec(contentNoCode)) !== null) {
+  for (const id of acceptMatch[1].match(/[A-Z]\d+/g) || []) {
+    planAccepts.push(id);
+  }
+}
+
+let decisionsContent = "";
+try {
+  decisionsContent = readFileSync(decisionsPath, "utf-8");
+} catch {
+  // Помилка відсутнього DECISIONS.md вже обробляється перевіркою посилань.
+}
+const decisionAccepts = new Set();
+for (const match of decisionsContent.matchAll(/^\s*###\s+42\.\d+\.\s+ACCEPT\s+((?:[A-Z]\d+)(?:\s*[/,]\s*[A-Z]\d+)*)/gm)) {
+  for (const id of match[1].match(/[A-Z]\d+/g) || []) {
+    decisionAccepts.add(id);
+  }
+}
+const missingAccepts = [...new Set(planAccepts)].filter((id) => !decisionAccepts.has(id));
+
 // Вивід результатів
 console.log("=== PLAN-LINT ===");
 console.log(`Файл: ${absPath}`);
@@ -164,6 +188,15 @@ if (badRefs.length > 0) {
   hasErrors = true;
 } else if (decisionsSections.size > 0) {
   console.log("✅ Усі посилання на DECISIONS.md валідні");
+}
+
+if (missingAccepts.length > 0) {
+  console.log(`❌ ACCEPT без запису в DECISIONS.md §42: ${missingAccepts.join(", ")}`);
+  hasErrors = true;
+} else if (planAccepts.length > 0) {
+  console.log(`✅ Усі ACCEPT мають записи в DECISIONS.md §42 (${[...new Set(planAccepts)].join(", ")})`);
+} else {
+  console.log("✅ ACCEPT-маркерів у плані немає");
 }
 
 console.log("");

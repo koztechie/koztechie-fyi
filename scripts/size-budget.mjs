@@ -62,6 +62,14 @@ console.log("--- 1. Сторінка (HTML + усі CSS/JS, Brotli q11) ≤ 50 �
 const htmlFiles = files.filter((f) => f.endsWith(".html"));
 const cssFiles = files.filter((f) => f.endsWith(".css"));
 const jsFiles = files.filter((f) => f.endsWith(".js"));
+const siteBundles = files.filter((f) => /\/site\.[a-f0-9]{12}\.css$/.test(f));
+const printBundles = files.filter((f) => /\/print\.[a-f0-9]{12}\.css$/.test(f));
+
+if (siteBundles.length > 3 || printBundles.length > 3 || cssFiles.length > 6) {
+  fail(`fingerprinted CSS: ${siteBundles.length} site + ${printBundles.length} print, ${cssFiles.length} CSS-файлів (ліміт 3 пари / 6 файлів)`);
+} else if (siteBundles.length > 0 || printBundles.length > 0) {
+  ok(`fingerprinted CSS: ${siteBundles.length} site + ${printBundles.length} print (ліміт 3 пари)`);
+}
 
 // CSS спільний для всіх сторінок: сумарна вага brotli
 let cssTotal = 0;

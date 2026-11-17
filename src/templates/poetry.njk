@@ -20,7 +20,7 @@
   <p class="entry-line">{{ strings.post.poem_entry_prefix }}{{ entry }}</p>
   <h1>{{ title }}</h1>
   {% if content_warning %}
-  <aside class="content-warning">
+   <aside class="content-warning" role="note">
     <p>{{ strings.post.warning_prefix }} {{ strings.post.warnings[content_warning] or content_warning }}.</p>
   </aside>
   {% endif %}
