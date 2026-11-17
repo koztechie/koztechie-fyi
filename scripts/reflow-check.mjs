@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, existsSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const origin = "http://127.0.0.1:4173";
@@ -16,6 +16,21 @@ const pages = [
 const viewports = [320, 768, 1440];
 const failures = [];
 
+function makeImagesEager(directory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      makeImagesEager(path);
+    } else if (entry.isFile() && entry.name.endsWith(".html")) {
+      const source = readFileSync(path, "utf8");
+      const eager = source.replaceAll('loading="lazy"', 'loading="eager"');
+      if (eager !== source) writeFileSync(path, eager);
+    }
+  }
+}
+
+// Full-page capture scrolls the document; eager loading removes lazy-image timing races.
+makeImagesEager("dist");
 mkdirSync(actualDir, { recursive: true });
 if (update) mkdirSync(referencesDir, { recursive: true });
 
