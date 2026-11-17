@@ -13,6 +13,7 @@
     "build": "node scripts/sync-palette-ratios.mjs && eleventy && node scripts/typography.mjs --fix && node scripts/optimize-og.mjs && node scripts/bundle-styles.mjs && node scripts/postbuild.mjs",
     "check": "node scripts/check.mjs && node scripts/typography.mjs && node scripts/palette-check.mjs",
     "check:determinism": "node scripts/check-determinism.mjs",
+    "chaos:scroll-labels": "node scripts/chaos-scroll-labels.mjs",
     "qa:all": "node scripts/qa-all.mjs",
     "live-probe": "node scripts/live-probe.mjs",
     "size": "node scripts/size-budget.mjs",

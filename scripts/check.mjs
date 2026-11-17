@@ -1791,18 +1791,26 @@ console.log("--- 7н. Skip-link ---");
         fail(`${rel}: <main id="main"> без tabindex="-1" (skip-link не фокусується на цілі)`);
       }
 
+      const tableRegions = doc.match(/<div\s+class="table-scroll"[^>]*>\s*<table\b/gi) || [];
       const tables = doc.match(/<table\b[^>]*>/gi) || [];
-      const wrappedTables = doc.match(
-        /<div\s+class="table-scroll"\s+tabindex="0"\s+role="region"\s+aria-label="Таблиця \(прокрутка\)">\s*<table\b/gi
-      ) || [];
-      if (tables.length !== wrappedTables.length) {
-        fail(`${rel}: кожна <table> має бути всередині .table-scroll[tabindex="0"]`);
+      const expectedTableLabel = rel.startsWith("en/") ? "Table (scrollable)" : "Таблиця (прокрутка)";
+      const wrongTableRegions = tableRegions.filter(
+        (tag) => !new RegExp(`\\btabindex="0"[^>]*\\brole="region"[^>]*\\baria-label="${expectedTableLabel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`).test(tag)
+      );
+      if (tables.length !== tableRegions.length || wrongTableRegions.length > 0) {
+        fail(`${rel}: кожна <table> має language-aware .table-scroll[tabindex="0"][role="region"] з aria-label «${expectedTableLabel}»`);
       }
 
       const preTags = doc.match(/<pre\b[^>]*>/gi) || [];
-      const unfocusablePre = preTags.filter((tag) => !/\btabindex\s*=\s*"0"/i.test(tag));
-      if (unfocusablePre.length > 0) {
-        fail(`${rel}: кожен <pre> має tabindex="0"`);
+      const expectedCodeLabel = rel.startsWith("en/") ? "Code (scrollable)" : "Код (прокрутка)";
+      const invalidPre = preTags.filter(
+        (tag) => !/\btabindex\s*=\s*"0"/i.test(tag)
+          || !/\brole\s*=\s*"region"/i.test(tag)
+          || !/\baria-label\s*=\s*"[^"]+"/i.test(tag)
+          || !new RegExp(`\\baria-label="${expectedCodeLabel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`).test(tag)
+      );
+      if (invalidPre.length > 0) {
+        fail(`${rel}: кожен <pre> має language-aware tabindex="0", role="region" і aria-label «${expectedCodeLabel}»`);
       }
     }
     if (skErrors === 0) {

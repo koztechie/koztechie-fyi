@@ -1,6 +1,11 @@
 import { readThemeColors } from "./scripts/theme-colors.mjs";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 export default function (eleventyConfig) {
+  const stringsUk = JSON.parse(readFileSync(resolve("src/_data/strings/uk.json"), "utf8"));
+  const stringsEn = JSON.parse(readFileSync(resolve("src/_data/strings/en.json"), "utf8"));
+
   // Passthrough. Явні мапи: input = "." → прості шляхи зберігали б структуру
   // (src/styles → dist/src/styles), але розмітка шукає /styles/ і /img/.
   eleventyConfig.addPassthroughCopy({"static/root": "/"});
@@ -24,6 +29,14 @@ export default function (eleventyConfig) {
       || ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options));
     md.renderer.rules.table_close = (tokens, idx, options, env, self) =>
       tableClose(tokens, idx, options, env, self) + "</div>";
+  });
+
+  eleventyConfig.addTransform("scroll-labels", function (content) {
+    const en = (this.page.outputPath || "").includes("/en/");
+    const strings = en ? stringsEn : stringsUk;
+    return content
+      .replaceAll('aria-label="Таблиця (прокрутка)"', `aria-label="${strings.nav.table_scroll}"`)
+      .replace(/<pre tabindex="0">/g, `<pre tabindex="0" role="region" aria-label="${strings.nav.code_scroll}">`);
   });
 
   // Мови фідів (крок 125): два виходи /feed.xml та /en/feed.xml

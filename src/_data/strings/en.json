@@ -120,6 +120,8 @@
     "now": "Now",
     "colophon": "Colophon",
     "contact": "Contact",
+    "table_scroll": "Table (scrollable)",
+    "code_scroll": "Code (scrollable)",
     "sections_label": "Sections",
     "footer_sections_label": "Other pages",
     "lang_label": "Language",
