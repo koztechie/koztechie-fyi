@@ -101,6 +101,17 @@
   {%- endif %}
   {%- else %}
   <p class="list-empty">{{ empty_label or strings.list.empty }}</p>
+  {%- if pageLang === "en" -%}
+    {%- set ukSection = [] -%}
+    {%- for it in collections[section] -%}
+      {%- if (it.data.lang | default("uk")) === "uk" -%}
+        {%- set ukSection = ukSection.concat([it]) -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if ukSection.length %}
+  <p><a href="/{{ section }}/" hreflang="uk">{{ strings.list.read_uk }}</a></p>
+    {%- endif %}
+  {%- endif %}
   {%- endif %}
 </article>
 {% endblock %}

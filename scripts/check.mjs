@@ -1585,6 +1585,26 @@ console.log("--- 7л-а. Заглушки перекладів ---");
     checkStub(stubUrl, readFrontmatterField(enFile, "title_uk"));
   }
 
+  for (const section of sections) {
+    const ukSectionFiles = ukFiles.filter((file) => file.slice(ukRoot.length + 1).split("/")[0] === section);
+    const ukSectionCount = ukSectionFiles.filter((file) => {
+      const frontmatter = readFileSync(file, "utf-8").match(/^---\s*\n([\s\S]*?)\n---/);
+      return frontmatter && !/^draft:\s*true\s*$/m.test(frontmatter[1]);
+    }).length;
+    if (ukSectionCount === 0) continue;
+
+    const enIndex = join(distDir, "en", section, "index.html");
+    if (!existsSync(enIndex)) {
+      fail(`/en/${section}/: відсутній EN-індекс для перевірки pointer`);
+      continue;
+    }
+    const html = readFileSync(enIndex, "utf-8");
+    if (/<p\s+class="list-empty">/i.test(html) &&
+        !new RegExp(`<a\\b[^>]*href="/${section}/"[^>]*hreflang="uk"`, "i").test(html)) {
+      fail(`/en/${section}/: порожній EN-індекс без pointer на український розділ`);
+    }
+  }
+
   if (stubErrors === 0) {
     console.log(`  ✅ Перевірено ${ukFiles.length} українських записів: stub-URL повні, noindex присутній`);
   }
