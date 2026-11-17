@@ -198,6 +198,10 @@ jobs:
         run: npx playwright install --with-deps chromium
         working-directory: scripts/tools
 
+      - name: A11y matrix — primary gate
+        run: A11Y_MATRIX_USE_EXISTING_SERVER=1 node ../a11y-matrix.mjs
+        working-directory: scripts/tools
+
       - name: Pa11y CI with axe
         run: |
           node -e '
@@ -225,6 +229,7 @@ jobs:
           name: measured-quality-${{ github.run_id }}
           path: |
             qa-artifacts/
+            qa-artifacts/a11y/matrix.json
             test-results/
           if-no-files-found: warn
           retention-days: 7
