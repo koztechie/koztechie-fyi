@@ -29,6 +29,8 @@ for (const [name, path] of pages) {
       "playwright@1.65.1",
       "screenshot",
       "--full-page",
+      "--wait-for-timeout",
+      "1000",
       "--viewport-size",
       `${width},900`,
       `${origin}${path}`,
