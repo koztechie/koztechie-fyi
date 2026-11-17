@@ -124,6 +124,16 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Install pinned ImageMagick
+        run: |
+          sudo apt-get update
+          IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          case "$IM_VERSION" in
+            8:6.9.*) ;;
+            *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
+          esac
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}" librsvg2-bin
+
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
