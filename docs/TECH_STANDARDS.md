@@ -159,7 +159,7 @@ render-blocking запит. `/styles/print.<hash>.css` підключаєтьс�
 - `border-radius` > 4px (§6 DECISIONS).
 - `style` атрибути.
 
-**Фокус:** `:focus-visible` — `outline: 2px solid var(--accent)`. Контраст індикатора ≥ 3:1 до фону в обох темах. Текст ≥ 7:1 (AAA).
+**Фокус:** `:focus-visible` — `outline: 3px solid var(--focus)`. Контраст індикатора ≥ 3:1 до фону в обох темах. Текст ≥ 7:1 (AAA).
 
 **Гліч:** Лише 3 сигнатури (PLAN.md 94–96). Анімуй `transform`/`opacity`. Без властивостей, що викликають layout.
 
@@ -303,7 +303,7 @@ form-action 'none'
 
 ## 9. ДОСТУПНІСТЬ
 
-**Фокус:** `:focus-visible` — `outline: 2px solid var(--accent)`. Контраст ≥ 3:1 до фону.
+**Фокус:** `:focus-visible` — `outline: 3px solid var(--focus)`. Контраст ≥ 3:1 до фону.
 
 **Тач-цілі:** ≥ 44×44 px для окремих елементів керування. Інлайнові посилання в тексті — виняток.
 

@@ -1749,7 +1749,7 @@ if (linkNameErrors === 0) {
 }
 
 // 7м. Таб-навігація — крок 134. TECH_STANDARDS §9; фокус за KZTCH_DS §02
-// (3px, колір --k-fg; чорний на білому = 21:1). AGENTS.md §5 (видимий
+// (3px, var(--focus)). AGENTS.md §5 (видимий
 // :focus, клавіатурна навігація).
 console.log("--- 7м. Таб-навігація ---");
 {
@@ -1763,8 +1763,8 @@ console.log("--- 7м. Таб-навігація ---");
   // 1. Глобальний :focus-visible з чітким контуром.
   const cssFiles = walkDir(stylesDir).filter((f) => f.endsWith(".css"));
   const cssAll = cssFiles.map((f) => readFileSync(f, "utf-8")).join("\n");
-  if (!/\.?[a-z-]*:focus-visible[^{]*\{[^}]*outline\s*:\s*3px\s+solid/.test(cssAll)) {
-    fail("CSS: немає правила :focus-visible з outline 3px solid");
+  if (!/\.?[a-z-]*:focus-visible[^{]*\{[^}]*outline\s*:\s*3px\s+solid\s+var\(--focus\)/.test(cssAll)) {
+    fail("CSS: немає правила :focus-visible з outline 3px solid var(--focus)");
   }
   // 2. Ніхто не ховає фокус
   const cssWithoutMainFocusReset = cssAll.replace(/main:focus\b\s*\{[^}]*\}/g, "");
