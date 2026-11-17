@@ -28,6 +28,18 @@
             "minScore": 0.95
           }
         ],
+        "categories:accessibility": [
+          "error",
+          {
+            "minScore": 1
+          }
+        ],
+        "categories:seo": [
+          "warn",
+          {
+            "minScore": 0.95
+          }
+        ],
         "largest-contentful-paint": [
           "error",
           {
