@@ -1813,6 +1813,11 @@ console.log("--- 7н. Skip-link ---");
       if (tables.length !== tableRegions.length || wrongTableRegions.length > 0) {
         fail(`${rel}: кожна <table> має language-aware .table-scroll[tabindex="0"][role="region"] з aria-label «${expectedTableLabel}»`);
       }
+      const thTags = doc.match(/<th\b[^>]*>/gi) || [];
+      const invalidTh = thTags.filter((tag) => !/\bscope\s*=\s*["'][^"']+["']/i.test(tag));
+      if (invalidTh.length > 0) {
+        fail(`${rel}: кожен <th> має атрибут scope`);
+      }
 
       const preTags = doc.match(/<pre\b[^>]*>/gi) || [];
       const expectedCodeLabel = rel.startsWith("en/") ? "Code (scrollable)" : "Код (прокрутка)";

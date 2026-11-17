@@ -36,6 +36,7 @@ export default function (eleventyConfig) {
     const strings = en ? stringsEn : stringsUk;
     return content
       .replaceAll('aria-label="Таблиця (прокрутка)"', `aria-label="${strings.nav.table_scroll}"`)
+      .replaceAll("<th>", '<th scope="col">')
       .replace(/<pre tabindex="0">/g, `<pre tabindex="0" role="region" aria-label="${strings.nav.code_scroll}">`);
   });
 
