@@ -24,8 +24,7 @@ function run(command, args) {
     execFileSync(command, args, { stdio: "ignore" });
     return true;
   } catch (error) {
-    if (error.code === "ENOENT") return false;
-    throw error;
+    return false;
   }
 }
 
@@ -60,14 +59,18 @@ for (const file of svgFiles) {
 for (const svgFile of svgFiles) {
   const name = svgFile.slice(imageDir.length + 1).replace(/\.svg$/, "");
   const renderedFile = join(tempDir, `${name}-v2.png`);
-  if (!runImageMagick([
+  const rendered = runImageMagick([
     svgFile,
     "-background", themeColors.paper,
     "-alpha", "remove",
     "-alpha", "off",
     renderedFile,
-  ])) {
-    throw new Error(`Для генерації OG-картки ${name} потрібен системний ImageMagick.`);
+  ]) || run("rsvg-convert", [
+    "--output", renderedFile,
+    svgFile,
+  ]);
+  if (!rendered) {
+    throw new Error(`Для генерації OG-картки ${name} потрібен ImageMagick або librsvg.`);
   }
   renameSync(renderedFile, join(imageDir, `${name}-v2.png`));
 }
@@ -239,8 +242,9 @@ const faviconIco = resolve("dist/favicon.ico");
 const appleIcon = resolve("dist/apple-touch-icon.png");
 const iconTempDir = mkdtempSync(join(distDir, ".icons-"));
 try {
-  const renderIcon = (size, path) =>
-    runImageMagick([
+  const renderIcon = (size, path) => {
+    const rawPath = join(iconTempDir, `raw-${size}.png`);
+    const direct = runImageMagick([
       faviconSvg,
       "-background", "none",
       "-resize", `${size}x${size}`,
@@ -250,9 +254,26 @@ try {
       "-define", "png:compression-level=9",
       `PNG8:${path}`,
     ]);
+    if (direct) return true;
+    if (!run("rsvg-convert", [
+      "--width", String(size),
+      "--height", String(size),
+      "--output", rawPath,
+      faviconSvg,
+    ])) return false;
+    return runImageMagick([
+      rawPath,
+      "-background", "none",
+      "-dither", "None",
+      "-colors", "3",
+      "-define", "png:exclude-chunk=date,time",
+      "-define", "png:compression-level=9",
+      `PNG8:${path}`,
+    ]);
+  };
   const iconPngs = [16, 32, 48].map((size) => join(iconTempDir, `favicon-${size}.png`));
   if (!renderIcon(180, appleIcon) || ![16, 32, 48].every((size, index) => renderIcon(size, iconPngs[index]))) {
-    throw new Error("Для генерації favicon потрібен системний ImageMagick.");
+    throw new Error("Для генерації favicon потрібен ImageMagick або librsvg.");
   }
   if (!runImageMagick([...iconPngs, faviconIco])) {
     throw new Error("Не вдалося зібрати favicon.ico з розмірів 16, 32 і 48 пікселів.");

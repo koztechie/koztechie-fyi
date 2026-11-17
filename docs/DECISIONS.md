@@ -2479,6 +2479,8 @@ Email-обфускація не вважається захистом від с�
 
 **Рішення: так.** Проєкт має одну npm-залежність — Eleventy — і системний
 ImageMagick лише під час збірки. Він потрібен для генерації OG PNG та favicon.
+Для Ubuntu 22.04, де ImageMagick 6 забороняє SVG-кодер політикою безпеки, CI
+також встановлює `librsvg2-bin` як build-only fallback для rasterization SVG.
 Netlify робить явний preflight `magick`/`convert` і друкує версію; GitHub Actions
 використовує `ubuntu-22.04` та pinned-пакет ImageMagick 6.9.11.60. Відмова
 відбувається до `npm ci`, а не посеред генерації артефактів із неочевидною
