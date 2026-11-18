@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // Синтетична production-перевірка без сторонніх сервісів і залежностей.
 
+import { spawnSync } from "node:child_process";
+
 const origin = (process.env.LIVE_PROBE_ORIGIN || "https://koztechie.fyi").replace(/\/$/, "");
 const timeoutMs = 15_000;
 const userAgent = "koztechie.fyi live-probe/1.0";
@@ -158,6 +160,23 @@ const entries = await checkSitemap();
 const sitemapMap = new Map(entries.map((entry) => [entry.loc, entry]));
 for (const entry of entries) await checkPage(entry, sitemapMap);
 await checkSpecialPaths();
+
+function runProductionCheck(command, args, env) {
+  const result = spawnSync(command, args, {
+    env: { ...process.env, ...env },
+    stdio: "inherit",
+  });
+  if (result.error) fail(`${command} ${args.join(" ")}: ${result.error.message}`);
+  else if (result.status !== 0) fail(`${command} ${args.join(" ")}: exit ${result.status}`);
+}
+
+console.log("=== LIVE-PROBE: A11Y MATRIX ===");
+runProductionCheck("node", ["scripts/a11y-matrix.mjs"], { A11Y_MATRIX_ORIGIN: origin });
+console.log("=== LIVE-PROBE: EXTERNAL LINKS ===");
+runProductionCheck("node", ["scripts/external-linkcheck.mjs", "--strict"], {
+  LINKCHECK_ORIGIN: origin,
+  LINKCHECK_STRICT: "1",
+});
 
 if (failures.length) {
   console.error(`РЕЗУЛЬТАТ: ${failures.length} live-probe помилок`);

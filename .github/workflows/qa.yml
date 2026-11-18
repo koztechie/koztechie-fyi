@@ -143,10 +143,6 @@ jobs:
       - name: Probe production
         run: npm run live-probe
 
-      - name: Check external links
-        env:
-          LINKCHECK_STRICT: "1"
-        run: npm run linkcheck:external
 
   measured-quality:
     name: Measured quality budgets

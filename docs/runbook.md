@@ -15,6 +15,32 @@
 браузер, ОС, сторінки та результат у релізному записі. Не позначай пункт
 зеленим за припущенням.
 
+## −0. Weekly production probe
+
+GitHub Actions запускає existing cron щопонеділка без production deploy:
+
+```bash
+npm run build
+npm run live-probe
+```
+
+`live-probe.mjs` перевіряє sitemap-сторінки, special paths і заголовки, після
+чого запускає `a11y-matrix.mjs` проти `https://koztechie.fyi`. Матриця бере
+URL із production sitemap і додає `/404.html` та локально згенеровані stubs,
+щоб перевірити їхній production-відповідник. Playwright bypass CSP діє лише в
+тестовому контексті; сам production CSP перевіряється окремим header-гейтом.
+
+Далі probe запускає production-aware external linkcheck у strict-режимі:
+
+```bash
+LINKCHECK_ORIGIN=https://koztechie.fyi node scripts/external-linkcheck.mjs --strict
+```
+
+У probe `LINKCHECK_ORIGIN` вказує на production origin. Перевірка читає HTML
+із sitemap, `/404.html` і stubs, тому CDN-відповідь та зовнішні посилання
+перевіряються без використання локального `dist` як джерела сторінок. Probe
+не виконує `netlify deploy`, не змінює baseline і не оновлює контент.
+
 ### Клавіатура
 
 - [ ] На `home`, `nichlyst`, `colophon`, `poem`, `blog` натиснути `Tab` від

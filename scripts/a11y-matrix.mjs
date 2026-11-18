@@ -11,7 +11,9 @@ const distDir = join(repoRoot, "dist");
 const toolsRequire = createRequire(join(repoRoot, "scripts/tools/package.json"));
 const { chromium } = toolsRequire("playwright");
 const axeSrc = readFileSync(toolsRequire.resolve("axe-core/axe.min.js"), "utf8");
-const origin = "http://127.0.0.1:4173";
+const localOrigin = "http://127.0.0.1:4173";
+const origin = (process.env.A11Y_MATRIX_ORIGIN || localOrigin).replace(/\/$/, "");
+const remote = origin !== localOrigin;
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"];
 const TEXT_SPACING =
   "*{line-height:1.5!important;letter-spacing:.12em!important;word-spacing:.16em!important}p{margin-bottom:2em!important}";
@@ -69,20 +71,47 @@ function startServer() {
   });
 }
 
+async function remotePaths() {
+  const response = await fetch(`${origin}/sitemap.xml`, {
+    headers: { "user-agent": "koztechie.fyi a11y-matrix/1.0" },
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!response.ok) throw new Error(`sitemap.xml: HTTP ${response.status}`);
+  const sitemap = await response.text();
+  const paths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((match) => new URL(match[1]).pathname);
+  const localStubs = walk(distDir)
+    .filter((file) => {
+      const html = readFileSync(file, "utf8");
+      return /<meta name="robots" content="noindex">/.test(html)
+        && /\(not translated\)|\(переклад не готовий\)/.test(html);
+    })
+    .map((file) => `/${relative(distDir, file).replace(/\\/g, "/").replace(/index\.html$/, "")}`);
+  return [...new Set([...paths, "/404.html", ...localStubs])];
+}
+
 const failures = [];
 const server = process.env.A11Y_MATRIX_USE_EXISTING_SERVER === "1" ? null : await startServer();
 const browser = await chromium.launch();
-const files = walk(distDir);
+const files = remote
+  ? await remotePaths()
+  : walk(distDir).map((file) => ({
+      file,
+      path: `/${relative(distDir, file).replace(/\\/g, "/").replace(/index\.html$/, "")}`,
+    }));
 
 try {
   for (const mode of modes) {
-    const page = await browser.newPage({
+    const context = await browser.newContext({
       viewport: mode.viewport ?? { width: 1280, height: 900 },
+      bypassCSP: remote,
     });
+    const page = await context.newPage();
     if (mode.media) await page.emulateMedia(mode.media);
     try {
-      for (const file of files) {
-        const urlPath = `/${relative(distDir, file).replace(/\\/g, "/").replace(/index\.html$/, "")}`;
+      for (const entry of files) {
+        const file = remote ? entry : entry.file;
+        const urlPath = remote ? entry : entry.path;
       try {
         await page.goto(`${origin}${urlPath}`, { waitUntil: "load" });
         if (mode.css) await page.addStyleTag({ content: mode.css });
@@ -127,7 +156,7 @@ try {
         });
         if (result.violations.length || overflow || focusOk || !mediaOk) {
           failures.push({
-            file: relative(repoRoot, file),
+            file: remote ? urlPath : relative(repoRoot, file),
             mode: mode.name,
             violations: result.violations,
             overflow,
@@ -137,14 +166,14 @@ try {
         }
       } catch (error) {
         failures.push({
-          file: relative(repoRoot, file),
+          file: remote ? urlPath : relative(repoRoot, file),
           mode: mode.name,
           error: error instanceof Error ? error.message : String(error),
         });
       }
       }
     } finally {
-      await page.close();
+      await context.close();
     }
   }
 } finally {
@@ -155,7 +184,7 @@ try {
 const output = join(repoRoot, "qa-artifacts/a11y/matrix.json");
 mkdirSync(join(repoRoot, "qa-artifacts/a11y"), { recursive: true });
 writeFileSync(output, JSON.stringify(failures, null, 2));
-console.log(`A11y matrix: ${files.length} сторінок × ${modes.length} режимів`);
+console.log(`A11y matrix (${remote ? "production" : "local"}): ${files.length} сторінок × ${modes.length} режимів`);
 console.log(`Артефакт: ${output}`);
 if (failures.length) {
   console.error(`❌ A11y matrix: ${failures.length} невдалих комбінацій`);

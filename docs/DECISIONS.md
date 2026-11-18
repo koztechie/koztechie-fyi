@@ -2522,6 +2522,21 @@ commit-pinned epoch прибирає часову недетерміновані
 
 **Дата рішення:** 2026-11-18.
 
+### 43.6. T5.1 — weekly production probe без deploy
+
+**Рішення:** Existing weekly cron запускає `live-probe.mjs`, який після
+перевірки sitemap і special paths запускає production a11y matrix для URL із
+sitemap, `/404.html` та translation stubs, а також strict external linkcheck
+із production HTML. Probe не виконує deploy і не змінює baseline.
+
+**Обґрунтування:** Local CI не виявляє drift у Netlify headers, CDN-відповідях,
+TLS/сертифікаті або production HTML. Окреме bypass CSP у Playwright дозволяє
+виконати axe без послаблення CSP на сайті; сам CSP лишається під перевіркою
+header-гейта. Production-aware source pages відрізняють цей probe від
+локального build/linkcheck.
+
+**Дата рішення:** 2026-11-18.
+
 ### 43.3. T2.3 — pointer із порожніх EN-індексів
 
 **Рішення:** Порожній EN-індекс із українським контрагентом показує посилання

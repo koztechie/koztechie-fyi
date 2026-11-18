@@ -4,8 +4,11 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-const distDir = resolve(process.argv[2] || "dist");
+const distArg = process.argv.slice(2).find((argument) => !argument.startsWith("-"));
+const distDir = resolve(distArg || "dist");
 const ownHost = "koztechie.fyi";
+const productionOrigin = (process.env.LINKCHECK_ORIGIN || "").replace(/\/$/, "");
+const strict = process.argv.includes("--strict") || process.env.LINKCHECK_STRICT === "1";
 const timeoutMs = 12_000;
 const maxAttempts = 3;
 const retryBackoffMs = [1_000, 3_000, 9_000];
@@ -25,10 +28,46 @@ if (!existsSync(distDir)) {
   process.exit(1);
 }
 
+async function productionPages() {
+  const response = await fetch(`${productionOrigin}/sitemap.xml`, {
+    headers: { "user-agent": "koztechie.fyi external-link-check/1.0" },
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  if (!response.ok) throw new Error(`sitemap.xml: HTTP ${response.status}`);
+  const sitemap = await response.text();
+  const paths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((match) => new URL(match[1]).pathname);
+  const localStubs = walk(distDir)
+    .filter((file) => {
+      const html = readFileSync(file, "utf8");
+      return /<meta name="robots" content="noindex">/.test(html)
+        && /\(not translated\)|\(переклад не готовий\)/.test(html);
+    })
+    .map((file) => `/${file.slice(distDir.length + 1).replace(/\\/g, "/").replace(/index\.html$/, "")}`);
+  return [...new Set([...paths, "/404.html", ...localStubs])];
+}
+
+async function pageSources() {
+  if (!productionOrigin) {
+    return walk(distDir).filter((path) => path.endsWith(".html")).map((file) => ({
+      source: file.slice(distDir.length + 1),
+      html: readFileSync(file, "utf8"),
+    }));
+  }
+  const paths = await productionPages();
+  return Promise.all(paths.map(async (path) => {
+    const url = `${productionOrigin}${path}`;
+    const response = await fetch(url, {
+      headers: { "user-agent": "koztechie.fyi external-link-check/1.0" },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+    return { source: url, html: await response.text() };
+  }));
+}
+
 const links = new Map();
-for (const file of walk(distDir).filter((path) => path.endsWith(".html"))) {
-  const rel = file.slice(distDir.length + 1);
-  const html = readFileSync(file, "utf8");
+for (const { source, html } of await pageSources()) {
   for (const [, href] of html.matchAll(/\bhref\s*=\s*["']([^"']+)["']/gi)) {
     let url;
     try {
@@ -38,7 +77,7 @@ for (const file of walk(distDir).filter((path) => path.endsWith(".html"))) {
     }
     if (!["https:", "http:"].includes(url.protocol) || url.hostname === ownHost) continue;
     if (!links.has(url.href)) links.set(url.href, new Set());
-    links.get(url.href).add(rel);
+    links.get(url.href).add(source);
   }
 }
 
@@ -99,8 +138,9 @@ async function check(url) {
 }
 
 console.log("=== EXTERNAL-LINKCHECK ===");
+console.log(`Джерело: ${productionOrigin || distDir}`);
 console.log(`Унікальних зовнішніх HTTPS-посилань: ${links.size}`);
-console.log(`Retry: ${maxAttempts} спроби; backoff 1с/3с/9с; strict=${process.env.LINKCHECK_STRICT === "1" ? "так" : "ні"}`);
+console.log(`Retry: ${maxAttempts} спроби; backoff 1с/3с/9с; strict=${strict ? "так" : "ні"}`);
 
 let hardErrors = 0;
 let softErrors = 0;
@@ -113,20 +153,20 @@ for (const [url, sources] of links) {
         console.error(`❌ HARD ${response.status} ${url}${source}`);
         hardErrors++;
       } else {
-        const mode = process.env.LINKCHECK_STRICT === "1" ? "HARD" : "SOFT";
-        const output = process.env.LINKCHECK_STRICT === "1" ? console.error : console.warn;
+        const mode = strict ? "HARD" : "SOFT";
+        const output = strict ? console.error : console.warn;
         output(`⚠ ${mode} ${response?.status || "network"} ${url}${source}`);
-        if (process.env.LINKCHECK_STRICT === "1") hardErrors++;
+        if (strict) hardErrors++;
         else softErrors++;
       }
     } else {
       console.log(`✅ ${response.status} ${url}`);
     }
   } catch (error) {
-    const mode = process.env.LINKCHECK_STRICT === "1" ? "HARD" : "SOFT";
-    const output = process.env.LINKCHECK_STRICT === "1" ? console.error : console.warn;
+    const mode = strict ? "HARD" : "SOFT";
+    const output = strict ? console.error : console.warn;
     output(`⚠ ${mode} network ${url}: ${error.message} (у ${[...sources].join(", ")})`);
-    if (process.env.LINKCHECK_STRICT === "1") hardErrors++;
+    if (strict) hardErrors++;
     else softErrors++;
   }
 }
