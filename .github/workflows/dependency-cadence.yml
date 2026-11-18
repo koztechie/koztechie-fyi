@@ -1,0 +1,68 @@
+name: Dependency cadence
+
+on:
+  schedule:
+    - cron: "17 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  outdated:
+    name: Monthly QA tools audit
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Assert root dependency boundary
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+          const deps = Object.entries(pkg.dependencies || {});
+          const devDeps = Object.keys(pkg.devDependencies || {});
+          if (devDeps.length || deps.length !== 1 || deps[0][0] !== "@11ty/eleventy") {
+            throw new Error("Root must contain only @11ty/eleventy and no devDependencies.");
+          }
+          if (!/^\d+\.\d+\.\d+$/.test(deps[0][1])) {
+            throw new Error(`Root @11ty/eleventy is not exact-pinned: ${deps[0][1]}`);
+          }
+          console.log(`Root dependency boundary: ${deps[0][0]} ${deps[0][1]}`);
+          NODE
+
+      - name: Install locked QA tools
+        run: npm ci --ignore-scripts --prefix scripts/tools
+
+      - name: Run npm outdated in scripts/tools
+        id: outdated
+        continue-on-error: true
+        run: |
+          set +e
+          npm outdated --prefix scripts/tools --json | tee outdated.json
+          status=${PIPESTATUS[0]}
+          {
+            echo "## scripts/tools \`npm outdated\`"
+            echo
+            if [ "$status" -eq 0 ]; then
+              echo "No outdated QA tools."
+            else
+              echo '```json'
+              cat outdated.json
+              echo '```'
+              echo
+              echo "Updates require the T3.2 matrix and T3.3 re-baseline workflow."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+
+      - name: Report cadence result
+        if: steps.outdated.outcome == 'failure'
+        run: echo "::warning::Outdated QA tools detected; no automatic update was applied."

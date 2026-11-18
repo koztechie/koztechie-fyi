@@ -142,6 +142,12 @@ references поточними знімками. Перед commit перегля
 
 ## 0б. Оновлення locked QA tools
 
+Щомісячний workflow `Dependency cadence` запускає `npm outdated` тільки в
+`scripts/tools`. Dependabot має дозвіл створювати npm PR лише для
+`/scripts/tools`, а окреме правило — лише для GitHub Actions. Root
+`package.json` не є ціллю оновлень: у ньому лишається одна exact-залежність
+`@11ty/eleventy`.
+
 Оновлюй тільки інструменти в `scripts/tools/`; root `package.json` і root
 lockfile не змінюй. Перед bump зафіксуй причину й цільову версію в зміні.
 Порядок не переставляй:

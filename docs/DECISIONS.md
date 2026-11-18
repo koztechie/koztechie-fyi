@@ -2537,6 +2537,21 @@ header-гейта. Production-aware source pages відрізняють цей p
 
 **Дата рішення:** 2026-11-18.
 
+### 43.7. T5.3 — cadence залежностей без root drift
+
+**Рішення:** Щомісячний workflow запускає `npm outdated` тільки в
+`scripts/tools`. Dependabot обмежений npm-каталогом `/scripts/tools` і
+екосистемою GitHub Actions для SHA bumps; root npm-каталог не відкривається.
+Root зберігає одну exact-залежність `@11ty/eleventy`. Будь-який bump QA tools
+проходить T3.2 matrix, а після підтвердженої зміни — T3.3 re-baseline; без
+автоматичного оновлення baseline.
+
+**Обґрунтування:** QA tools не є runtime-залежностями сайту. Ізоляція cadence
+зменшує площу змін, а обов’язкова matrix/reflow-послідовність не дозволяє
+оновленому browser або axe renderer змінити references неперевірено.
+
+**Дата рішення:** 2026-11-18.
+
 ### 43.3. T2.3 — pointer із порожніх EN-індексів
 
 **Рішення:** Порожній EN-індекс із українським контрагентом показує посилання
