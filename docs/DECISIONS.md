@@ -2506,6 +2506,22 @@ Netlify робить явний preflight `magick`/`convert` і друкує в�
 
 **Дата рішення:** 2026-11-17.
 
+### 43.5. T4.3 — відтворювані QA та deploy-операції
+
+**Рішення:** Операційний порядок фіксується в `docs/runbook.md`: bump locked
+QA tools оновлює тільки `scripts/tools/package*.json`, після цього проходить
+build → static checks → a11y-матриця → reflow re-baseline → commit → повторний
+reflow без update-прапорця. `SOURCE_DATE_EPOCH` у CI береться з timestamp
+останнього commit, а deploy запускається з root репозиторію з `dist/` як
+publish directory.
+
+**Обґрунтування:** Lockfile ізолює QA-інструменти від runtime-залежності;
+матриця повинна перевіряти новий renderer до оновлення screenshot references;
+commit-pinned epoch прибирає часову недетермінованість; root deploy зберігає
+доступ до `netlify.toml`, package manifest і lockfile.
+
+**Дата рішення:** 2026-11-18.
+
 ### 43.3. T2.3 — pointer із порожніх EN-індексів
 
 **Рішення:** Порожній EN-індекс із українським контрагентом показує посилання

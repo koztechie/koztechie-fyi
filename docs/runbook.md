@@ -114,6 +114,70 @@ references поточними знімками. Перед commit перегля
 
 ---
 
+## 0б. Оновлення locked QA tools
+
+Оновлюй тільки інструменти в `scripts/tools/`; root `package.json` і root
+lockfile не змінюй. Перед bump зафіксуй причину й цільову версію в зміні.
+Порядок не переставляй:
+
+```bash
+cd scripts/tools
+npm install --save-exact playwright@<version> axe-core@<version> \
+  @lhci/cli@<version> html-validate@<version> pa11y-ci@<version>
+npm ci --ignore-scripts
+npx playwright install --with-deps chromium
+cd ../..
+
+npm run build
+npm run check
+python3 -m http.server 4173 --directory dist &
+A11Y_MATRIX_USE_EXISTING_SERVER=1 node scripts/a11y-matrix.mjs
+UPDATE_SCREENSHOTS=1 node scripts/reflow-check.mjs
+git add scripts/tools/package.json scripts/tools/package-lock.json test-references
+git commit -m "qa: bump locked accessibility tools"
+node scripts/reflow-check.mjs
+```
+
+Після push дочекайся CI: a11y-матриця має пройти до reflow, а mobile і desktop
+Lighthouse мають завершитися успішно. Не видаляй старий lockfile, не запускай
+`npm update` без explicit версій і не коміть `node_modules/`.
+
+---
+
+## 0в. Determinism epoch
+
+У CI `SOURCE_DATE_EPOCH` дорівнює Unix timestamp останнього commit:
+
+```bash
+export SOURCE_DATE_EPOCH="$(git log -1 --pretty=%ct)"
+npm run check:determinism
+```
+
+Не підставляй поточний час і не фіксуй epoch вручну в source-файлах. Це робить
+build повторюваним для одного commit і змінює build date лише разом із commit.
+Після зміни lockfile, content, templates або build-скриптів повтори
+`check:determinism` у чистому робочому дереві.
+
+---
+
+## 0г. Deploy path
+
+Перед production deploy збирай із **кореня репозиторію**, а публікуй `dist/`:
+
+```bash
+npm ci --ignore-scripts
+npm run build
+npm run check
+netlify deploy --prod --dir=dist
+```
+
+Корінь потрібен для `netlify.toml`, `package.json`, lockfile та build command.
+`dist/` — результат збірки, а не source tree: у ньому немає `package.json`,
+тому запуск Netlify build із `dist` зламає `npm ci`. Не деплой `dist` як
+кореневий build directory; передавай його лише як publish/deploy directory.
+
+---
+
 ## 0. Триаж — три команди (3 хвилини)
 
 ```bash
