@@ -16,6 +16,7 @@
     "chaos:scroll-labels": "node scripts/chaos-scroll-labels.mjs",
     "qa:all": "node scripts/qa-all.mjs",
     "live-probe": "node scripts/live-probe.mjs",
+    "email-dns-gate": "node scripts/email-dns-gate.mjs",
     "size": "node scripts/size-budget.mjs",
     "palette": "node scripts/palette-check.mjs",
     "validate": "node scripts/validate-content.mjs content/",

@@ -28,6 +28,9 @@ or assistive technology.
 
 ## Feedback
 
+The mailbox is being configured; I cannot currently guarantee a response time
+for accessibility reports.
+
 Report a barrier with the page and reproducible steps:
 
 <a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">Report an accessibility issue</a>

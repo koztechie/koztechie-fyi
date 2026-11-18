@@ -170,6 +170,11 @@ function runProductionCheck(command, args, env) {
   else if (result.status !== 0) fail(`${command} ${args.join(" ")}: exit ${result.status}`);
 }
 
+console.log("=== LIVE-PROBE: EMAIL DNS ===");
+runProductionCheck("node", ["scripts/email-dns-gate.mjs"], {
+  EMAIL_DNS_DOMAIN: new URL(origin).hostname,
+  EMAIL_SECURITY_URL: `${origin}/.well-known/security.txt`,
+});
 console.log("=== LIVE-PROBE: A11Y MATRIX ===");
 runProductionCheck("node", ["scripts/a11y-matrix.mjs"], { A11Y_MATRIX_ORIGIN: origin });
 console.log("=== LIVE-PROBE: EXTERNAL LINKS ===");

@@ -18,6 +18,6 @@ If you have a question, a proposal, or just want to discuss something, feel free
 
 ## A few things to note
 
-- I usually get back to people within a few days. However, due to the situation in Kyiv and ongoing attacks, my response might sometimes be delayed.
+- The mailbox is being configured. I cannot currently guarantee a response time.
 - Email is the only way to reach me. I don't use messengers for website-related communication, and I don't take work calls.
 - Your email address stays strictly between us. I don't build contact lists, and I never send out newsletters.
