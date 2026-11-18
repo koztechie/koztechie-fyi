@@ -2,7 +2,7 @@
     Крок 109. docs/design-system.md §9.7.
     Порядок (§9.7.3): навігація → копірайт · RSS · email → місце.
     Навігація перша: підвал починається з корисного, не з копірайту.
-     6 лінків: 4 орієнтаційні та 2 тимчасово порожні розділи.
+     7 лінків: 5 орієнтаційних та 2 тимчасово порожні розділи.
     Тексти — зі словників (кроки 117, 118). Хардкод заборонено. -#}
 {%- set strings = strings[lang] | default(strings.uk) -%}
 {#- Мовна навігація (крок 131): en-дерево з fallback на uk. -#}
@@ -19,7 +19,8 @@
       { href: "/practice/", key: "practice" },
       { href: "/poetry/", key: "poetry" },
       { href: "/colophon/", key: "colophon" },
-      { href: "/contact/", key: "contact" }
+      { href: "/contact/", key: "contact" },
+      { href: "/accessibility/", key: "accessibility" }
     ] -%}
     {%- for item in nav %}
     {%- set itemHref = item.href -%}
