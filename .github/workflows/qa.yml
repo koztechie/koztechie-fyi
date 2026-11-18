@@ -202,6 +202,19 @@ jobs:
         run: A11Y_MATRIX_USE_EXISTING_SERVER=1 node ../a11y-matrix.mjs
         working-directory: scripts/tools
 
+      - name: Playwright reflow matrix — visual artifact
+        run: node ../reflow-check.mjs
+        working-directory: scripts/tools
+
+      - name: Upload visual regression diffs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: reflow-diffs-${{ github.run_id }}
+          path: qa-artifacts/reflow/*-diff.png
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Pa11y CI with axe
         run: |
           node -e '
@@ -216,10 +229,6 @@ jobs:
 
       - name: Validate HTML specification
         run: npx html-validate --config ../../.htmlvalidate.json "../../dist/**/*.html"
-        working-directory: scripts/tools
-
-      - name: Playwright reflow matrix and screenshot diffs
-        run: node ../reflow-check.mjs
         working-directory: scripts/tools
 
       - name: Upload measured-quality artifacts on failure

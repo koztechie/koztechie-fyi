@@ -90,6 +90,30 @@ NVDA/VoiceOver.
 
 ---
 
+## 0а. Reflow references і tolerance
+
+Reflow є вторинним візуальним гейтом після a11y-матриці. `scripts/reflow-check.mjs`
+порівнює PNG через ImageMagick `compare -fuzz 2% -metric AE`. Допускається до
+`0,1%` пікселів; перевищення блокує перевірку. Для кожної відмінності створюється
+`qa-artifacts/reflow/*-diff.png`, який CI завантажує як artifact при падінні.
+
+Після навмисної зміни layout або стилів онови baseline в такому порядку:
+
+```bash
+npm run build
+python3 -m http.server 4173 --directory dist &
+UPDATE_SCREENSHOTS=1 node scripts/reflow-check.mjs
+git add test-references
+git commit -m "test: re-baseline screenshots"
+node scripts/reflow-check.mjs
+```
+
+Не використовуй `UPDATE_SCREENSHOTS=1` для звичайної перевірки: він замінює
+references поточними знімками. Перед commit переглянь усі зміни в
+`test-references/`; фінальний запуск виконуй без прапорця.
+
+---
+
 ## 0. Триаж — три команди (3 хвилини)
 
 ```bash
