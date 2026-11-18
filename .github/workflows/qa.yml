@@ -245,8 +245,7 @@ jobs:
             npx --prefix scripts/tools pa11y-ci --config .pa11yci.json --config pa11y-urls.json
 
       - name: Validate HTML specification
-        run: npx html-validate --config ../../.htmlvalidate.json "../../dist/**/*.html"
-        working-directory: scripts/tools
+        run: npx --prefix scripts/tools html-validate --config .htmlvalidate.json "dist/**/*.html"
 
       - name: Upload measured-quality artifacts on failure
         if: failure()
