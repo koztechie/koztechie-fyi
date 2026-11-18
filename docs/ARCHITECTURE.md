@@ -313,7 +313,7 @@ LICENSE
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "22"
+  NODE_VERSION = "22.22.2"
 
 # Крок PLAN 158: koztechie.pp.ua → 301 — у static/root/_redirects
 # (домен-рівневі редиректи; єдине джерело — _redirects).

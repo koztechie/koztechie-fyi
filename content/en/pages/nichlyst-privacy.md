@@ -36,7 +36,7 @@ The game is rated 16+ and is not directed at children under 13. The developer d
 
 You can disable push notifications in your device settings or uninstall the game. You can also request access to or deletion of technical data. To help locate records held by third-party SDKs, include an available in-game or SDK identifier in your request; do not send payment credentials. Requests about payment data and transactions should be directed to Google Play.
 
-Send privacy questions and requests to [hello@koztechie.fyi](mailto:hello@koztechie.fyi).
+Send privacy questions and requests through the <a href="/en/contact/">contact page</a>.
 
 ## Links
 

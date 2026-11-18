@@ -1,8 +1,8 @@
 Contact: mailto:hello@koztechie.fyi
-Expires: 2027-11-17T00:00:00.000Z
+Expires: 2027-10-31T00:00:00.000Z
 Preferred-Languages: uk, en
 Canonical: https://koztechie.fyi/.well-known/security.txt
-Policy: https://koztechie.fyi/contact/
+Policy: https://koztechie.fyi/contact/#security
 
 # Please include the affected URL and reproduction details in reports.
 # No PGP encryption key is published.

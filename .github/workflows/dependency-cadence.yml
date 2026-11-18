@@ -38,8 +38,44 @@ jobs:
           console.log(`Root dependency boundary: ${deps[0][0]} ${deps[0][1]}`);
           NODE
 
+      - name: Install locked root dependencies
+        run: npm ci --ignore-scripts
+
       - name: Install locked QA tools
         run: npm ci --ignore-scripts --prefix scripts/tools
+
+      - name: Run root dependency audit
+        run: |
+          npm audit --omit=dev --json > root-audit.json 2>&1 || true
+
+      - name: Run scripts/tools dependency audit
+        run: |
+          npm audit --prefix scripts/tools --json > tools-audit.json 2>&1 || true
+
+      - name: Assert audit high/critical = 0 (G-12)
+        run: node scripts/check-audit.mjs root-audit.json tools-audit.json
+
+      - name: Run root npm outdated
+        id: root-outdated
+        continue-on-error: true
+        run: |
+          set +e
+          npm outdated --prefix . --json | tee root-outdated.json
+          status=${PIPESTATUS[0]}
+          {
+            echo "## root \`npm outdated\`"
+            echo
+            if [ "$status" -eq 0 ]; then
+              echo "No outdated root dependencies."
+            else
+              echo '```json'
+              cat root-outdated.json
+              echo '```'
+              echo
+              echo "Root updates require an explicit dependency task."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
       - name: Run npm outdated in scripts/tools
         id: outdated

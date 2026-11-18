@@ -2,10 +2,8 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /scripts/tools
-    target-branch: main
     schedule:
       interval: monthly
-      day: "1"
       time: "06:17"
       timezone: Europe/Kyiv
     open-pull-requests-limit: 1
@@ -13,12 +11,22 @@ updates:
       - dependencies
       - qa-tools
 
-  - package-ecosystem: github-actions
+  - package-ecosystem: npm
     directory: /
-    target-branch: main
     schedule:
       interval: monthly
-      day: "1"
+      time: "06:27"
+      timezone: Europe/Kyiv
+    open-pull-requests-limit: 1
+    versioning-strategy: increase
+    labels:
+      - dependencies
+      - eleventy
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
       time: "06:37"
       timezone: Europe/Kyiv
     open-pull-requests-limit: 1

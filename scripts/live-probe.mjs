@@ -2,11 +2,18 @@
 // Синтетична production-перевірка без сторонніх сервісів і залежностей.
 
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
 
 const origin = (process.env.LIVE_PROBE_ORIGIN || "https://koztechie.fyi").replace(/\/$/, "");
 const timeoutMs = 15_000;
 const userAgent = "koztechie.fyi live-probe/1.0";
 const failures = [];
+const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const ogReferencesDir = join(repoRoot, "docs/reference/og");
+const ogImages = new Set();
 
 function fail(message) {
   failures.push(message);
@@ -54,7 +61,9 @@ function parseHtml(html, url) {
   );
   const stylesheets = [...html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/gi)]
     .map((item) => new URL(item[1], url).href);
-  return { canonical, hreflang, stylesheets };
+  const socialImages = [...html.matchAll(/<meta\b[^>]*property="og:image"[^>]*content="([^"]+)"/gi)]
+    .map((item) => new URL(item[1], url).pathname);
+  return { canonical, hreflang, stylesheets, socialImages };
 }
 
 async function checkSitemap() {
@@ -70,6 +79,35 @@ async function checkSitemap() {
   }
   console.log(`Sitemap URL: ${entries.length}`);
   return entries;
+}
+
+async function checkPublicPageCount(entries) {
+  const result = await get("/pages.json");
+  if (!result.response || result.response.status !== 200) {
+    fail(`/pages.json: очікувався 200, отримано ${result.response?.status || "network"}`);
+    return;
+  }
+  let pages;
+  try {
+    pages = await result.response.json();
+  } catch {
+    fail("/pages.json: невалідний JSON");
+    return;
+  }
+  if (!Array.isArray(pages) || pages.some((page) => !page || typeof page.url !== "string")) {
+    fail("/pages.json: очікувався масив publicPages");
+    return;
+  }
+  const sitemapUrls = new Set(entries.map((entry) => new URL(entry.loc).pathname));
+  const publicUrls = new Set(pages.map((page) => page.url));
+  if (entries.length !== pages.length) {
+    fail(`sitemap/publicPages: ${entries.length} URL у sitemap ↔ ${pages.length} publicPages`);
+  }
+  if (sitemapUrls.size !== publicUrls.size || [...sitemapUrls].some((url) => !publicUrls.has(url))) {
+    fail("sitemap/publicPages: URL-склад не збігається");
+  } else {
+    console.log(`Public pages: ${pages.length} (sitemap parity ✅)`);
+  }
 }
 
 async function checkPage(entry, sitemapMap) {
@@ -93,6 +131,7 @@ async function checkPage(entry, sitemapMap) {
 
   const html = await result.response.text();
   const parsed = parseHtml(html, entry.loc);
+  for (const image of parsed.socialImages) ogImages.add(image);
   if (parsed.canonical !== entry.loc) {
     fail(`${entry.loc}: canonical «${parsed.canonical || "відсутній"}»`);
   }
@@ -122,13 +161,136 @@ async function checkPage(entry, sitemapMap) {
   }
 }
 
+async function checkProductionParity() {
+  console.log("=== LIVE-PROBE: PRODUCTION PARITY ===");
+
+  const assetPaths = new Set(["/favicon.ico", "/apple-touch-icon.png", ...ogImages]);
+  for (const path of assetPaths) {
+    const result = await get(path);
+    if (!result.response || result.response.status !== 200) {
+      fail(`${path}: production asset має повертати 200, отримано ${result.response?.status || "network"}`);
+    }
+  }
+
+  const manifestResult = await get("/site.webmanifest");
+  if (!manifestResult.response || manifestResult.response.status !== 200) {
+    fail(`/site.webmanifest: очікувався 200, отримано ${manifestResult.response?.status || "network"}`);
+  } else {
+    try {
+      const manifest = await manifestResult.response.json();
+      const required = {
+        id: "/",
+        start_url: "/",
+        scope: "/",
+        display: "browser",
+        lang: "uk",
+        name: "koztechie",
+        short_name: "koztechie",
+        description: "Текст без прикрас. Архівний вузол Євгенія Козловського.",
+        theme_color: "#fafafa",
+        background_color: "#fafafa",
+      };
+      for (const [key, expected] of Object.entries(required)) {
+        if (manifest[key] !== expected) fail(`/site.webmanifest: ${key} не збігається з каноном`);
+      }
+      const icon = Array.isArray(manifest.icons)
+        ? manifest.icons.find((item) => item?.src === "/favicon.svg")
+        : null;
+      if (!icon || icon.sizes !== "any" || icon.type !== "image/svg+xml") {
+        fail("/site.webmanifest: відсутня коректна SVG-іконка /favicon.svg");
+      }
+    } catch (error) {
+      fail(`/site.webmanifest: невалідний JSON (${error.message})`);
+    }
+  }
+
+  const securityResult = await get("/.well-known/security.txt");
+  if (!securityResult.response || securityResult.response.status !== 200) {
+    fail("/.well-known/security.txt: очікувався 200");
+  } else {
+    const security = await securityResult.response.text();
+    const expires = security.match(/^Expires:\s*(.+)$/mi)?.[1]?.trim();
+    if (!expires || !Number.isFinite(Date.parse(expires)) || Date.parse(expires) <= Date.now()) {
+      fail("/.well-known/security.txt: Expires має бути валідною майбутньою датою");
+    }
+  }
+
+  const pageResult = await get("/");
+  const faviconResult = await get("/favicon.svg");
+  const csp = pageResult.response ? header(pageResult.response, "content-security-policy") : "";
+  const favicon = faviconResult.response ? await faviconResult.response.text() : "";
+  const faviconStyle = favicon.match(/<style>([\s\S]*?)<\/style>/)?.[1];
+  const expectedHash = faviconStyle === undefined
+    ? ""
+    : `'sha256-${createHash("sha256").update(faviconStyle).digest("base64")}'`;
+  if (!expectedHash || !csp.includes(expectedHash)) {
+    fail(`CSP favicon hash не збігається з production /favicon.svg (очікується ${expectedHash || "inline style hash"})`);
+  }
+
+  const tempDir = mkdtempSync(join(repoRoot, ".tmp-live-og-"));
+  try {
+    const references = readdirSync(ogReferencesDir)
+      .filter((name) => /-v2\.png$/i.test(name))
+      .sort();
+    for (const name of references) {
+      const path = `/og/${name}`;
+      const result = await get(path);
+      if (!result.response || result.response.status !== 200) {
+        fail(`${path}: OG asset має повертати 200, отримано ${result.response?.status || "network"}`);
+        continue;
+      }
+      const actualPath = join(tempDir, name);
+      writeFileSync(actualPath, Buffer.from(await result.response.arrayBuffer()));
+      const referencePath = join(ogReferencesDir, name);
+      const comparison = spawnSync("compare", ["-metric", "AE", actualPath, referencePath, "null:"], {
+        encoding: "utf8",
+      });
+      const metric = Number.parseInt(`${comparison.stderr}${comparison.stdout}`.match(/\d+/)?.[0] || "0", 10);
+      if (comparison.error || comparison.status > 1) {
+        fail(`${path}: compare завершився з помилкою`);
+      } else if (metric !== 0) {
+        fail(`${path}: G-11 OG AE=${metric}, очікувалося 0`);
+      }
+    }
+    if (references.length) console.log(`OG parity: ${references.length} v2 assets, AE=0 required`);
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
 async function checkSpecialPaths() {
-  for (const path of ["/nichlyst/", "/nichlyst/privacy/"]) {
+  for (const path of [
+    "/nichlyst/",
+    "/nichlyst/privacy/",
+    "/en/nichlyst/",
+    "/en/nichlyst/privacy/",
+  ]) {
     const result = await get(path);
     if (result.response?.status !== 200) {
       fail(`${path}: очікувався 200, отримано ${result.response?.status || "network"}`);
-    } else if (!header(result.response, "cache-control").includes("max-age=604800")) {
-      fail(`${path}: Cache-Control не містить max-age=604800`);
+    } else {
+      const cacheControl = header(result.response, "cache-control");
+      if (!cacheControl.includes("max-age=0") || !cacheControl.includes("must-revalidate")) {
+        fail(`${path}: HTML Cache-Control має бути max-age=0,must-revalidate; отримано «${cacheControl}»`);
+      }
+    }
+  }
+
+  for (const path of [
+    "/nichlyst/first-knock.webp",
+    "/nichlyst/choice-recorded.webp",
+    "/nichlyst/logo.webp",
+    "/nichlyst/title-screen.webp",
+  ]) {
+    const result = await get(path);
+    if (result.response?.status !== 200) {
+      fail(`${path}: очікувався 200, отримано ${result.response?.status || "network"}`);
+    } else {
+      const cacheControl = header(result.response, "cache-control");
+      if (!cacheControl.includes("max-age=604800")
+        || !cacheControl.includes("stale-while-revalidate=86400")) {
+        fail(`${path}: asset Cache-Control має бути max-age=604800,swr=86400; отримано «${cacheControl}»`);
+      }
     }
   }
 
@@ -158,8 +320,10 @@ console.log("=== LIVE-PROBE ===");
 console.log(`Origin: ${origin}`);
 const entries = await checkSitemap();
 const sitemapMap = new Map(entries.map((entry) => [entry.loc, entry]));
+await checkPublicPageCount(entries);
 for (const entry of entries) await checkPage(entry, sitemapMap);
 await checkSpecialPaths();
+await checkProductionParity();
 
 function runProductionCheck(command, args, env) {
   const result = spawnSync(command, args, {

@@ -1,9 +1,12 @@
 [build]
-  command = "command -v magick || command -v convert || (echo 'ImageMagick required' && exit 1); npm ci --ignore-scripts && npm run build && npm run check && npm run validate && npm run size && npm run voice-lint && npm run linkcheck"
+  # Production deploys are owned by .github/workflows/deploy.yml.
+  # A Netlify Git build must never publish independently of the unified gate.
+  ignore = "exit 0"
+  command = "echo 'Git auto-deploy disabled: use GitHub Actions'"
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "22"
+  NODE_VERSION = "22.22.2"
 
 # Крок PLAN 158: koztechie.pp.ua → 301 на основний домен — у static/root/_redirects
 # (домен-рівневі редиректи; тут вміст не дублюється — єдине джерело — _redirects).

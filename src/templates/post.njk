@@ -1,6 +1,7 @@
 {#- Запис: індексний номер, заголовок, попередження, метадані, тіло. -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
+{%- set defaultPostImage = "/og/home-en-v2.png" if lang === "en" else "/og/home-v2.png" %}
 
 {% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
 
@@ -16,7 +17,7 @@
   "mainEntityOfPage": { "@type": "WebPage", "@id": {{ ("https://koztechie.fyi" + page.url) | json | safe }} },
   "headline": {{ title | json | safe }},
   "description": {{ summary | json | safe }},
-  "image": {{ ("https://koztechie.fyi" + (og_image if og_image else "/og/home-v2.png")) | json | safe }},
+  "image": {{ ("https://koztechie.fyi" + (og_image if og_image else defaultPostImage)) | json | safe }},
   "datePublished": {{ date | isoDate | json | safe }},
   "dateModified": {{ (updated if updated else date) | isoDate | json | safe }},
   "author": {

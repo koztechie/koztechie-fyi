@@ -28,8 +28,8 @@ or assistive technology.
 
 ## Feedback
 
-The mailbox is being configured; I cannot currently guarantee a response time
-for accessibility reports.
+The mailbox is working. The expected response time for accessibility reports
+is up to 7 days.
 
 Report a barrier with the page and reproducible steps:
 

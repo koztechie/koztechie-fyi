@@ -83,11 +83,14 @@ async function remotePaths() {
   const localStubs = walk(distDir)
     .filter((file) => {
       const html = readFileSync(file, "utf8");
-      return /<meta name="robots" content="noindex">/.test(html)
-        && /\(not translated\)|\(переклад не готовий\)/.test(html);
+      const relativePath = relative(distDir, file).replace(/\\/g, "/");
+      return !["404.html", "en/404.html"].includes(relativePath)
+        && /<meta name="robots" content="noindex">/.test(html);
     })
     .map((file) => `/${relative(distDir, file).replace(/\\/g, "/").replace(/index\.html$/, "")}`);
-  return [...new Set([...paths, "/404.html", ...localStubs])];
+  const result = [...new Set([...paths, "/404.html", "/en/404.html", ...localStubs])];
+  console.log(`Remote a11y paths: ${result.length} (${paths.length} public + ${localStubs.length} stubs + 2 404)`);
+  return result;
 }
 
 const failures = [];
@@ -98,7 +101,7 @@ const files = remote
   : walk(distDir).map((file) => ({
       file,
       path: `/${relative(distDir, file).replace(/\\/g, "/").replace(/index\.html$/, "")}`,
-    }));
+      }));
 
 try {
   for (const mode of modes) {

@@ -48,7 +48,7 @@ eleventyExcludeFromCollections: true
       <link>{{ siteRoot }}{{ u }}</link>
       <guid isPermaLink="true">{{ siteRoot }}{{ u }}</guid>
       <pubDate>{{ item.data.date | rfc822Date }}</pubDate>
-      <description><![CDATA[{{ item.templateContent | cdataSafe | safe }}]]></description>
+      <description><![CDATA[{{ item.templateContent | absolutize | cdataSafe | safe }}]]></description>
     </item>
     {%- endfor %}
   </channel>

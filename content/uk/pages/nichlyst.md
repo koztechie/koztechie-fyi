@@ -76,6 +76,6 @@ NICHLYST — це сюжетна гра для Android про роботу з п
   <div><dt>Повідомлення</dt><dd>Наративні push через OneSignal; можна вимкнути в налаштуваннях пристрою</dd></div>
   <div><dt>Звіти про збої</dt><dd>Sentry; анонімні технічні дані</dd></div>
   <div><dt>Сайт</dt><dd><a href="https://koztechie.fyi/nichlyst/">koztechie.fyi/nichlyst/</a></dd></div>
-  <div><dt>Контакт для преси</dt><dd><a href="mailto:hello@koztechie.fyi">hello@koztechie.fyi</a></dd></div>
+  <div><dt>Контакт для преси</dt><dd><a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">{{ (strings[lang] | default(strings.uk)).footer.email | safe }}</a></dd></div>
   <div><dt>Статус</dt><dd>У розробці; дата релізу не оголошена</dd></div>
 </dl>

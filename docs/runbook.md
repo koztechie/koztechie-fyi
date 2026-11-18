@@ -26,7 +26,8 @@ npm run live-probe
 
 `live-probe.mjs` перевіряє sitemap-сторінки, special paths і заголовки, після
 чого запускає `a11y-matrix.mjs` проти `https://koztechie.fyi`. Матриця бере
-URL із production sitemap і додає `/404.html` та локально згенеровані stubs,
+URL із production sitemap і додає `/404.html`, `/en/404.html` та всі локально
+згенеровані noindex stubs,
 щоб перевірити їхній production-відповідник. Playwright bypass CSP діє лише в
 тестовому контексті; сам production CSP перевіряється окремим header-гейтом.
 
@@ -142,14 +143,14 @@ references поточними знімками. Перед commit перегля
 
 ## 0б. Оновлення locked QA tools
 
-Щомісячний workflow `Dependency cadence` запускає `npm outdated` тільки в
-`scripts/tools`. Dependabot має дозвіл створювати npm PR лише для
-`/scripts/tools`, а окреме правило — лише для GitHub Actions. Root
-`package.json` не є ціллю оновлень: у ньому лишається одна exact-залежність
-`@11ty/eleventy`.
+Щомісячний Dependabot має три цілі: `/scripts/tools`, root `/` і GitHub
+Actions. Для кожної цілі відкривається не більше одного PR; root
+`package.json` зберігає exact-залежність `@11ty/eleventy` через
+`versioning-strategy: increase`. G-02 у QA запускає
+`npm run dependabot:validate` і відхиляє `day` у місячному розкладі.
 
-Оновлюй тільки інструменти в `scripts/tools/`; root `package.json` і root
-lockfile не змінюй. Перед bump зафіксуй причину й цільову версію в зміні.
+Перед bump зафіксуй причину й цільову версію в зміні. Оновлення QA tools
+проходять matrix/reflow-перевірки; root bump проходить повний build і check.
 Порядок не переставляй:
 
 ```bash
@@ -194,19 +195,22 @@ build повторюваним для одного commit і змінює build 
 
 ## 0г. Deploy path
 
-Перед production deploy збирай із **кореня репозиторію**, а публікуй `dist/`:
+Єдиний production deploy виконує `.github/workflows/deploy.yml` після
+успішних jobs `static` і `measured-quality`. Netlify Git auto-deploy вимкнений
+через `ignore = "exit 0"` у `netlify.toml`; не публікуй зміни через Netlify Git.
+
+Workflow запускається на `push` у `main` або вручну. Deploy-job отримує
+`dist/` як artifact і виконує:
 
 ```bash
-npm ci --ignore-scripts
-npm run build
-npm run check
-netlify deploy --prod --dir=dist
+npx netlify-cli deploy --prod --dir=dist
 ```
 
-Корінь потрібен для `netlify.toml`, `package.json`, lockfile та build command.
-`dist/` — результат збірки, а не source tree: у ньому немає `package.json`,
-тому запуск Netlify build із `dist` зламає `npm ci`. Не деплой `dist` як
-кореневий build directory; передавай його лише як publish/deploy directory.
+Автор зберігає в GitHub Actions Secrets:
+`NETLIFY_AUTH_TOKEN` і `NETLIFY_SITE_ID`.
+
+Не обходь `static` або `measured-quality`. Якщо будь-який gate падає,
+`deploy` має статус skipped і production не змінюється.
 
 ---
 
@@ -319,12 +323,14 @@ curl -sI -m 10 https://koztechie.netlify.app/ | head -3
 
 ## Відкат деплою (крок за кроком)
 
-1. Панель Netlify → проєкт `koztechie` → **Deploys** → список «Published deploys».
-2. Знайти останній **відомий добрий** (за датою та заголовком логу —
-   наприклад, з «N generated pages»).
-3. Відкрити його → **Publish deploy** → підтвердити.
-4. Перевірити (розділ «Після будь-якої дії»).
-5. **Заборонено** видаляти погані деплої до повної верифікації — вони
+1. Віднови відомий добрий deploy через CLI:
+   ```bash
+   netlify deploy:restore <deploy-id>
+   ```
+2. Або зроби `git revert` проблемного commit і дозволь workflow
+   виконати повний build та обидва QA-gates перед повторним deploy.
+3. Перевір production за розділом «Після будь-якої дії».
+4. **Заборонено** видаляти погані деплої до повної верифікації — вони
    потрібні як доказ для діагностики.
 
 ---

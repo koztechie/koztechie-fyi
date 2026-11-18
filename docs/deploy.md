@@ -52,7 +52,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "22"
+  NODE_VERSION = "22.22.2"
 ```
 
 - Збірка включає `npm run check` — якщо чек не зелений, **деплой не відбудеться**
@@ -73,7 +73,7 @@
    - Production branch: `main`
    - Build command: `npm ci --ignore-scripts && npm run build && npm run check`
    - Publish directory: `dist`
-   - `NODE_VERSION = "22"` (підхопиться з `netlify.toml`)
+   - `NODE_VERSION = "22.22.2"`; значення має збігатися з `.nvmrc`
 4. **Deploy site** → у лозі побачиш три кроки: `npm ci` → `build` → `check`.
    Останній рядок має бути `РЕЗУЛЬТАТ: все чисто`.
 5. Скопіювати **тимчасовий URL сайту**: `https://<ваш-унікальний-сабдомен>.netlify.app`

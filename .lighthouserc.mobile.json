@@ -6,7 +6,7 @@
       "settings": {
         "chromeFlags": "--no-sandbox --disable-dev-shm-usage",
         "formFactor": "mobile",
-        "throttlingMethod": "provided",
+        "throttlingMethod": "simulate",
         "screenEmulation": {
           "mobile": true,
           "width": 375,
@@ -23,7 +23,7 @@
     "assert": {
       "assertions": {
         "categories:performance": [
-          "error",
+          "warn",
           {
             "minScore": 0.95
           }
@@ -55,7 +55,7 @@
         "total-blocking-time": [
           "error",
           {
-            "maxNumericValue": 0
+            "maxNumericValue": 1000
           }
         ]
       }

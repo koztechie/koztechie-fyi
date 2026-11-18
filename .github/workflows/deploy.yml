@@ -1,0 +1,179 @@
+name: Production deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  static:
+    name: Static QA gate
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Verify Node pin (G-09)
+        run: npm run check:node-pin
+
+      - name: Install pinned ImageMagick
+        run: |
+          sudo apt-get update
+          IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          case "$IM_VERSION" in
+            8:6.9.*) ;;
+            *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
+          esac
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}" librsvg2-bin
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Set commit-pinned build epoch
+        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> "$GITHUB_ENV"
+
+      - name: Verify build determinism
+        run: npm run check:determinism
+
+      - name: Build site
+        run: npm run build
+
+      - name: Run unified static QA gate
+        env:
+          LINKCHECK_STRICT: "1"
+        run: npm run qa:all
+
+      - name: Upload static artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: deploy-dist-${{ github.sha }}
+          path: dist/
+          retention-days: 1
+
+  measured-quality:
+    name: Measured quality gate
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install ImageMagick for build
+        run: |
+          sudo apt-get update
+          IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          case "$IM_VERSION" in
+            8:6.9.*) ;;
+            *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
+          esac
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}" librsvg2-bin
+
+      - name: Install locked dependencies and build
+        run: |
+          npm ci --ignore-scripts
+          npm run build
+
+      - name: Install locked QA tools
+        run: npm ci --ignore-scripts
+        working-directory: scripts/tools
+
+      - name: Validate mobile Lighthouse gate (G-10)
+        run: npm run check:lighthouse-mobile
+
+      - name: Lighthouse CI — desktop
+        run: npx @lhci/cli autorun --config=../../.lighthouserc.json --collect.staticDistDir=../../dist --upload.outputDir=../../qa-artifacts/lhci
+        working-directory: scripts/tools
+
+      - name: Lighthouse CI — mobile emulation
+        run: npx @lhci/cli autorun --config=../../.lighthouserc.mobile.json --collect.staticDistDir=../../dist --upload.outputDir=../../qa-artifacts/lhci-mobile
+        working-directory: scripts/tools
+
+      - name: Start local static server
+        run: |
+          mkdir -p qa-artifacts
+          nohup python3 -m http.server 4173 --directory dist > qa-artifacts/static-server.log 2>&1 &
+          for attempt in $(seq 1 15); do
+            curl --fail --silent http://127.0.0.1:4173/ >/dev/null && break
+            sleep 1
+          done
+
+      - name: Install Chromium for browser gates
+        run: npx playwright install --with-deps chromium
+        working-directory: scripts/tools
+
+      - name: A11y matrix
+        run: A11Y_MATRIX_USE_EXISTING_SERVER=1 node ../a11y-matrix.mjs
+        working-directory: scripts/tools
+
+      - name: Reflow matrix
+        run: node ../reflow-check.mjs
+        working-directory: scripts/tools
+
+      - name: Pa11y CI with axe and HTML validation
+        run: |
+          node -e '
+          const {readdirSync,statSync,readFileSync,writeFileSync}=require("fs"),{join}=require("path");
+          const walk=d=>readdirSync(d).flatMap(n=>{const p=join(d,n);return statSync(p).isDirectory()?walk(p):p.endsWith(".html")?[p]:[]});
+          const urls=walk("dist").map(p=>"http://127.0.0.1:4173/"+p.slice(5).replace(/index\.html$/,""));
+          const defaults=JSON.parse(readFileSync(".pa11yci.json","utf8")).defaults;
+          writeFileSync("pa11y-urls.json",JSON.stringify({defaults,urls},null,2));'
+          PA11Y_URLS_FILE=pa11y-urls.json npm run check
+          PUPPETEER_EXECUTABLE_PATH="$(node -e 'process.stdout.write(require("./scripts/tools/node_modules/playwright").chromium.executablePath())')" \
+            npx --prefix scripts/tools pa11y-ci --config .pa11yci.json --config pa11y-urls.json
+          npx html-validate --config ../../.htmlvalidate.json "../../dist/**/*.html"
+        working-directory: scripts/tools
+
+      - name: Upload measured artifacts
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: measured-quality-${{ github.sha }}
+          path: |
+            qa-artifacts/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 1
+
+  deploy:
+    name: Deploy production
+    needs: [static, measured-quality]
+    if: ${{ needs.static.result == 'success' && needs.measured-quality.result == 'success' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Download static build
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v7.3.0
+        with:
+          name: deploy-dist-${{ github.sha }}
+          path: dist
+
+      - name: Deploy only after all QA gates
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: npx --yes netlify-cli deploy --prod --dir=dist --auth="$NETLIFY_AUTH_TOKEN" --site="$NETLIFY_SITE_ID"

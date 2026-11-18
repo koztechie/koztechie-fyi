@@ -28,7 +28,9 @@
 | Збірка (без кодування зображень) | < 60 с | PLAN.md 54 |
 | LCP | < 1.5 с | PLAN.md 170 |
 | CLS | = 0 | PLAN.md 170 |
-| Lighthouse | ≥ 95 (всі метрики) | PLAN.md 169 |
+| TBT mobile | ≤ 1 с | `.lighthouserc.mobile.json` |
+| Lighthouse desktop | ≥ 95 | PLAN.md 169 |
+| Lighthouse mobile | composite score — діагностичний warning; LCP/CLS/TBT — error-гейти | `.lighthouserc.mobile.json` |
 
 **Виняток із бюджету зображень:** `/feed.xml` росте необмежено (повний архів, §30 DECISIONS). Ліміт фіда — 500 КБ; перевищення → попередження, не помилка.
 

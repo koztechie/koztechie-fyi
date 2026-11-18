@@ -29,6 +29,23 @@ function stripJsonLd(html) {
 console.log("--- 1. Бюджети (після brotli) ---");
 if (existsSync(distDir)) {
   const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
+  console.log("--- CHECK-EMAIL-PLAIN ---");
+  let plainEmailErrors = 0;
+  for (const file of htmlFiles) {
+    const lines = readFileSync(file, "utf-8").split(/\r?\n/);
+    lines.forEach((line, index) => {
+      if (/hello@koztechie\.fyi/.test(line)) {
+        const rel = file.replace(distDir + "/", "");
+        console.log(`  ❌ ${rel}:${index + 1}: plain email address`);
+        plainEmailErrors++;
+        totalErrors++;
+      }
+    });
+  }
+  if (plainEmailErrors === 0) {
+    console.log("  ✅ CHECK-EMAIL-PLAIN: plain=0 у всіх dist/**/*.html");
+  }
+
   let overBudget = 0;
   for (const file of htmlFiles) {
     const content = readFileSync(file);
@@ -43,6 +60,93 @@ if (existsSync(distDir)) {
   }
   if (overBudget === 0) {
     console.log(`  ✅ ${htmlFiles.length} HTML-файлів у межах бюджету 50 КБ`);
+  }
+
+  // G-06. Повний webmanifest без PWA-претензій (F-15).
+  console.log("--- G-06 WEBMANIFEST ---");
+  const manifestFile = join(distDir, "site.webmanifest");
+  let manifestErrors = 0;
+  const manifestRequired = {
+    id: "/",
+    start_url: "/",
+    scope: "/",
+    display: "browser",
+    lang: "uk",
+    name: "koztechie",
+    short_name: "koztechie",
+    description: "Текст без прикрас. Архівний вузол Євгенія Козловського.",
+    theme_color: "#fafafa",
+    background_color: "#fafafa",
+  };
+  if (!existsSync(manifestFile)) {
+    console.log("  ❌ site.webmanifest відсутній");
+    manifestErrors++;
+    totalErrors++;
+  } else {
+    try {
+      const manifest = JSON.parse(readFileSync(manifestFile, "utf-8"));
+      for (const [key, expected] of Object.entries(manifestRequired)) {
+        if (manifest[key] !== expected) {
+          console.log(`  ❌ site.webmanifest: ${key} має «${manifest[key] ?? "відсутнє"}», очікується «${expected}»`);
+          manifestErrors++;
+          totalErrors++;
+        }
+      }
+      const icon = Array.isArray(manifest.icons)
+        ? manifest.icons.find((item) => item?.src === "/favicon.svg")
+        : null;
+      if (!icon || icon.sizes !== "any" || icon.type !== "image/svg+xml") {
+        console.log("  ❌ site.webmanifest: відсутня коректна SVG-іконка /favicon.svg");
+        manifestErrors++;
+        totalErrors++;
+      }
+    } catch (error) {
+      console.log(`  ❌ site.webmanifest: невалідний JSON (${error.message})`);
+      manifestErrors++;
+      totalErrors++;
+    }
+  }
+  if (manifestErrors === 0) console.log("  ✅ G-06: webmanifest містить повний обов'язковий набір полів");
+
+  // G-07. Гігієна шаблонів: невикористані блоки та довжина browser title (F-17/F-18/F-20).
+  console.log("--- G-07 TEMPLATE HYGIENE ---");
+  let templateErrors = 0;
+  const templateError = (message) => {
+    console.log(`  ❌ ${message}`);
+    templateErrors++;
+    totalErrors++;
+  };
+  const homeTemplate = resolve("src/templates/home.njk");
+  if (existsSync(homeTemplate) && /\{%-?\s*block\s+og_description\b/.test(readFileSync(homeTemplate, "utf-8"))) {
+    templateError("home.njk: невикористаний block og_description");
+  }
+  const stringsDir = resolve("src/_data/strings");
+  for (const lang of ["uk", "en"]) {
+    const stringsFile = join(stringsDir, `${lang}.json`);
+    if (!existsSync(stringsFile)) {
+      templateError(`strings.${lang}.json відсутній`);
+      continue;
+    }
+    try {
+      const data = JSON.parse(readFileSync(stringsFile, "utf-8"));
+      const browserTitle = data.home?.browser_title;
+      if (typeof browserTitle !== "string" || !browserTitle.trim()) {
+        templateError(`strings.${lang}.home.browser_title порожній`);
+      } else if (browserTitle.length > 60) {
+        templateError(`strings.${lang}.home.browser_title має ${browserTitle.length} символів (ліміт 60)`);
+      }
+    } catch (error) {
+      templateError(`strings.${lang}.json: невалідний JSON (${error.message})`);
+    }
+  }
+  const postTemplate = resolve("src/templates/post.njk");
+  if (!existsSync(postTemplate)
+      || !/defaultPostImage\s*=\s*"\/og\/home-en-v2\.png"\s+if\s+lang\s*===\s*"en"/.test(readFileSync(postTemplate, "utf-8"))
+      || !/\(og_image\s+if\s+og_image\s+else\s+defaultPostImage\)/.test(readFileSync(postTemplate, "utf-8"))) {
+    templateError("post.njk: BlogPosting.image не має мовно-залежного дефолту");
+  }
+  if (templateErrors === 0) {
+    console.log("  ✅ G-07: невикористані блоки відсутні, browser_title ≤60, OG fallback мовний");
   }
 
   // 1b. Бюджет CSS (сумарно, brotli) — DECISIONS.md §39.4, TECH_STANDARDS §1
@@ -1285,11 +1389,15 @@ console.log("--- 7і. RSS фіди ---");
     }
     const feedTemplate = readFileSync(resolve("src/feed.njk"), "utf-8");
     const configSource = readFileSync(resolve("eleventy.config.js"), "utf-8");
-    if (!/\{\{\s*item\.templateContent\s*\|\s*cdataSafe\s*\|\s*safe\s*\}\}/.test(feedTemplate)) {
-      feedErrors("feed.njk: cdataSafe не застосований до item.templateContent");
+    if (!/\{\{\s*item\.templateContent\s*\|\s*absolutize\s*\|\s*cdataSafe\s*\|\s*safe\s*\}\}/.test(feedTemplate)) {
+      feedErrors("feed.njk: absolutize → cdataSafe не застосовані до item.templateContent");
     }
     if (!configSource.includes('addFilter("cdataSafe"') || !configSource.includes('replace(/\\]\\]>/g')) {
       feedErrors("eleventy.config.js: фільтр cdataSafe відсутній або не санітизує ]]>");
+    }
+    if (!configSource.includes('addFilter("absolutize"')
+      || !configSource.includes('replace(/(href|src)="\\/(?!\\/)')) {
+      feedErrors("eleventy.config.js: фільтр absolutize відсутній або має неправильний патерн");
     }
 
     for (const feed of feeds) {
@@ -1310,6 +1418,12 @@ console.log("--- 7і. RSS фіди ---");
       const closeItems = (xml.match(/<\/item>/g) || []).length;
       if (openItems !== closeItems) feedErrors(`${label}: незбалансовані <item> (${openItems} ≠ ${closeItems})`);
       if ((xml.match(/<!\[CDATA\[/g) || []).length !== (xml.match(/\]\]>/g) || []).length) feedErrors(`${label} незакритий CDATA`);
+      const cdataBlocks = [...xml.matchAll(/<!\[CDATA\[([\s\S]*?)\]\]>/g)].map((match) => match[1]);
+      for (const [index, block] of cdataBlocks.entries()) {
+        if (/(?:href|src)="\/(?!\/)/.test(block)) {
+          feedErrors(`${label}: G-05 CDATA ${index + 1} містить відносний href/src`);
+        }
+      }
 
       // Канал: обов'язкові за §17.3
       const channel = xml.match(/<channel>([\s\S]*?)<\/channel>/)?.[1] || "";
@@ -1662,23 +1776,60 @@ console.log("--- 7т. hreflang у sitemap ---");
       return links;
     };
 
+    const publicPagesFile = join(distDir, "pages.json");
+    let publicPages = [];
+    if (!existsSync(publicPagesFile)) {
+      fail("dist/pages.json відсутній");
+    } else {
+      try {
+        publicPages = JSON.parse(readFileSync(publicPagesFile, "utf-8"));
+        if (!Array.isArray(publicPages) || publicPages.some((item) => !item || typeof item.url !== "string")) {
+          fail("dist/pages.json має містити масив об'єктів з url");
+          publicPages = [];
+        }
+      } catch {
+        fail("dist/pages.json містить невалідний JSON");
+      }
+    }
+    const publicUrls = new Set(publicPages.map((item) => origin + item.url));
+    if (entries.size !== publicPages.length) {
+      fail(`sitemap/publicPages: ${entries.size} URL у sitemap ↔ ${publicPages.length} publicPages`);
+    } else if ([...entries.keys()].some((url) => !publicUrls.has(url))) {
+      fail("sitemap/publicPages: URL-склад не збігається");
+    }
+
     for (const [loc, links] of entries) {
       const url = new URL(loc);
       const raw = url.pathname;
       const isEn = raw.indexOf("/en/") === 0;
       const ukPath = isEn ? raw.slice(3) : raw;
       const enPath = "/en" + ukPath;
-      const expected = { uk: origin + ukPath, en: origin + enPath };
-
-      for (const lang of ["uk", "en"]) {
-        if (links[lang] !== expected[lang]) {
-          fail(`${raw}: sitemap hreflang=${lang} має «${links[lang] || "відсутній"}», очікується «${expected[lang]}»`);
+      const expected = {};
+      const alternateFiles = {
+        uk: ukPath === "/"
+          ? join(distDir, "index.html")
+          : join(distDir, ukPath.slice(1), "index.html"),
+        en: enPath === "/en/"
+          ? join(distDir, "en", "index.html")
+          : join(distDir, enPath.slice(1), "index.html"),
+      };
+      for (const [lang, file] of Object.entries(alternateFiles)) {
+        if (!existsSync(file)) continue;
+        const html = readFileSync(file, "utf-8");
+        if (!/<meta\s+name="robots"\s+content="noindex"/i.test(html)) {
+          expected[lang] = origin + (lang === "uk" ? ukPath : enPath);
         }
       }
 
-      const counterpart = entries.get(expected.en);
-      if (!counterpart) fail(`${raw}: відсутній взаємний sitemap entry ${expected.en}`);
-      else if (counterpart.uk !== expected.uk || counterpart.en !== expected.en) {
+      for (const lang of ["uk", "en"]) {
+        if (links[lang] !== expected[lang]) {
+          fail(`${raw}: sitemap hreflang=${lang} має «${links[lang] || "відсутній"}», очікується «${expected[lang] || "відсутній"}»`);
+        }
+      }
+
+      const counterpart = expected.en ? entries.get(expected.en) : null;
+      if (expected.en && !counterpart) fail(`${raw}: відсутній взаємний sitemap entry ${expected.en}`);
+      else if (counterpart && (counterpart.uk !== expected.uk || counterpart.en !== expected.en)) {
         fail(`${raw}: взаємний sitemap entry не містить тієї самої uk/en пари`);
       }
 
@@ -1696,13 +1847,13 @@ console.log("--- 7т. hreflang у sitemap ---");
       const rendered = htmlLinks(html);
       for (const lang of ["uk", "en"]) {
         if (rendered[lang] !== expected[lang]) {
-          fail(`${raw}: HTML hreflang=${lang} не збігається із sitemap`);
+          fail(`${raw}: HTML hreflang=${lang} має «${rendered[lang] || "відсутній"}», очікується «${expected[lang] || "відсутній"}»`);
         }
       }
     }
 
     if (sitemapErrors === 0) {
-      console.log(`  ✅ ${entries.size} sitemap entries: взаємні uk/en пари збігаються з HTML hreflang`);
+      console.log(`  ✅ ${entries.size} sitemap entries: publicPages і доступні hreflang-пари збігаються з HTML`);
     }
   }
 }

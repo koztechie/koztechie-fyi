@@ -155,6 +155,10 @@ export default function (eleventyConfig) {
   // Безпечне розділення CDATA, якщо текст містить послідовність ]]>
   // (XML не дозволяє їй з'являтися всередині одного CDATA-блоку).
   eleventyConfig.addFilter("cdataSafe", (s) => String(s).replace(/\]\]>/g, "]]]]><![CDATA[>"));
+  // Абсолютні посилання в RSS CDATA (G-05, F-16).
+  eleventyConfig.addFilter("absolutize", (s) =>
+    String(s).replace(/(href|src)="\/(?!\/)/g, '$1="https://koztechie.fyi/')
+  );
 
   // ISO 8601 для sitemap <lastmod> (DECISIONS.md §17.4, §20).
   // Приймає Date або ISO-рядок (updated з YAML часто лишається рядком).

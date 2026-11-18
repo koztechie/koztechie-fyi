@@ -76,6 +76,6 @@ Use the original 512 × 512 px square file without cropping, stretching, recolor
   <div><dt>Notifications</dt><dd>Narrative push via OneSignal; can be disabled in device settings</dd></div>
   <div><dt>Crash reports</dt><dd>Sentry; anonymous technical data</dd></div>
   <div><dt>Website</dt><dd><a href="https://koztechie.fyi/nichlyst/">koztechie.fyi/nichlyst/</a></dd></div>
-  <div><dt>Press contact</dt><dd><a href="mailto:hello@koztechie.fyi">hello@koztechie.fyi</a></dd></div>
+  <div><dt>Press contact</dt><dd><a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">{{ (strings[lang] | default(strings.uk)).footer.email | safe }}</a></dd></div>
   <div><dt>Status</dt><dd>In development; no release date announced</dd></div>
 </dl>

@@ -19,9 +19,6 @@
 <meta name="description" content="{{ summary | default(strings.site.bio_short) }}">
 {% endblock %}
 
-{#- OG-опис (крок 148) — консистентний з meta description. -#}
-{% block og_description %}{{ summary | default(strings.site.bio_short) }}{% endblock %}
-
 {#- JSON-LD (крок 151, TECH_STANDARDS §9): Person + WebSite.
       Person.name — одне; решта форм в alternateName; sameAs — лише GitHub.
       Дані: _data/schema.json (DT: F-01 імʼя, F-02 псевдонім koztechie).

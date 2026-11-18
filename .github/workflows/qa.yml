@@ -27,11 +27,17 @@ jobs:
       - name: Prepare failure artifacts
         run: mkdir -p qa-artifacts/logs
 
+      - name: Validate Dependabot configuration (G-02)
+        run: npm run dependabot:validate
+
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
+
+      - name: Verify Node pin (G-09)
+        run: npm run check:node-pin
 
       - name: Install pinned ImageMagick
         run: |
@@ -184,6 +190,9 @@ jobs:
       - name: Install locked QA tools
         run: npm ci --ignore-scripts
         working-directory: scripts/tools
+
+      - name: Validate mobile Lighthouse gate (G-10)
+        run: npm run check:lighthouse-mobile
 
       - name: Lighthouse CI
         run: npx @lhci/cli autorun --config=../../.lighthouserc.json --collect.staticDistDir=../../dist --upload.outputDir=../../qa-artifacts/lhci
