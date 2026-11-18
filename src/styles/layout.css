@@ -66,7 +66,7 @@ main {
   min-height: var(--tap);
   gap: var(--s2);
   color: var(--ink);
-  border-bottom: 2px solid var(--accent);
+  border-bottom: 0;
   font: 800 1.25rem / 1 var(--font-ui);
   letter-spacing: -0.04em;
   text-decoration: none;
@@ -88,7 +88,6 @@ main {
   color: var(--ink);
   background: transparent;
   text-decoration: none;
-  border-bottom-color: var(--ink);
 }
 
 .site-header .site-logo:focus-visible,
@@ -136,17 +135,14 @@ main {
 .site-nav a[aria-current="page"] {
   color: var(--link);
   background: transparent;
-  border-bottom: 0;
   font-weight: 800;
   text-decoration: none;
-  border-bottom: 2px solid var(--accent);
 }
 
 .site-nav a[aria-current="page"]:hover {
   color: var(--ink);
   background: transparent;
   text-decoration: none;
-  border-bottom-color: var(--ink);
 }
 
 .site-header .lang-switch {
@@ -160,7 +156,6 @@ main {
 .site-header .lang-switch .current {
   color: var(--ink);
   font-weight: 800;
-  border-bottom: 2px solid var(--accent);
 }
 
 .site-header .lang-switch a {
