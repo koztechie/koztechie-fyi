@@ -11,7 +11,7 @@ season: "листопад 2026 року"
 working_on:
   - label: "koztechie.fyi"
     url: "/"
-    detail: "— завершив accessibility statement, ручний протокол перевірок і CI-гейти для reflow та Lighthouse."
+    detail: "— завершив accessibility statement, ручний протокол перевірок, CI-гейти для reflow і Lighthouse та квартальний chaos drill для семи типів дефектів."
   - label: "NICHLYST"
     url: "/nichlyst/"
     detail: "— доповнюю сторінку гри й прескіт."

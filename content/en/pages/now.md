@@ -11,7 +11,7 @@ season: "November 2026"
 working_on:
   - label: "koztechie.fyi"
     url: "/en/"
-    detail: "— completed the accessibility statement, manual-test protocol, and CI gates for reflow and Lighthouse."
+    detail: "— completed the accessibility statement, manual-test protocol, CI gates for reflow and Lighthouse, and a quarterly chaos drill covering seven defect types."
   - label: "NICHLYST"
     url: "/en/nichlyst/"
     detail: "— updating the game page and press kit."
