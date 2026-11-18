@@ -137,6 +137,14 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
 
+      - name: Install locked QA tools
+        run: npm ci --ignore-scripts
+        working-directory: scripts/tools
+
+      - name: Install Chromium for production a11y probe
+        run: npx playwright install --with-deps chromium
+        working-directory: scripts/tools
+
       - name: Build site for external link check
         run: npm run build
 
