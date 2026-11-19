@@ -18,14 +18,14 @@
 | Бите зовнішнє посилання | Додано `https://invalid.example.invalid/t5-2-drill` у fixture `dist` | `EXTERNAL-LINKCHECK-STRICT` | `LINKCHECK_STRICT=1 npm run linkcheck:external` відхилив network failure як `HARD` |
 | `·` у словнику | Додано `·` до рядка `uk.json` | `CHECK-2Д-SR-SEPARATORS` | `npm run check` відхилив символ поза `aria-hidden` |
 
-## Реєстр «дефект → гейт → дрил»
+## 5. Реєстр «дефект → гейт → дрил» (ядро антикрихкості)
 
 Це ядро антикрихкості: кожен постійний gate має відповідну ін’єкцію
 або явно зафіксований виняток. D-ін’єкцію виконують лише на throwaway-гілці;
 після перевірки гілку та fixture видаляють. Рядок у реєстрі не є доказом
 виконаного прогону без окремого запису результату.
 
-| Знахідка | Постійний гейт | Chaos-ін’єкція | Cadence |
+| Знахідка | Постійний гейт | Chaos-ін'єкція | Cadence |
 |---|---|---|---|
 | F-01 email | G-01 MX/SPF/DMARC/Contact probe | D-01 видалити MX у fixture | щотижня + квартал |
 | F-02 dependabot | G-02 schema-validate конфігу в CI | D-02 `day:"1"` | кожен push |
