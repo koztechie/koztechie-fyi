@@ -18,8 +18,34 @@
 | Бите зовнішнє посилання | Додано `https://invalid.example.invalid/t5-2-drill` у fixture `dist` | `EXTERNAL-LINKCHECK-STRICT` | `LINKCHECK_STRICT=1 npm run linkcheck:external` відхилив network failure як `HARD` |
 | `·` у словнику | Додано `·` до рядка `uk.json` | `CHECK-2Д-SR-SEPARATORS` | `npm run check` відхилив символ поза `aria-hidden` |
 
+## Реєстр «дефект → гейт → дрил»
+
+Це ядро антикрихкості: кожен постійний gate має відповідну ін’єкцію
+або явно зафіксований виняток. D-ін’єкцію виконують лише на throwaway-гілці;
+після перевірки гілку та fixture видаляють. Рядок у реєстрі не є доказом
+виконаного прогону без окремого запису результату.
+
+| Знахідка | Постійний гейт | Chaos-ін’єкція | Cadence |
+|---|---|---|---|
+| F-01 email | G-01 MX/SPF/DMARC/Contact probe | D-01 видалити MX у fixture | щотижня + квартал |
+| F-02 dependabot | G-02 schema-validate конфігу в CI | D-02 `day:"1"` | кожен push |
+| F-03 sitemap | G-03 count==publicPages + парність | D-03 видалити вірш із sitemap | кожен push + live |
+| F-04 deploy | G-08 deploy `needs` повна QA | D-08 a11y-дефект → немає деплою | кожен push |
+| F-05 заява | G-14 свіжість дати + живий feedback | D-10 AT-повтор | квартал |
+| F-06 cache | G-04 HTML must-revalidate / assets long | D-09 long-cache на HTML | live щотижня |
+| F-07 email-plain | CHECK-EMAIL-PLAIN | D-05 plain hello@ | кожен push |
+| F-11 OG | G-11 AE=0 на продакшні | D-09 підміна пікселя | щотижня |
+| F-16 feed | G-05 абсолютні URL | D-06 відносний href | кожен push |
+| F-15 manifest | G-06 обов'язкові поля | D-07 видалити start_url | кожен push |
+| F-08 recovery | G-13 SOA↔документ | D-13 дрил відновлення | квартал |
+| F-13 deps | G-12 npm audit=0 | —* | місяць |
+
+`G-12` має виняток: advisory fixture не додається до dependency tree
+штучно. Його gate перевіряється реальним audit, а оновлення залежностей —
+окремим cadence-процесом.
+
 ## Правило ескалації
 
 Жоден дефект не уникнув відповідного gate. Якби gate завершився кодом `0`,
 того самого дня потрібно було б додати відсутню перевірку, повторити цей
-дефектний fixture і внести новий зв’язок у таблицю.
+дефектний fixture на throwaway-гілці й внести новий зв’язок у таблицю.
