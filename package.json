@@ -19,6 +19,7 @@
     "qa:all": "node scripts/qa-all.mjs",
     "plan-lint": "node scripts/plan-lint.mjs docs/PLAN.md",
     "live-probe": "node scripts/live-probe.mjs",
+    "live-probe:light": "node scripts/live-probe-light.mjs",
     "dependabot:validate": "node scripts/validate-dependabot.mjs",
     "email-dns-gate": "node scripts/email-dns-gate.mjs",
     "size": "node scripts/size-budget.mjs",
