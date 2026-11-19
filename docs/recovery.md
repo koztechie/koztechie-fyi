@@ -4,7 +4,7 @@
 
 ## 1. Вхід
 
-- Менеджер паролів: доступи GitHub, Netlify, Spaceship (2FA-коди окремо).
+- Менеджер паролів: доступи GitHub і Netlify (2FA-коди окремо).
 - Бекапи поза git (PLAN 9): `red-lines.md`, `DEATH.md` — шифрований архів.
 - `git`, Node **22**, npm. Єдина залежність — Eleventy.
 
@@ -22,18 +22,37 @@ npm ci --ignore-scripts && npm run build && npm run check && npm run validate
    repository* → `koztechie/koztechie-fyi`, `main` — тоді push = автозбірка).
 2. **Домени:** `koztechie.fyi` — primary; `koztechie.pp.ua` — alias 301
    (`static/root/_redirects`; видалити після індексації `.fyi`).
-3. **DNS (Spaceship), зона `koztechie.fyi`:** `@` ALIAS →
-   `apex-loadbalancer.netlify.com`; `www` CNAME → `koztechie.netlify.app`;
-   **NS не чіпати** — `launch1/launch2.spaceship.net`.
-4. **HTTPS:** Let's Encrypt ~10 хв (до 24 год) + Force HTTPS.
+3. **DNS-провайдер:** Netlify DNS (NS1), зона `koztechie.fyi`. Перед будь-якою
+   зміною **експортувати всю зону** з Netlify DNS і зберегти архів поза git із
+   датою; якщо експорту немає — зберегти повний список записів.
+4. Перевірити авторитетні NS:
+
+   ```bash
+   dig NS koztechie.fyi +noall +answer
+   # очікувано: dns1.p07.nsone.net., dns2.p07.nsone.net.,
+   #            dns3.p07.nsone.net., dns4.p07.nsone.net.
+   ```
+
+5. Не переносити DNS до Spaceship і не підміняти записи шаблонними IP.
+   Тип `www` перевірити фактично; поточний тип — **A**.
+6. **HTTPS:** Let's Encrypt ~10 хв (до 24 год) + Force HTTPS.
 
 ## 4. Верифікація
 
 ```bash
-dig +short A koztechie.fyi        # → 75.2.60.5 / 99.83.231.61
+dig NS koztechie.fyi +noall +answer
+dig SOA koztechie.fyi +noall +answer
+dig A koztechie.fyi +noall +answer          # IP не хардкодити: зафіксувати відповідь під час відновлення
+dig A www.koztechie.fyi +noall +answer      # www зараз має тип A; перевіряти заново
 curl -sI https://koztechie.fyi/ | head -1   # → HTTP/2 200
 curl -s https://koztechie.fyi/ | grep -o '<h1[^>]*>[^<]*</h1>'
 ```
+
+**G-13 — щоквартальний дрил відновлення:** перед перевіркою DNS експортувати
+зону, виконати `dig NS` і `dig SOA`, а потім звірити провайдера: NS мають
+належати Netlify DNS/NS1 (`*.nsone.net`), а MNAME у SOA — також NS1
+(`dns1.p01.nsone.net.`). Розбіжність означає зупинку дрилу та перевірку
+делегування; не змінювати записи навмання.
 
 Повний чек-лист — `deploy.md §6`; браузер — `environment.md §4`.
 
