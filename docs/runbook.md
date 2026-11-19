@@ -15,7 +15,7 @@
 браузер, ОС, сторінки та результат у релізному записі. Не позначай пункт
 зеленим за припущенням.
 
-## −0. Weekly production probe
+## −0. Production probes
 
 GitHub Actions запускає existing cron щопонеділка без production deploy:
 
@@ -41,6 +41,11 @@ LINKCHECK_ORIGIN=https://koztechie.fyi node scripts/external-linkcheck.mjs --str
 із sitemap, `/404.html` і stubs, тому CDN-відповідь та зовнішні посилання
 перевіряються без використання локального `dist` як джерела сторінок. Probe
 не виконує `netlify deploy`, не змінює baseline і не оновлює контент.
+
+Повний понеділковий probe додатково виконує незалежну W3C Nu-перевірку п’яти
+production-сторінок через `validator.w3.org/nu/?doc=<url>&out=json`; gate
+відхиляє будь-яке повідомлення з `type: "error"`. Це доповнює, а не замінює
+локальний `html-validate`.
 
 ### Клавіатура
 
@@ -102,6 +107,18 @@ prefers-reduced-motion:
 публікуй production. Цей гейт доповнює автоматичні `npm run check`, `npm run
 size` і зовнішню перевірку посилань; автоматичні перевірки не замінюють
 NVDA/VoiceOver.
+
+### P5 — статус закриття БРАМИ 10
+
+Не називай БРАМУ 10 закритою, доки не виконано всі три ручні докази:
+
+1. AT-матриця 9/9 на цільових пристроях;
+2. D-01…D-10 на throwaway-гілці з ненульовим результатом відповідного gate;
+3. відновлення з нуля за `docs/recovery.md` з фактичним Netlify DNS і manual
+   deploy.
+
+Автоматичні build, QA, determinism і live-probe фіксуй окремо. Їхній зелений
+результат не перетворює ручні `BLOCKED` на `PASS`.
 
 ---
 
