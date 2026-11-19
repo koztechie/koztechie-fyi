@@ -29,9 +29,24 @@ for (const path of checks) {
       continue;
     }
     if (path !== "/.well-known/security.txt") {
+      const csp = response.headers.get("content-security-policy") || "";
+      if (
+        !csp.includes("default-src 'self'") ||
+        !csp.includes("style-src 'self'") ||
+        !csp.includes("script-src 'none'") ||
+        !csp.includes("frame-ancestors 'none'")
+      ) {
+        fail(`${path}: CSP відсутня або не містить обов'язкових директив`);
+      }
       const hsts = response.headers.get("strict-transport-security") || "";
       if (!hsts.includes("max-age=31536000") || !hsts.includes("includeSubDomains")) {
         fail(`${path}: HSTS неповний`);
+      }
+      if (response.headers.get("x-content-type-options")?.toLowerCase() !== "nosniff") {
+        fail(`${path}: X-Content-Type-Options відсутній або не nosniff`);
+      }
+      if (response.headers.get("x-frame-options")?.toUpperCase() !== "DENY") {
+        fail(`${path}: X-Frame-Options відсутній або не DENY`);
       }
     } else {
       const body = await response.text();
@@ -43,6 +58,22 @@ for (const path of checks) {
   } catch (error) {
     fail(`${path}: ${error.message}`);
   }
+}
+
+try {
+  const response = await fetch(`${origin}/index.html`, {
+    redirect: "manual",
+    headers: { "user-agent": "koztechie.fyi light-live-probe/1.0" },
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  const location = response.headers.get("location") || "";
+  if (response.status !== 301 || !location.endsWith("/")) {
+    fail(`/index.html: очікувався 301 на /, отримано ${response.status} (${location || "без Location"})`);
+  } else {
+    console.log("✅ /index.html: 301 → /");
+  }
+} catch (error) {
+  fail(`/index.html redirect: ${error.message}`);
 }
 
 if (failures.length) {

@@ -188,10 +188,28 @@ jobs:
         working-directory: scripts/tools
 
       - name: Deploy only after all QA gates
+        id: deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: npx --prefix scripts/tools netlify deploy --prod --dir=dist --auth="$NETLIFY_AUTH_TOKEN" --site="$NETLIFY_SITE_ID"
+        run: |
+          deploy_json="$(npx --prefix scripts/tools netlify deploy --prod --dir=dist --auth="$NETLIFY_AUTH_TOKEN" --site="$NETLIFY_SITE_ID" --json)"
+          printf '%s\n' "$deploy_json"
+          deploy_id="$(printf '%s' "$deploy_json" | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const d=JSON.parse(s);process.stdout.write(d.deploy_id||"")})')"
+          test -n "$deploy_id" || { echo "Deploy JSON did not contain deploy_id"; exit 1; }
+          echo "deploy_id=$deploy_id" >> "$GITHUB_OUTPUT"
+
+      - name: Post-deploy live smoke (headers/redirects/CSP parity)
+        id: smoke
+        run: npm run live-probe:light
+
+      - name: Auto-rollback on smoke failure
+        if: failure() && steps.smoke.outcome == 'failure'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          CURRENT_DEPLOY_ID: ${{ steps.deploy.outputs.deploy_id }}
+        run: node scripts/rollback-production.mjs
 
       - name: Verify feedback channel after deploy (G-01)
         run: npm run email-dns-gate
