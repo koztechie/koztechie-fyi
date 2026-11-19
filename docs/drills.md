@@ -116,6 +116,22 @@
 кодом 1 з повідомленням про обов’язковий точний pin `27.20.0`; початковий
 manifest відновлено, гейт проходить.
 
+## D-14 — post-deploy CSP smoke і rollback (T-2.2)
+
+**2026-11-19 — PASS, production.**
+
+- Throwaway-гілка: `drill/d-14-post-deploy-rollback` (локально видалена).
+- На гілці прибрано CSP з `static/root/_headers`. Збірка до ін’єкції пройшла;
+  build-time CSP/favicon guard зупиняє звичайну збірку без `style-src`, тому
+  ту саму CSP-ін’єкцію прибрано також із готового `dist/_headers` перед deploy.
+- Пошкоджений production deploy: `6aff2ac9914fefa5e86157a7`.
+- `npm run live-probe:light` завершився кодом 1: CSP відсутня на чотирьох
+  перевірених сторінках.
+- `scripts/rollback-production.mjs` обрав попередній `ready` production
+  `6aff26050731eec078e893e0`, відновив його через `restoreSiteDeploy` і
+  повторно запустив live-smoke — PASS. CSP та `X-Frame-Options` на production
+  підтверджені; повторний зовнішній smoke — PASS.
+
 ## Правило ескалації
 
 Жоден дефект не уникнув відповідного gate. Якби gate завершився кодом `0`,
