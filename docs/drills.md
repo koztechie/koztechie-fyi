@@ -132,6 +132,25 @@ manifest відновлено, гейт проходить.
   повторно запустив live-smoke — PASS. CSP та `X-Frame-Options` на production
   підтверджені; повторний зовнішній smoke — PASS.
 
+## D-15 — stale visual reference після міграції runner-а (T-3.3)
+
+**2026-11-19 — PASS.**
+
+- Позитивний baseline run `44583333266` на PR #15 (head `cb228c3`):
+  `static` і `measured-quality` пройшли на `ubuntu-24.04`. Determinism:
+  два послідовні build дали ідентичний `dist`; favicon і всі 15 OG references
+  — `AE=0`; усі 9 reflow screenshots — без diff, у межах tolerance.
+- Під час перевірки використано ImageMagick
+  `8:6.9.12.98+dfsg1-5.2build2`, Playwright `1.65.1` / Chromium
+  `159.0.8154.6` (`v1255`); runner toolchain записано в `docs/environment.md`.
+- Ін’єкція: у тимчасовому коміті `454c7b0` повернуто старий
+  `docs/reference/og/blog-manifesto-en-v2.png`. Run `44584973242` відхилив
+  baseline: favicon `AE=0`, stale OG `AE=32954`; `static` завершився помилкою.
+  `measured-quality` того самого прогону пройшов.
+- Старий PNG відновлено наступним комітом; перевірити фінальний CI після
+  відновлення перед закриттям PR. Навмисна stale-версія лишається лише в історії
+  D-15 commit.
+
 ## Правило ескалації
 
 Жоден дефект не уникнув відповідного gate. Якби gate завершився кодом `0`,

@@ -140,8 +140,12 @@ Reflow є вторинним візуальним гейтом після a11y-�
 порівнює PNG через ImageMagick `compare -fuzz 2% -metric AE`. Допускається до
 `0,1%` пікселів; перевищення блокує перевірку. Для кожної відмінності створюється
 `qa-artifacts/reflow/*-diff.png`, який CI завантажує як artifact при падінні.
+Канонічне середовище references — GitHub Actions `ubuntu-24.04` із locked
+Playwright/Chromium; не оновлюй їх з іншого runner чи локальної ОС. fontconfig,
+freetype та raster-бібліотеки впливають на пікселі.
 
-Після навмисної зміни layout або стилів онови baseline в такому порядку:
+Після навмисної зміни layout або стилів онови baseline в такому порядку на
+`ubuntu-24.04` runner:
 
 ```bash
 npm run build
@@ -154,7 +158,10 @@ node scripts/reflow-check.mjs
 
 Не використовуй `UPDATE_SCREENSHOTS=1` для звичайної перевірки: він замінює
 references поточними знімками. Перед commit переглянь усі зміни в
-`test-references/`; фінальний запуск виконуй без прапорця.
+`test-references/` і `docs/reference/`; фінальний запуск виконуй без прапорця.
+Після міграції runner-а перенеси лише CI-знімки з цільової ОС: OG — `dist/og/`,
+favicon — raster output з `rsvg-convert`, reflow — `qa-artifacts/reflow/*.png`.
+Фінальний CI має дати `AE=0` для OG/favicon та пройти reflow tolerance.
 
 ---
 
