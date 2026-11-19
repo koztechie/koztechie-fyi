@@ -18,6 +18,57 @@ console.log("=== CHECK (ВУЗОЛ-0) ===");
 console.log(`dist: ${distDir}`);
 console.log("");
 
+// G-14/F-05. Заява про доступність не може старіти, а feedback-канал має
+// залишатися присутнім у зібраному сайті. Живість DNS/mailbox перевіряє G-01.
+console.log("--- G-14 ACCESSIBILITY STATEMENT ---");
+const statementMaxAgeDays = Number(process.env.A11Y_STATEMENT_MAX_AGE_DAYS || 90);
+const accessibilitySources = [
+  resolve("content/uk/pages/accessibility.md"),
+  resolve("content/en/pages/accessibility.md"),
+];
+let statementErrors = 0;
+const today = new Date();
+today.setUTCHours(0, 0, 0, 0);
+for (const file of accessibilitySources) {
+  const rel = file.replace(`${resolve(".")}/`, "");
+  if (!existsSync(file)) {
+    console.log(`  ❌ ${rel}: файл заяви відсутній`);
+    statementErrors++;
+    totalErrors++;
+    continue;
+  }
+  const source = readFileSync(file, "utf8");
+  const date = source.match(/^updated:\s*(\d{4}-\d{2}-\d{2})\s*$/m)?.[1];
+  const parsed = date ? new Date(`${date}T00:00:00Z`) : null;
+  const ageDays = parsed ? Math.floor((today - parsed) / 86_400_000) : Infinity;
+  if (!parsed || Number.isNaN(parsed.getTime()) || ageDays < 0 || ageDays > statementMaxAgeDays) {
+    console.log(`  ❌ ${rel}: updated=${date || "відсутня"}, допустимий вік — ${statementMaxAgeDays} днів`);
+    statementErrors++;
+    totalErrors++;
+  }
+}
+const accessibilityHtml = accessibilitySources
+  .map((file) => join(distDir, file.includes("/uk/") ? "accessibility/index.html" : "en/accessibility/index.html"))
+  .filter((file, index, files) => files.indexOf(file) === index);
+for (const file of accessibilityHtml) {
+  const rel = file.replace(`${distDir}/`, "");
+  if (!existsSync(file) || !/<a\b[^>]*href=["']mailto:/i.test(readFileSync(file, "utf8"))) {
+    console.log(`  ❌ ${rel}: feedback mailto-канал відсутній`);
+    statementErrors++;
+    totalErrors++;
+  }
+}
+const securityFile = join(distDir, ".well-known/security.txt");
+if (!existsSync(securityFile) || !/^Contact:\s*mailto:/mi.test(readFileSync(securityFile, "utf8"))) {
+  console.log("  ❌ .well-known/security.txt: G-01 Contact відсутній");
+  statementErrors++;
+  totalErrors++;
+}
+if (statementErrors === 0) {
+  console.log(`  ✅ G-14: дата заяви ≤${statementMaxAgeDays} днів; feedback і G-01 Contact присутні`);
+}
+console.log("");
+
 // JSON-LD (type=application/ld+json) — специфікація Schema.org, не виконуваний
 // JavaScript. Дозволений TECH_STANDARDS §9 (крок 151). Прибирається перед
 // перевірками JS: 7а (скрипти) та 7ж (head).
