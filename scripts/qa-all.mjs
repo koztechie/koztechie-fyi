@@ -11,6 +11,11 @@ if (!netlify.includes('ignore = "exit 0"')) {
 }
 
 const commands = ["check", "plan-lint", "validate", "size", "voice-lint", "linkcheck"];
+console.log("\n=== QA: check-runbook-commands ===");
+execFileSync("node", ["scripts/check-runbook-commands.mjs"], { stdio: "inherit" });
+console.log("\n=== QA: check-deploy-pin ===");
+execFileSync("npm", ["run", "check:deploy-pin"], { stdio: "inherit" });
+
 for (const command of commands) {
   console.log(`\n=== QA: npm run ${command} ===`);
   execFileSync("npm", ["run", command], { stdio: "inherit" });

@@ -368,7 +368,7 @@ endpoint, і що запит до кожної отриманої A-адреси
      --data '{ "site_id": "'"$NETLIFY_SITE_ID"'", "deploy_id": "'"$DEPLOY_ID"'" }'
    ```
    `netlify deploy:restore` і `netlify deploy:list` не існують у Netlify CLI
-   27.13.0; `restoreSiteDeploy` — канонічний метод відновлення. Для списку
+   27.20.0; `restoreSiteDeploy` — канонічний метод відновлення. Для списку
    використано `listSiteDeploys`, бо команда `deploy:list` у цій версії CLI
    відсутня.
 3. Або зроби `git revert` проблемного commit і дозволь workflow

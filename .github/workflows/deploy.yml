@@ -31,6 +31,9 @@ jobs:
       - name: Verify Node pin (G-09)
         run: npm run check:node-pin
 
+      - name: Verify deploy CLI pin (G-16)
+        run: npm run check:deploy-pin
+
       - name: Install pinned ImageMagick
         run: |
           sudo find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -print0 \
@@ -180,11 +183,15 @@ jobs:
           name: deploy-dist-${{ github.sha }}
           path: dist
 
+      - name: Install locked QA tools
+        run: npm ci --ignore-scripts
+        working-directory: scripts/tools
+
       - name: Deploy only after all QA gates
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: npx --yes netlify-cli deploy --prod --dir=dist --auth="$NETLIFY_AUTH_TOKEN" --site="$NETLIFY_SITE_ID"
+        run: npx --prefix scripts/tools netlify deploy --prod --dir=dist --auth="$NETLIFY_AUTH_TOKEN" --site="$NETLIFY_SITE_ID"
 
       - name: Verify feedback channel after deploy (G-01)
         run: npm run email-dns-gate

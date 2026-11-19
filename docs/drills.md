@@ -103,6 +103,19 @@
   X-Frame-Options присутні на production.
 - Повторні `npm run build` і `npm run check` після вилучення ін’єкції — pass.
 
+## D-12 — невідома команда Netlify у runbook (T-1.3)
+
+**2026-11-19 — PASS.** У тимчасовий bash-блок `docs/runbook.md` додано
+`netlify deploy:restore`. `node scripts/check-runbook-commands.mjs` завершився
+кодом 1 і вказав невідому команду; ін’єкцію вилучено, повторний гейт проходить.
+
+## D-13 — вилучений pin Netlify CLI (T-2.1)
+
+**2026-11-19 — PASS.** Тимчасово вилучено `netlify-cli` із
+`scripts/tools/package.json`. `node scripts/check-deploy-pin.mjs` завершився
+кодом 1 з повідомленням про обов’язковий точний pin `27.20.0`; початковий
+manifest відновлено, гейт проходить.
+
 ## Правило ескалації
 
 Жоден дефект не уникнув відповідного gate. Якби gate завершився кодом `0`,

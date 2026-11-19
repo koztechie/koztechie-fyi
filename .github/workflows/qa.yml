@@ -41,6 +41,9 @@ jobs:
       - name: Verify Node pin (G-09)
         run: npm run check:node-pin
 
+      - name: Verify deploy CLI pin (G-16)
+        run: npm run check:deploy-pin
+
       - name: Install pinned ImageMagick
         run: |
           sudo find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -print0 \
