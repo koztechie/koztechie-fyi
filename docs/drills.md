@@ -87,6 +87,22 @@
 команди, ненульового коду gate та факту видалення fixture/гілки. D-09 містить
 два різні класи дефектів і має бути виконаний двома окремими ін’єкціями.
 
+## D-11 — production rollback (T-1.1)
+
+**2026-11-19 — PASS, ручний дрил; автоматичний gate T-1.3 ще не додано.**
+
+- Throwaway-гілка: `drill/d-11-prod-rollback` (локально видалена після прогону).
+- Ін’єкція: вилучено `X-Frame-Options: DENY` із `static/root/_headers`.
+- Deploy: `6aff1abc5bb5826b496bfce8` (`production`, `ready`); live-заголовок
+  був відсутній.
+- Відкат виконано командою `netlify api restoreSiteDeploy` з runbook,
+  `DEPLOY_ID=6aff16a0164640cedf7e68d0`.
+- Перевірка після відкату: активний deploy знову
+  `6aff16a0164640cedf7e68d0` (`ready`, `production`); CSP, HSTS,
+  Referrer-Policy, Permissions-Policy, X-Content-Type-Options і
+  X-Frame-Options присутні на production.
+- Повторні `npm run build` і `npm run check` після вилучення ін’єкції — pass.
+
 ## Правило ескалації
 
 Жоден дефект не уникнув відповідного gate. Якби gate завершився кодом `0`,
