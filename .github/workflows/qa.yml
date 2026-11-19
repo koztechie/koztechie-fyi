@@ -242,7 +242,7 @@ jobs:
           writeFileSync("pa11y-urls.json",JSON.stringify({defaults,urls},null,2));'
           PA11Y_URLS_FILE=pa11y-urls.json npm run check
           PUPPETEER_EXECUTABLE_PATH="$(node -e 'process.stdout.write(require("./scripts/tools/node_modules/playwright").chromium.executablePath())')" \
-            npx --prefix scripts/tools pa11y-ci --config .pa11yci.json --config pa11y-urls.json
+            npx --prefix scripts/tools pa11y-ci --config pa11y-urls.json
 
       - name: Validate HTML specification
         run: npx --prefix scripts/tools html-validate --config .htmlvalidate.json "dist/**/*.html"

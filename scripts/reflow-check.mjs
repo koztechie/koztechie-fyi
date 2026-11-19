@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { createRequire } from "node:module";
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -11,8 +10,7 @@ const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const referencesDir = join(repoRoot, "test-references");
 const actualDir = join(repoRoot, "qa-artifacts/reflow");
 const toolsDir = join(repoRoot, "scripts/tools");
-const require = createRequire(import.meta.url);
-const { chromium } = require(join(toolsDir, "node_modules/playwright"));
+const playwrightBin = join(toolsDir, "node_modules/.bin/playwright");
 const update = process.env.UPDATE_SCREENSHOTS === "1";
 const fuzz = "2%";
 const pixelThreshold = 0.001;
@@ -23,7 +21,6 @@ const pages = [
 ];
 const viewports = [320, 768, 1440];
 const failures = [];
-const browser = await chromium.launch();
 
 function makeImagesEager(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -75,13 +72,16 @@ for (const [name, path] of pages) {
     const filename = `${name}-${width}.png`;
     const actual = join(actualDir, filename);
     const reference = join(referencesDir, filename);
-    const page = await browser.newPage({
-      viewport: { width, height: 900 },
-    });
-    await page.goto(`${origin}${path}`, { waitUntil: "networkidle" });
-    await page.waitForTimeout(1000);
-    await page.screenshot({ path: actual, fullPage: true });
-    await page.close();
+    execFileSync(playwrightBin, [
+      "screenshot",
+      "--full-page",
+      "--wait-for-timeout",
+      "1000",
+      "--viewport-size",
+      `${width},900`,
+      `${origin}${path}`,
+      actual,
+    ], { cwd: toolsDir, stdio: "inherit" });
 
     if (update) {
       execFileSync("cp", [actual, reference]);
@@ -109,8 +109,6 @@ for (const [name, path] of pages) {
     }
   }
 }
-
-await browser.close();
 
 if (failures.length) {
   for (const failure of failures) console.error(`❌ ${failure}`);
