@@ -2,6 +2,7 @@ name: QA
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
   schedule:
@@ -19,7 +20,7 @@ jobs:
   static:
     name: Build and site checks
     if: github.event_name != 'schedule' || github.event.schedule == '17 6 * * 1'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:
@@ -52,6 +53,7 @@ jobs:
             -o Acquire::http::Timeout=20 \
             -o Acquire::https::Timeout=20 update
           IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          # Expected on ubuntu-24.04 (noble): 8:6.9.12.98+dfsg1-5.2build2.
           case "$IM_VERSION" in
             8:6.9.*) ;;
             *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
@@ -93,7 +95,9 @@ jobs:
             printf '%s' "$output" | awk '{print $1}'
           }
 
-          favicon_ae="$("$RSVG_BIN" --width 64 --height 64 dist/favicon.svg | "$COMPARE_BIN" -metric AE - docs/reference/favicon-64.png null: 2>&1 >/dev/null || true)"
+          favicon_actual="qa-artifacts/visual/favicon-64.png"
+          "$RSVG_BIN" --width 64 --height 64 dist/favicon.svg > "$favicon_actual"
+          favicon_ae="$("$COMPARE_BIN" -metric AE "$favicon_actual" docs/reference/favicon-64.png null: 2>&1 >/dev/null || true)"
           favicon_ae="$(printf '%s' "$favicon_ae" | awk '{print $1}')"
           echo "favicon AE: ${favicon_ae:-invalid}"
           test "${favicon_ae:-999999}" -le 0
@@ -127,7 +131,7 @@ jobs:
   live-probe:
     name: Scheduled external checks
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '17 6 * * 1')
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Check out repository
@@ -147,6 +151,7 @@ jobs:
             -o Acquire::http::Timeout=20 \
             -o Acquire::https::Timeout=20 update
           IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          # Expected on ubuntu-24.04 (noble): 8:6.9.12.98+dfsg1-5.2build2.
           case "$IM_VERSION" in
             8:6.9.*) ;;
             *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
@@ -173,7 +178,7 @@ jobs:
   light-live-probe:
     name: Daily light live probe
     if: github.event_name == 'schedule' && github.event.schedule == '37 6 * * *'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Check out repository
@@ -191,7 +196,7 @@ jobs:
   measured-quality:
     name: Measured quality budgets
     if: github.event_name != 'schedule' || github.event.schedule == '17 6 * * 1'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - name: Check out repository
@@ -211,6 +216,7 @@ jobs:
             -o Acquire::http::Timeout=20 \
             -o Acquire::https::Timeout=20 update
           IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          # Expected on ubuntu-24.04 (noble): 8:6.9.12.98+dfsg1-5.2build2.
           case "$IM_VERSION" in
             8:6.9.*) ;;
             *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
