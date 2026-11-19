@@ -340,14 +340,28 @@ curl -sI -m 10 https://koztechie.netlify.app/ | head -3
 
 ## Відкат деплою (крок за кроком)
 
-1. Віднови відомий добрий deploy через CLI:
+1. Знайди останні деплої сайту:
    ```bash
-   netlify deploy:restore <deploy-id>
+   : "${NETLIFY_SITE_ID:?Задай ID сайту Netlify}"
+   netlify api listSiteDeploys \
+     --data '{ "site_id": "'"$NETLIFY_SITE_ID"'", "per_page": 10 }'
    ```
-2. Або зроби `git revert` проблемного commit і дозволь workflow
+   Вибери останній відомий добрий production deploy: `state` має бути
+   `ready`, `context` — `production`. Збережи його `id` як `DEPLOY_ID`.
+2. Віднови його офіційним API-методом:
+   ```bash
+   : "${DEPLOY_ID:?Задай ID відомого доброго deploy}"
+   netlify api restoreSiteDeploy \
+     --data '{ "site_id": "'"$NETLIFY_SITE_ID"'", "deploy_id": "'"$DEPLOY_ID"'" }'
+   ```
+   `netlify deploy:restore` і `netlify deploy:list` не існують у Netlify CLI
+   27.13.0; `restoreSiteDeploy` — канонічний метод відновлення. Для списку
+   використано `listSiteDeploys`, бо команда `deploy:list` у цій версії CLI
+   відсутня.
+3. Або зроби `git revert` проблемного commit і дозволь workflow
    виконати повний build та обидва QA-gates перед повторним deploy.
-3. Перевір production за розділом «Після будь-якої дії».
-4. **Заборонено** видаляти погані деплої до повної верифікації — вони
+4. Перевір production за розділом «Після будь-якої дії».
+5. **Заборонено** видаляти погані деплої до повної верифікації — вони
    потрібні як доказ для діагностики.
 
 ---
