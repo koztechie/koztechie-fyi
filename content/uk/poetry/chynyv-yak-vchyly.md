@@ -1,7 +1,7 @@
 ---
 title: "чинив так, як вчили"
 lang: uk
-slug: chynyv-yak-vchyly
+slug: chynyv-tak-yak-vchyly
 entry: 4
 date: 2026-11-19
 summary: "чинив так, як вчили: друзів подалі, ворогів якнайближче"
@@ -74,5 +74,3 @@ layout: poetry.njk
 стій,
 біжи,
 бий
-
-євгеній козловський, осінь 2025
