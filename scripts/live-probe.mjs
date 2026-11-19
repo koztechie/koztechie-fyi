@@ -316,6 +316,49 @@ async function checkSpecialPaths() {
   }
 }
 
+async function checkNuValidation() {
+  console.log("=== LIVE-PROBE: W3C NU ===");
+  const paths = ["/", "/en/", "/nichlyst/", "/accessibility/", "/en/accessibility/"];
+  for (const path of paths) {
+    const documentUrl = `${origin}${path}`;
+    const nuUrl = `https://validator.w3.org/nu/?doc=${encodeURIComponent(documentUrl)}&out=json`;
+    try {
+      let response;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        response = await fetch(nuUrl, {
+          headers: { "user-agent": userAgent },
+          signal: AbortSignal.timeout(timeoutMs),
+        });
+        if (response.status !== 429 || attempt === 3) break;
+        const retryAfter = Number(response.headers.get("retry-after"));
+        const delayMs = Number.isFinite(retryAfter)
+          ? Math.min(retryAfter * 1000, 15_000)
+          : attempt * 3_000;
+        console.warn(`⚠️ Nu ${path}: HTTP 429, повтор через ${delayMs / 1000} с`);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+      if (!response.ok) {
+        fail(`Nu ${path}: HTTP ${response.status}`);
+        continue;
+      }
+      const report = await response.json();
+      const errors = Array.isArray(report.messages)
+        ? report.messages.filter((message) => message.type === "error")
+        : [];
+      if (errors.length) {
+        fail(`Nu ${path}: ${errors.length} error(s)`);
+        for (const error of errors) {
+          console.error(`  ${error.message}${error.lastLine ? ` (${error.lastLine}:${error.lastColumn || 1})` : ""}`);
+        }
+      } else {
+        console.log(`✅ Nu ${path}: 0 errors`);
+      }
+    } catch (error) {
+      fail(`Nu ${path}: ${error.message}`);
+    }
+  }
+}
+
 console.log("=== LIVE-PROBE ===");
 console.log(`Origin: ${origin}`);
 const entries = await checkSitemap();
@@ -323,6 +366,7 @@ const sitemapMap = new Map(entries.map((entry) => [entry.loc, entry]));
 await checkPublicPageCount(entries);
 for (const entry of entries) await checkPage(entry, sitemapMap);
 await checkSpecialPaths();
+await checkNuValidation();
 await checkProductionParity();
 
 function runProductionCheck(command, args, env) {

@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "17 6 * * 1"
+    - cron: "37 6 * * *"
 
 permissions:
   contents: read
@@ -17,6 +18,7 @@ concurrency:
 jobs:
   static:
     name: Build and site checks
+    if: github.event_name != 'schedule' || github.event.schedule == '17 6 * * 1'
     runs-on: ubuntu-22.04
     timeout-minutes: 15
 
@@ -41,7 +43,11 @@ jobs:
 
       - name: Install pinned ImageMagick
         run: |
-          sudo apt-get update
+          sudo find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -print0 \
+            | xargs -0 -r sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g'
+          sudo apt-get -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=20 \
+            -o Acquire::https::Timeout=20 update
           IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
           case "$IM_VERSION" in
             8:6.9.*) ;;
@@ -117,7 +123,7 @@ jobs:
 
   live-probe:
     name: Scheduled external checks
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '17 6 * * 1')
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     steps:
@@ -132,7 +138,11 @@ jobs:
 
       - name: Install pinned ImageMagick
         run: |
-          sudo apt-get update
+          sudo find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -print0 \
+            | xargs -0 -r sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g'
+          sudo apt-get -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=20 \
+            -o Acquire::https::Timeout=20 update
           IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
           case "$IM_VERSION" in
             8:6.9.*) ;;
@@ -157,9 +167,27 @@ jobs:
       - name: Probe production
         run: npm run live-probe
 
+  light-live-probe:
+    name: Daily light live probe
+    if: github.event_name == 'schedule' && github.event.schedule == '37 6 * * *'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Probe production
+        run: npm run live-probe:light
+
 
   measured-quality:
     name: Measured quality budgets
+    if: github.event_name != 'schedule' || github.event.schedule == '17 6 * * 1'
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
@@ -174,7 +202,11 @@ jobs:
 
       - name: Install ImageMagick for build
         run: |
-          sudo apt-get update
+          sudo find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -print0 \
+            | xargs -0 -r sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g'
+          sudo apt-get -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=20 \
+            -o Acquire::https::Timeout=20 update
           IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
           case "$IM_VERSION" in
             8:6.9.*) ;;
