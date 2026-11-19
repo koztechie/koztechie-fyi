@@ -323,10 +323,20 @@ async function checkNuValidation() {
     const documentUrl = `${origin}${path}`;
     const nuUrl = `https://validator.w3.org/nu/?doc=${encodeURIComponent(documentUrl)}&out=json`;
     try {
-      const response = await fetch(nuUrl, {
-        headers: { "user-agent": userAgent },
-        signal: AbortSignal.timeout(timeoutMs),
-      });
+      let response;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        response = await fetch(nuUrl, {
+          headers: { "user-agent": userAgent },
+          signal: AbortSignal.timeout(timeoutMs),
+        });
+        if (response.status !== 429 || attempt === 3) break;
+        const retryAfter = Number(response.headers.get("retry-after"));
+        const delayMs = Number.isFinite(retryAfter)
+          ? Math.min(retryAfter * 1000, 15_000)
+          : attempt * 3_000;
+        console.warn(`⚠️ Nu ${path}: HTTP 429, повтор через ${delayMs / 1000} с`);
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
       if (!response.ok) {
         fail(`Nu ${path}: HTTP ${response.status}`);
         continue;
