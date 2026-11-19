@@ -67,6 +67,7 @@ jobs:
         with:
           name: deploy-dist-${{ github.sha }}
           path: dist/
+          include-hidden-files: true
           retention-days: 1
 
   measured-quality:
