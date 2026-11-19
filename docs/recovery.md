@@ -44,9 +44,16 @@ dig NS koztechie.fyi +noall +answer
 dig SOA koztechie.fyi +noall +answer
 dig A koztechie.fyi +noall +answer          # IP не хардкодити: зафіксувати відповідь під час відновлення
 dig A www.koztechie.fyi +noall +answer      # www зараз має тип A; перевіряти заново
+IP="$(dig +short A koztechie.fyi | head -n1)"
+curl -sI https://koztechie.fyi/ --resolve "koztechie.fyi:443:${IP}" | head -1 # DNS-незалежний HTTP
 curl -sI https://koztechie.fyi/ | head -1   # → HTTP/2 200
 curl -s https://koztechie.fyi/ | grep -o '<h1[^>]*>[^<]*</h1>'
 ```
+
+`curl --resolve` під'єднується напряму до A-IP, але зберігає hostname/SNI та
+перевірку сертифіката. A-відповіді залежать від географії; еталон — делегування
+на Netlify DNS (`dns*.p07.nsone.net`), чинна Netlify-ціль apex-запису та HTTP 200,
+не незмінний список IP.
 
 **G-13 — щоквартальний дрил відновлення:** перед перевіркою DNS експортувати
 зону, виконати `dig NS` і `dig SOA`, а потім звірити провайдера: NS мають
