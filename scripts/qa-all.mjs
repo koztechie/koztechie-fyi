@@ -10,7 +10,7 @@ if (!netlify.includes('ignore = "exit 0"')) {
   process.exit(1);
 }
 
-const commands = ["check", "validate", "size", "voice-lint", "linkcheck"];
+const commands = ["check", "plan-lint", "validate", "size", "voice-lint", "linkcheck"];
 for (const command of commands) {
   console.log(`\n=== QA: npm run ${command} ===`);
   execFileSync("npm", ["run", command], { stdio: "inherit" });

@@ -21,7 +21,7 @@
 | Шрифтові файли | 0 запитів; системні стеки | DECISIONS §41 |
 | Одине зображення | ≤ 80 КБ | Новий ліміт |
 | Favicon (SVG + растрові) | ≤ 10 КБ | Новий ліміт |
-| CSS + favicon (сумарно) | ≤ 50 КБ на сторінку разом з HTML | AGENTS.md §3 |
+| CSS + favicon (сумарно) | ≤ 25 КБ | AGENTS.md §3 |
 | Сайт (dist/ без зображень та feed.xml) | ≤ 2 МБ | PLAN.md 75 |
 | Зображення (сумарно) | Без обмеження (архів) | Виняток |
 | Dev-сервер RAM | < 500 МБ | PLAN.md 54 |
@@ -30,6 +30,8 @@
 | CLS | = 0 | PLAN.md 170 |
 | TBT mobile | ≤ 1 с | `.lighthouserc.mobile.json` |
 | Lighthouse desktop | ≥ 95 | PLAN.md 169 |
+| Lighthouse accessibility | = 100; error gate | `.lighthouserc*.json` |
+| Lighthouse SEO | ≥ 95; warning only | `.lighthouserc*.json` |
 | Lighthouse mobile | composite score — діагностичний warning; LCP/CLS/TBT — error-гейти | `.lighthouserc.mobile.json` |
 
 **Виняток із бюджету зображень:** `/feed.xml` росте необмежено (повний архів, §30 DECISIONS). Ліміт фіда — 500 КБ; перевищення → попередження, не помилка.
@@ -42,7 +44,7 @@
 
 ## 2. ЗАЛЕЖНОСТІ
 
-**Залежності:** одна npm-залежність — `@11ty/eleventy` `3.1.7` — точна
+**Залежності:** одна npm-залежність — `@11ty/eleventy` `3.1.8` — точна
 версія (без `^`), і системний ImageMagick як build-only CLI для OG-зображень
 та favicon. Затверджено: `DECISIONS.md` §38 і §42.4.
 

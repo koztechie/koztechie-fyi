@@ -15,12 +15,12 @@
 |------|------|
 | `netlify.toml` у репо | ✅ виконано (`d80a4e4`) |
 | **Крок158: `pp.ua` → 301** | ✅ виконано: `static/root/_redirects` — 4 домен-рівневі правила (https/http × apex/www → `https://koztechie.fyi/:splat 301!`); деплой `6aef3e2a85cfc3d37621dc0b` («4 redirect rules processed»); верифіковано: усі шляхи/query → 301 на `.fyi`, `.fyi`/`netlify.app` → 200 без петлі. **Після індексації `.fyi` — видалити правила** |
-| Сайт у Netlify | ✅ проєкт `koztechie` (id `4b260726-36ea-4bfe-8c1f-b5a693294e76`), primary = `koztechie.pp.ua` |
+| Сайт у Netlify | ✅ проєкт `koztechie` (id `4b260726-36ea-4bfe-8c1f-b5a693294e76`), primary = `koztechie.fyi` |
 | Свіжий деплой поточного контенту | ✅ через MCP: деплой `6aef2fce1146a57aefeb9a0a`, `ready`, «27 generated pages,13 assets», `4 header rules`; pp.ua оновлено (було від 03.09 з `koztechie-hub`) |
 | Додати домен `koztechie.fyi` | ✅ виконано автором (панель Netlify) |
 | DNS у Spaceship | ✅ виконано ШІ: apex **ALIAS → `apex-loadbalancer.netlify.com`**, `www` **CNAME → `koztechie.netlify.app`**; авторитетний `dig` підтверджує Netlify IP (`75.2.60.5`, `99.83.231.61`); старі A `34.216.117.25`/`54.149.79.189` більше не відповідають (перекриті ALIAS; у зоні API вони не видимі як ресурс-записи — це була підсистема перенаправлення) |
 | HTTPS | ✅ Let's Encrypt видано (~10 хв після DNS) — `https://koztechie.fyi/` = **HTTP/2 200**, `server: Netlify`; `http→301→https`; `www→301→apex` |
-| Верифікація (§6) | ✅ усі12 пунктів зелені: DNS, редиректи, `x-robots-tag: noai, noimageai` на `/poetry/`, HSTS, h1/паспорт `7 листопада`, robots.txt+Sitemap, feed, sitemap, woff2, 404 «Запис відсутній.», en + hreflang, canonical |
+| Верифікація (§6) | ✅ усі12 пунктів зелені: DNS, редиректи, `x-robots-tag: noai, noimageai` на `/poetry/`, HSTS, h1/паспорт `7 листопада`, robots.txt+Sitemap, feed, sitemap, 404 «Запис відсутній.», en + hreflang, canonical |
 | Git-інтеграція (автодеплой) | ⏳ рішення за автором: (а) Link to Git repository у панелі → push на `main` збирається сам; (б) деплої через MCP вручну |
 | Далі за планом | 158: `pp.ua` → alias301 на основний домен (тримати до індексації `.fyi`). 160: заголовки CSP/Permissions-Policy/Referrer-Policy/X-Content-Type (HSTS уже є). Старий AWS-сервер (`34.216…`/`54.149…`) — вимкнути автором. Опціонально: прибрати залишок перенаправлення у панелі Spaceship (перекритий ALIAS, на резолюцію не впливає) |
 | Крок162: noindex не-production | ✅ конфіг виконано: `postbuild.mjs` додає `X-Robots-Tag: noindex` у `dist/_headers` за `CONTEXT` ≠ production (логіка протестована локально: preview/branch → ✓, production → без). ⏳ **Тест deploy preview — РОБИТЬ АВТОР:** підключити репо `koztechie/koztechie-fyi` у панелі (Site configuration → Build & deploy → Link to Git repository, гілка `main`) → після push на незвичну гілку або PR Netlify створить preview → `curl -sI <preview-url>/ | grep -i x-robots-tag` має показати `noindex`; production при цьому — без noindex (перевірено) |
@@ -151,8 +151,7 @@ curl -sI https://koztechie.fyi/feed.xml | head -1         # → 200
 3. `/blog/`, `/manifest/`, `/privacy/`, `/cemetery/`, `/now/`, `/colophon/`,
    `/contact/`, `/nichlyst/`, `/poetry/`, `/practice/` — без помилок404.
 4. `https://koztechie.fyi/несноіснє-нічого` → сторінка 404 (не хост-помилка).
-5. Шрифти: `curl -sI https://koztechie.fyi/fonts/IBMPlexMono-Regular-subset.woff2`
-   → 200.
+5. Favicon: `curl -sI https://koztechie.fyi/favicon.svg` → 200.
 
 **Canonical і hreflang уже вказують на `https://koztechie.fyi/`** — після
 успіху вони стають правдою (до міграції вони посилалися на домен із мертвим

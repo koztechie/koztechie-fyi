@@ -17,6 +17,7 @@
     "check:lighthouse-mobile": "node scripts/check-lighthouse-mobile.mjs",
     "chaos:scroll-labels": "node scripts/chaos-scroll-labels.mjs",
     "qa:all": "node scripts/qa-all.mjs",
+    "plan-lint": "node scripts/plan-lint.mjs docs/PLAN.md",
     "live-probe": "node scripts/live-probe.mjs",
     "dependabot:validate": "node scripts/validate-dependabot.mjs",
     "email-dns-gate": "node scripts/email-dns-gate.mjs",

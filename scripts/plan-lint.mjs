@@ -3,7 +3,7 @@
 // Перевіряє: дублі номерів, пропуски, послідовність, підсумок.
 // Використання: node scripts/plan-lint.mjs docs/PLAN.md
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const filePath = process.argv[2];
@@ -134,6 +134,89 @@ for (const match of decisionsContent.matchAll(/^\s*###\s+42\.\d+\.\s+ACCEPT\s+((
 }
 const missingAccepts = [...new Set(planAccepts)].filter((id) => !decisionAccepts.has(id));
 
+// Перевірка 8: G-15 — ключові твердження канону мають відповідати коду.
+const repoRoot = resolve(absPath, "..", "..");
+const canonicalErrors = [];
+const canonicalFile = (relative) => {
+  const path = resolve(repoRoot, relative);
+  try {
+    return readFileSync(path, "utf8");
+  } catch {
+    canonicalErrors.push(`${relative}: файл відсутній`);
+    return "";
+  }
+};
+const canonicalAssert = (condition, message) => {
+  if (!condition) canonicalErrors.push(message);
+};
+const readJson = (relative) => {
+  try {
+    return JSON.parse(canonicalFile(relative));
+  } catch {
+    canonicalErrors.push(`${relative}: невалідний JSON`);
+    return {};
+  }
+};
+
+const readme = canonicalFile("README.md");
+const sitemap = canonicalFile("docs/sitemap.md");
+const deploy = canonicalFile("docs/deploy.md");
+const standards = canonicalFile("docs/TECH_STANDARDS.md");
+const facts = canonicalFile("docs/facts.md");
+const header = canonicalFile("src/templates/header.njk");
+const footer = canonicalFile("src/templates/footer.njk");
+const packageJson = readJson("package.json");
+const lighthouseDesktop = readJson(".lighthouserc.json");
+const lighthouseMobile = readJson(".lighthouserc.mobile.json");
+
+canonicalAssert(packageJson.dependencies?.["@11ty/eleventy"] === "3.1.8",
+  "package.json: Eleventy має бути 3.1.8");
+canonicalAssert(!existsSync(resolve(repoRoot, "static/fonts")),
+  "static/fonts/: мертві шрифти не видалені");
+canonicalAssert(/static\/\s+зображення та favicon/.test(readme),
+  "README.md: структура static/ не відповідає фактичній");
+canonicalAssert(/Eleventy v3\.1\.8/.test(readme),
+  "README.md: версія Eleventy застаріла");
+canonicalAssert(/\*\*Шапка:\*\* 4 активні розділи/.test(sitemap),
+  "docs/sitemap.md: шапка не описана як 4 активні розділи");
+canonicalAssert(/\*\*Підвал:\*\* 7[\s\S]*Доступність/.test(sitemap),
+  "docs/sitemap.md: футер не описаний як 7 посилань із доступністю");
+canonicalAssert(sitemap.includes("| `/404.html` |"), "docs/sitemap.md: відсутній /404.html");
+canonicalAssert(sitemap.includes("| 11 | `/accessibility/` |"), "docs/sitemap.md: відсутня /accessibility/");
+canonicalAssert(/primary = `koztechie\.fyi`/.test(deploy),
+  "docs/deploy.md: primary не вказує на .fyi");
+canonicalAssert(/\| CSS \+ favicon \(сумарно\) \| ≤ 25 КБ/.test(standards),
+  "docs/TECH_STANDARDS.md: бюджет CSS + favicon не дорівнює 25 КБ");
+canonicalAssert(/\| Lighthouse accessibility \| = 100; error gate/.test(standards),
+  "docs/TECH_STANDARDS.md: Lighthouse accessibility не має error gate 100");
+canonicalAssert(/\| Lighthouse SEO \| ≥ 95; warning only/.test(standards),
+  "docs/TECH_STANDARDS.md: Lighthouse SEO не має warning-only статусу");
+canonicalAssert(!/\[заповнити\]/i.test(facts),
+  "docs/facts.md: залишилися placeholder-факти");
+
+const headerNav = header.match(/set nav = \[([\s\S]*?)\]/)?.[1] || "";
+const footerNav = footer.match(/set nav = \[([\s\S]*?)\]/)?.[1] || "";
+canonicalAssert((headerNav.match(/\bhref:/g) || []).length === 4,
+  "header.njk: кількість активних розділів не дорівнює 4");
+canonicalAssert((footerNav.match(/\bhref:/g) || []).length === 7 &&
+  footerNav.includes('key: "accessibility"'),
+  "footer.njk: має бути 7 посилань, включно з accessibility");
+
+const lighthouseConfigs = [lighthouseDesktop, lighthouseMobile];
+for (const [index, config] of lighthouseConfigs.entries()) {
+  const name = index === 0 ? ".lighthouserc.json" : ".lighthouserc.mobile.json";
+  const assertions = config.ci?.assert?.assertions || {};
+  canonicalAssert(
+    assertions["categories:accessibility"]?.[0] === "error" &&
+      assertions["categories:accessibility"]?.[1]?.minScore === 1,
+    `${name}: accessibility має бути error з minScore=1`
+  );
+  canonicalAssert(
+    assertions["categories:seo"]?.[0] === "warn",
+    `${name}: SEO має бути warning-only`
+  );
+}
+
 // Вивід результатів
 console.log("=== PLAN-LINT ===");
 console.log(`Файл: ${absPath}`);
@@ -197,6 +280,13 @@ if (missingAccepts.length > 0) {
   console.log(`✅ Усі ACCEPT мають записи в DECISIONS.md §42 (${[...new Set(planAccepts)].join(", ")})`);
 } else {
   console.log("✅ ACCEPT-маркерів у плані немає");
+}
+
+if (canonicalErrors.length > 0) {
+  console.log(`❌ G-15 КАНОН-ДРЕЙФ:\n   ${canonicalErrors.join("\n   ")}`);
+  hasErrors = true;
+} else {
+  console.log("✅ G-15: ключові твердження канону відповідають коду");
 }
 
 console.log("");

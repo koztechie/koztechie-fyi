@@ -84,7 +84,6 @@
 │   │   ├── header.njk
 │   │   └── footer.njk
 ├── static/
-│   ├── fonts/
 │   ├── img/
 │   └── root/
 │       ├── favicon.svg
