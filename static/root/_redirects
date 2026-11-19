@@ -7,6 +7,7 @@
 /index.html / 301!
 /poetry/koleso-sansary/ /poetry/vnutrishnya-monholiya/ 301
 /poetry/vnutrishnia-mongoliia/ /poetry/vnutrishnya-monholiya/ 301
+/poetry/chynyv-yak-vchyly/ /poetry/chynyv-tak-yak-vchyly/ 301
 /en/* /en/404.html 404
 
 https://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
