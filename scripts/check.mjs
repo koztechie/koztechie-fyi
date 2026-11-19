@@ -1318,8 +1318,9 @@ console.log("--- 7и. robots.txt і _headers ---");
       }
     }
 
-    if (!headers.includes("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload")) {
-      console.log("  ❌ _headers: HSTS не містить preload");
+    if (!headers.includes("Strict-Transport-Security: max-age=31536000; includeSubDomains")
+        || headers.includes("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload")) {
+      console.log("  ❌ _headers: HSTS має містити includeSubDomains без preload");
       policyErrors++;
       totalErrors++;
     }
