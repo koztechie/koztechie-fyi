@@ -253,8 +253,11 @@ render-blocking запит. `/styles/print.<hash>.css` підключаєтьс�
 **Обов'язкові атрибути:**
 - `width` і `height` (CLS).
 - `alt` (осмислений, відповідною мовою). `alt=""` — для суто декоративних.
-- `loading="lazy"` та `decoding="async"` поза першим екраном.
-- `srcset`/`sizes` для адаптивних зображень.
+- `loading="lazy"` та `decoding="async"` поза першим екраном. LCP-зображення
+  першого екрана завантажується eager, має `fetchpriority="high"` і не отримує
+  `loading="lazy"`.
+- `srcset`/`sizes` для адаптивних зображень. Candidate widths мають покривати
+  розмір слота з урахуванням device pixel ratio цільового Lighthouse-профілю.
 
 **EXIF:** Вирізати GPS, модель камери перед публікацією.
 

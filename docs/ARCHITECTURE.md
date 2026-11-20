@@ -325,7 +325,12 @@ LICENSE
 # Тримати pp.ua, поки .fyi не проіндексований; після індексації — видалити.
 # Домен-рівневі редиректи (доки Netlify, "Domain-level redirects").
 # `!` (force): без нього правило не спрацює на / — існує index.html (shadowing).
+# Явні http/https правила www.fyi згортають перший візит до канону одним хопом.
 
+http://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
+https://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
+http://koztechie.fyi/* https://koztechie.fyi/:splat 301!
+https://koztechie.netlify.app/* https://koztechie.fyi/:splat 301!
 https://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 http://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 https://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!

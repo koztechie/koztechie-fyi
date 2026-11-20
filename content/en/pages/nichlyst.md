@@ -3,7 +3,8 @@ title: "NICHLYST"
 lang: en
 layout: page.njk
 structured_data: nichlyst
-updated: 2026-11-15
+updated: 2026-11-20
+content_warning: [війна, травма]
 summary: "NICHLYST is an indie narrative game for Android about memory, listening, and preserving human stories."
 og_description: "An indie narrative game for Android by Eugene Kozlovsky. Listen, document, and protect stories from corruption."
 og_title: "NICHLYST — koztechie"
@@ -14,6 +15,10 @@ draft: false
 ---
 
 NICHLYST is a narrative game for Android about memory and preserving testimony. Each day, people bring their stories to the archive. You listen, record their accounts, and decide what to preserve.
+
+<aside class="content-disclaimer" role="note">
+  <p>All locations, countries, and characters are entirely fictional.</p>
+</aside>
 
 ## What kind of game is it?
 
@@ -27,7 +32,11 @@ You keep an archive in a fictional underground node. Read testimonies and decide
 
 <div class="nichlyst-gallery">
   <figure>
-    <img src="/nichlyst/first-knock.webp" width="900" height="883" alt="Day 1 of the game: Khoma's testimony and three response choices for the archivist." loading="lazy" decoding="async">
+    <img src="/nichlyst/first-knock.webp" width="900" height="883"
+      alt="Day 1 of the game: Khoma's testimony and three response choices for the archivist."
+      loading="eager" fetchpriority="high" decoding="async"
+      srcset="/nichlyst/first-knock-450.webp 450w, /nichlyst/first-knock-700.webp 700w, /nichlyst/first-knock.webp 900w"
+      sizes="(max-width: 40rem) calc(100vw - 2rem), 40rem">
     <figcaption>Day 1. The first testimony and response choices. <a href="/nichlyst/first-knock.webp" download aria-label="Download screenshot: day 1, first testimony (WebP, 27 KB)">Download screenshot</a></figcaption>
   </figure>
   <figure>

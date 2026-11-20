@@ -38,8 +38,8 @@
   <link rel="manifest" href="/site.webmanifest">
   {#- RSS auto-discovery для обох фідів (TECH_STANDARDS §9, крок 125).
       Назва фіда — з самого каналу (<title>), не з атрибута лінка. -#}
-  <link rel="alternate" type="application/rss+xml" title="{{ strings.uk.site.feed_title }}" href="https://koztechie.fyi/feed.xml">
-  <link rel="alternate" type="application/rss+xml" title="{{ strings.en.site.feed_title }}" href="https://koztechie.fyi/en/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="{{ feedTitles.uk }}" href="https://koztechie.fyi/feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="{{ feedTitles.en }}" href="https://koztechie.fyi/en/feed.xml">
   {#- Крок 112. hreflang + canonical (TECH_STANDARDS §9): взаємні, абсолютні,
       з self-reference. x-default — українська (коренева) версія, для головної
       це https://koztechie.fyi/ (DECISIONS.md §19.0).

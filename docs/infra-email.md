@@ -22,6 +22,15 @@
 Прямий прийом пошти налаштовано в Zoho Mail Free, а записи доменної зони
 `koztechie.fyi` додано в Netlify DNS.
 
+У зоні `koztechie.fyi` налаштовано CAA `0 issue "letsencrypt.org"` і
+`0 issuewild "letsencrypt.org"`. Поточний `zmail` DKIM ще має 1024-бітний
+RSA-ключ; перегенерація ключа в Zoho та заміна TXT у Netlify DNS очікують
+авторизованого доступу до Zoho Admin.
+
+`koztechie.pp.ua` — лише alias із вхідним форвардингом ImprovMX; відправлення
+з цього домену не налаштовано. Для нього SPF встановлено в `v=spf1 -all`, а
+DMARC — у `p=reject`. MX ImprovMX залишаються для прийому та пересилання.
+
 ---
 
 ## 3. Оберіть один шлях
@@ -83,20 +92,22 @@ Cloudflare Email Routing або ImprovMX можуть безплатно пер�
 ## 5. G-01 і D-01
 
 `npm run live-probe` запускає `scripts/email-dns-gate.mjs`: MX≥1, SPF TXT,
-`_dmarc` TXT і валідний `security.txt Contact`. Для окремої DNS fixture-зони
-передай `EMAIL_DNS_DOMAIN` та `EMAIL_SECURITY_URL`:
+DKIM TXT для selector `EMAIL_DKIM_SELECTOR` (типово `zmail`), `_dmarc` TXT і
+валідний `security.txt Contact`. Для production перевірки ці DNS-записи мають
+бути публічно доступні.
 
 ```bash
-EMAIL_DNS_DOMAIN=fixture.example \
-EMAIL_SECURITY_URL=https://fixture.example/.well-known/security.txt \
-node scripts/email-dns-gate.mjs
+npm run test:email-dns-gate
 ```
 
-D-01 виконується щоквартально: видали MX у fixture-зоні й переконайся, що
-цей gate завершується ненульовим кодом; віднови fixture після тесту.
+D-01 перевіряє відсутній MX в ізольованій DNS fixture-зоні. D-01-ext ін’єктує
+порожній `zmail._domainkey` у пам’яті та підтверджує, що G-01 завершується
+ненульовим кодом; ця перевірка входить до `npm run qa:all`.
 
 ## 6. Безпека
 
 - 2FA на Zoho та Netlify — увімкнути й перевіряти під час квартального огляду.
 - Записи DNS оновлювати з резервною копією зони (експорт перед зміною).
+- Зона `koztechie.pp.ua` керується Netlify DNS на NS `dns*.p04.nsone.net`;
+  поточні SPF/DMARC та MX ImprovMX описані вище.
 - Не залишати проміжних MX-записів від попереднього хостингу — дублі прийому.

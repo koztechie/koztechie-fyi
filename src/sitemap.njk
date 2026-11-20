@@ -28,6 +28,9 @@ eleventyExcludeFromCollections: true
     {%- if ukPage and not ukPage.data.noindex %}
     <xhtml:link rel="alternate" hreflang="uk" href="{{ origin }}{{ ukPath }}"/>
     {%- endif %}
+    {%- if ukPage and not ukPage.data.noindex %}
+    <xhtml:link rel="alternate" hreflang="x-default" href="{{ origin }}{{ ukPath }}"/>
+    {%- endif %}
     {%- if enPage and not enPage.data.noindex %}
     <xhtml:link rel="alternate" hreflang="en" href="{{ origin }}{{ enPath }}"/>
     {%- endif %}

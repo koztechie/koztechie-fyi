@@ -172,11 +172,6 @@ a {
   text-underline-offset: 3px;
 }
 
-a:visited {
-  color: var(--link);
-  text-decoration-style: double;
-}
-
 a:active {
   background: transparent;
   color: var(--ink);

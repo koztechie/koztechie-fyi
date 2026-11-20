@@ -21,7 +21,7 @@ If you have a question, a proposal, or just want to discuss something, feel free
 ## Security reports
 
 Report vulnerabilities to
-`{{ (strings[lang] | default(strings.uk)).footer.email | safe }}`. Include the affected URL, a description of the issue,
+<code class="contact-address">{{ (strings[lang] | default(strings.uk)).footer.email | safe }}</code>. Include the affected URL, a description of the issue,
 and reproducible steps. Do not send secrets, personal data, or work
 credentials. No PGP key is published.
 

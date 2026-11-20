@@ -7,6 +7,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
 import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
+import { selectActiveCssFiles } from "./active-css.mjs";
 
 const distDir = resolve(process.argv[2] || "dist");
 
@@ -57,8 +58,8 @@ console.log(`dist: ${distDir}`);
 console.log(`Файлів: ${files.length}`);
 console.log("");
 
-// 1. Brotli q11 розмір HTML сторінки + CSS/JS усього сайту ≤ 50 КіБ
-console.log("--- 1. Сторінка (HTML + усі CSS/JS, Brotli q11) ≤ 50 КіБ ---");
+// 1. Brotli q11 розмір HTML сторінки + активна пара CSS/JS ≤ 50 КіБ
+console.log("--- 1. Сторінка (HTML + активна пара CSS/JS, Brotli q11) ≤ 50 КіБ ---");
 const htmlFiles = files.filter((f) => f.endsWith(".html"));
 const cssFiles = files.filter((f) => f.endsWith(".css"));
 const jsFiles = files.filter((f) => f.endsWith(".js"));
@@ -71,9 +72,26 @@ if (siteBundles.length > 3 || printBundles.length > 3 || cssFiles.length > 6) {
   ok(`fingerprinted CSS: ${siteBundles.length} site + ${printBundles.length} print (ліміт 3 пари)`);
 }
 
-// CSS спільний для всіх сторінок: сумарна вага brotli
+// Page/core budgets count only the active pair; retained older bundles stay outside them.
+const activeCssFiles = selectActiveCssFiles(distDir, cssFiles);
+
+const activeCssNames = activeCssFiles.map((file) => file.split("/").pop());
+const refHtmlPath = join(distDir, "index.html");
+if (existsSync(refHtmlPath)) {
+  const activeNames = [...readFileSync(refHtmlPath, "utf8").matchAll(/href="\/styles\/((?:site|print)\.[a-f0-9]{12}\.css)"/g)]
+    .map((match) => match[1]);
+  const presentNames = new Set(activeCssNames);
+  for (const name of activeNames) {
+    if (!presentNames.has(name)) fail(`Активний stylesheet відсутній у dist: styles/${name}`);
+  }
+}
+if (activeCssFiles.length > 0) {
+  ok(`CSS для бюджетів: ${activeCssNames.join(", ")}`);
+}
+
+// CSS спільний для всіх сторінок: рахується лише активна пара.
 let cssTotal = 0;
-for (const f of cssFiles) cssTotal += brotliKB(f);
+for (const f of activeCssFiles) cssTotal += brotliKB(f);
 
 let jsTotal = 0;
 for (const f of jsFiles) jsTotal += brotliKB(f);
@@ -98,14 +116,14 @@ if (jsFiles.length > 0) {
 }
 console.log("");
 
-// 2. CSS сумарний ≤ 15 КБ
-console.log("--- 2. CSS сумарний ≤ 15 КБ ---");
+// 2. Активна пара CSS сумарно ≤ 15 КБ
+console.log("--- 2. Активна пара CSS сумарно ≤ 15 КБ ---");
 if (cssTotal > 15) {
   fail(`${cssTotal.toFixed(1)} КБ (бюджет 15 КБ)`);
 } else if (cssFiles.length === 0) {
   console.log("  ⚠️  CSS-файлів немає. Пропущено.");
 } else {
-  ok(`${cssFiles.length} файлів, ${cssTotal.toFixed(1)} КБ`);
+  ok(`${activeCssFiles.length} активних файлів, ${cssTotal.toFixed(1)} КБ`);
 }
 console.log("");
 
@@ -135,7 +153,7 @@ console.log("");
 
 // 5. Favicon (SVG + растрові) ≤ 10 КБ
 console.log("--- 5. Favicon ≤ 10 КБ ---");
-const favFiles = files.filter((f) => /favicon|apple-touch-icon|site\.webmanifest/i.test(f));
+const favFiles = files.filter((f) => /favicon|apple-touch-icon|icon-(?:192|512)\.png|site\.webmanifest/i.test(f));
 let favTotal = 0;
 for (const f of favFiles) favTotal += brotliKB(f);
 if (favTotal > 10) {

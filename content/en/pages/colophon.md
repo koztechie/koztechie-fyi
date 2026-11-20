@@ -20,7 +20,7 @@ All fonts are system fonts; no font files are downloaded.
 
 ## Tools
 
-- **Eleventy 3.1.7** — static site generator.
+- **Eleventy 3.1.8** — static site generator.
 - **Node.js 22** — build environment runtime.
 - **Vanilla CSS** — hand-written styles without frameworks or preprocessors.
 - **Git** — version control.

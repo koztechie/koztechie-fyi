@@ -83,15 +83,13 @@ main {
   color: var(--ink);
 }
 
-.site-header .site-logo:link:hover,
-.site-header .site-logo:visited:hover {
+.site-header .site-logo:hover {
   color: var(--ink);
   background: transparent;
   text-decoration: none;
 }
 
-.site-header .site-logo:focus-visible,
-.site-header .site-logo:visited:focus-visible {
+.site-header .site-logo:focus-visible {
   color: var(--ink);
   background: var(--paper);
 }
@@ -119,13 +117,7 @@ main {
   background: var(--paper);
 }
 
-.site-nav a:visited {
-  color: var(--link);
-  text-decoration: none;
-}
-
 .site-nav a:hover,
-.site-nav a:visited:hover,
 .site-header .lang-switch a:hover {
   color: var(--ink);
   background: transparent;
@@ -548,7 +540,8 @@ article.home .card--nichlyst a:hover {
   max-width: var(--measure);
 }
 
-.content-warning {
+.content-warning,
+.content-disclaimer {
   max-width: var(--measure);
   margin: 0 0 var(--s6);
   padding: var(--s4) var(--s6);
@@ -559,7 +552,8 @@ article.home .card--nichlyst a:hover {
   font: 600 var(--text-base) / 1.5 var(--font-ui);
 }
 
-.content-warning p {
+.content-warning p,
+.content-disclaimer p {
   margin: 0;
 }
 
@@ -654,7 +648,7 @@ article.home .card--nichlyst a:hover {
   text-decoration: none;
 }
 
-.site-footer__inner > p:not(.footer-label):not(.footer-place):not(.footer-legal) a {
+.site-footer__inner > p:not(.footer-label):not(.footer-place):not(.footer-slogan):not(.footer-legal) a {
   min-height: 24px;
   padding: 0;
 }
@@ -680,12 +674,13 @@ article.home .card--nichlyst a:hover {
   min-height: var(--tap);
 }
 
-.site-footer__inner > p:not(.footer-label):not(.footer-place):not(.footer-legal) {
+.site-footer__inner > p:not(.footer-label):not(.footer-place):not(.footer-slogan):not(.footer-legal) {
   grid-column: 1;
   margin: 0;
 }
 
 .footer-place,
+.footer-slogan,
 .footer-legal {
   grid-column: 1 / -1;
   margin: var(--s4) 0 0;
@@ -840,23 +835,20 @@ article.home .card--nichlyst a:hover {
 
 /* Hover додає підкреслення, а не кольорову заливку. */
 @media (hover: hover) {
-  a:hover,
-  a:visited:hover {
+  a:hover {
     color: var(--ink);
     background: transparent;
     text-decoration-thickness: 3px;
   }
 
-  .letter-cta a:hover,
-  .letter-cta a:visited:hover {
+  .letter-cta a:hover {
     color: var(--ink);
     background: var(--paper);
     border-color: currentColor;
     text-decoration: none;
   }
 
-  .site-footer a:hover,
-  .site-footer a:visited:hover {
+  .site-footer a:hover {
     color: var(--ink);
     background: transparent;
     text-decoration: none;

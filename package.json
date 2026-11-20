@@ -23,12 +23,16 @@
     "live-probe:light": "node scripts/live-probe-light.mjs",
     "dependabot:validate": "node scripts/validate-dependabot.mjs",
     "email-dns-gate": "node scripts/email-dns-gate.mjs",
+    "test:email-dns-gate": "node scripts/drill-email-dns-gate.mjs",
+    "test:voice-lint": "node scripts/drill-voice-lint.mjs",
+    "facts-sync": "node scripts/facts-sync.mjs",
+    "test:facts-sync": "node scripts/drill-facts-sync.mjs",
     "size": "node scripts/size-budget.mjs",
     "palette": "node scripts/palette-check.mjs",
     "validate": "node scripts/validate-content.mjs content/",
     "linkcheck": "node scripts/linkcheck.mjs",
     "linkcheck:external": "node scripts/external-linkcheck.mjs",
-    "voice-lint": "node scripts/voice-lint.mjs content/"
+    "voice-lint": "node scripts/voice-lint.mjs"
   },
   "dependencies": {
     "@11ty/eleventy": "3.1.8"

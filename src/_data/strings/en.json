@@ -2,15 +2,15 @@
   "site": {
     "name": "koztechie",
     "name_en": "koztechie",
-    "title": "Personal blog and archive.",
+    "title": "AI-Assisted Developer and Systems Architect — the koztechie archive.",
     "feed_title": "koztechie — English",
-    "bio_short": "Personal blog from Kyiv. Thoughts, notes, and projects. No clickbait, no vanity metrics.",
+    "bio_short": "AI-Assisted Developer and Systems Architect. The koztechie archive of projects, code, and writing.",
     "og_image_alt": "koztechie — a light digital-archive card with framed signal markers and the site name.",
     "date_suffix": ""
   },
   "home": {
-    "browser_title": "koztechie — Eugene Kozlovsky, AI-Assisted Developer",
-    "lead": "This is my personal website. It's a collection of my projects, code, and writing. I share what I'm working on in two languages, with no strict publishing schedule.",
+    "browser_title": "koztechie — AI-Assisted Developer, Systems Architect",
+    "lead": "This archive records projects, code, and writing without turning the site into a services portfolio.",
     "latest_title": "Latest entries",
     "sections_title": "What's here",
     "thesis_a": "AI-Assisted Developer",
@@ -39,7 +39,7 @@
     "principles": [
       {
         "title": "Focus on the essence",
-        "text": "I share things I've actually verified in practice and don't pretend to be an expert in everything. No clickbait or made-up stories."
+        "text": "I share only what I've verified in practice, without overstating what I can do. No clickbait or made-up stories."
       },
       {
         "title": "A working space",
@@ -134,7 +134,8 @@
   },
   "footer": {
     "rss": "RSS",
-    "place": "Made in Kyiv.",
+    "place": "Made in Kyiv. During air-raid alerts.",
+    "slogan": "Text without embellishment.",
     "made_in": "Made in Kyiv",
     "copyright": "© 2026 Eugene Kozlovsky",
     "email": "&#104;ello@koztechie.fyi",

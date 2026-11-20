@@ -179,8 +179,10 @@ canonicalAssert(/Eleventy v3\.1\.8/.test(readme),
   "README.md: версія Eleventy застаріла");
 canonicalAssert(/\*\*Шапка:\*\* 4 активні розділи/.test(sitemap),
   "docs/sitemap.md: шапка не описана як 4 активні розділи");
-canonicalAssert(/\*\*Підвал:\*\* 7[\s\S]*Доступність/.test(sitemap),
-  "docs/sitemap.md: футер не описаний як 7 посилань із доступністю");
+canonicalAssert(/\*\*Підвал:\*\* 6 посилань[\s\S]*Доступність/.test(sitemap),
+  "docs/sitemap.md: футер не описаний як 6 посилань із доступністю");
+canonicalAssert(/\| `\/poetry\/` \|[^\n]*\| Головна, шапка \|/.test(sitemap),
+  "docs/sitemap.md: Поезія не визначена як пункт шапки");
 canonicalAssert(sitemap.includes("| `/404.html` |"), "docs/sitemap.md: відсутній /404.html");
 canonicalAssert(sitemap.includes("| 11 | `/accessibility/` |"), "docs/sitemap.md: відсутня /accessibility/");
 canonicalAssert(/primary = `koztechie\.fyi`/.test(deploy),
@@ -198,9 +200,10 @@ const headerNav = header.match(/set nav = \[([\s\S]*?)\]/)?.[1] || "";
 const footerNav = footer.match(/set nav = \[([\s\S]*?)\]/)?.[1] || "";
 canonicalAssert((headerNav.match(/\bhref:/g) || []).length === 4,
   "header.njk: кількість активних розділів не дорівнює 4");
-canonicalAssert((footerNav.match(/\bhref:/g) || []).length === 7 &&
-  footerNav.includes('key: "accessibility"'),
-  "footer.njk: має бути 7 посилань, включно з accessibility");
+canonicalAssert((footerNav.match(/\bhref:/g) || []).length === 6 &&
+  footerNav.includes('key: "accessibility"') &&
+  !footerNav.includes('key: "poetry"'),
+  "footer.njk: має бути 6 посилань, включно з accessibility, без poetry");
 
 const lighthouseConfigs = [lighthouseDesktop, lighthouseMobile];
 for (const [index, config] of lighthouseConfigs.entries()) {

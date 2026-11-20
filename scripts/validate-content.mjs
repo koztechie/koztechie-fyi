@@ -145,8 +145,18 @@ for (const file of files) {
   }
 
   // 5. content_warning
-  if (fm.content_warning && !VALID_WARNING.includes(fm.content_warning)) {
-    errors.push(`content_warning: недопустиме значення «${fm.content_warning}»`);
+  if (fm.content_warning !== undefined) {
+    const contentWarnings = Array.isArray(fm.content_warning)
+      ? fm.content_warning
+      : [fm.content_warning];
+    if (
+      contentWarnings.length === 0 ||
+      contentWarnings.some((warning) =>
+        typeof warning !== "string" || !VALID_WARNING.includes(warning)
+      )
+    ) {
+      errors.push(`content_warning: недопустиме значення «${JSON.stringify(fm.content_warning)}»`);
+    }
   }
 
   // 6. layout

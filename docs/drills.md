@@ -27,7 +27,14 @@
 
 | Знахідка | Постійний гейт | Chaos-ін'єкція | Cadence |
 |---|---|---|---|
-| F-01 email | G-01 MX/SPF/DMARC/Contact probe | D-01 видалити MX у fixture | щотижня + квартал |
+| F-01 email / З-08 DKIM | G-01 MX/SPF/DKIM/DMARC/Contact probe | D-01 MX; D-01-ext без DKIM | щотижня + квартал |
+| З-01 phantom rollback | `check-runbook-commands` | D-12 `deploy:restore` у runbook | кожен push |
+| З-01/04 робочий відкат | post-deploy smoke + auto-rollback | D-11/D-14: зламаний header → відкат | кожен deploy |
+| З-02 runner | CI `ubuntu-24.04` + OG `AE=0` | D-15 старий еталон | кожен push |
+| З-03 CLI pin | `check-deploy-pin` | D-13 прибрати pin | кожен push |
+| З-05 CSS N-1 | live-probe: старий fingerprint доступний | D-16 прибрати continuity | live щотижня |
+| З-06 CSS budget | `size-budget` рахує активну пару | D-17 додати третю пару | кожен push |
+| З-07 LCP | G-19 + Lighthouse desktop LCP-insight | D-19 lazy на першому кадрі | кожен push |
 | F-02 dependabot | G-02 schema-validate конфігу в CI | D-02 `day:"1"` | кожен push |
 | F-03 sitemap | G-03 count==publicPages + парність | D-03 видалити вірш із sitemap | кожен push + live |
 | F-04 deploy | G-08 deploy `needs` повна QA | D-08 a11y-дефект → немає деплою | кожен push |
@@ -39,6 +46,8 @@
 | F-15 manifest | G-06 обов'язкові поля | D-07 видалити start_url | кожен push |
 | F-08 recovery | G-13 SOA↔документ | дрил відновлення | квартал |
 | F-13 deps | G-12 npm audit=0 | — | місяць |
+| F-17 / З-18 dist allowlist | `check-dist-inventory` | D-18 додати `dist/leak.txt` | кожен push |
+| З-11/14 index/404 | post-deploy probe | D-20 видалити directory-index генерацію | кожен deploy |
 
 `G-12` має виняток: advisory fixture не додається до dependency tree
 штучно. Його gate перевіряється реальним audit, а оновлення залежностей —
@@ -86,6 +95,17 @@
 Кожен рядок переводь у `PASS` лише після запису дати, throwaway-гілки,
 команди, ненульового коду gate та факту видалення fixture/гілки. D-09 містить
 два різні класи дефектів і має бути виконаний двома окремими ін’єкціями.
+
+## D-01-ext — відсутній DKIM у DNS fixture
+
+**2026-11-20 — PASS, fixture проганяється у `npm run qa:all`.**
+
+- `scripts/drill-email-dns-gate.mjs` ін’єктує MX, SPF, DMARC і security.txt,
+  але не повертає TXT для `zmail._domainkey.fixture.example`.
+- Той самий `runEmailDnsGate` production runner завершується кодом 1 та
+  повідомляє про відсутній DKIM selector.
+- Fixture ізолює resolver і HTTP fetch у пам’яті; реальний DNS та production
+  конфігурація не змінюються.
 
 ## D-11 — production rollback (T-1.1)
 
@@ -150,6 +170,117 @@ manifest відновлено, гейт проходить.
 - Старий PNG відновлено в `c640d06`. Після відновлення run `44587135774`
   пройшов: `static` і `measured-quality` — green; усі еталони прийнято.
   Навмисна stale-версія лишається лише в історії D-15 commit.
+
+## D-16 — втрата N-1 CSS fingerprint під час deploy (T-4.1)
+
+**2026-11-19 — локальна модель; production PASS очікує deploy run.**
+
+- Сценарій: поточний HTML уже посилається на нову пару stylesheet, але
+  клієнтський stale HTML ще запитує попередній fingerprint під час purge
+  propagation.
+- На локальному HTTP fixture `curl` до опублікованого `dist` без збереженого
+  файла повернув 404 для старого URL. Після виконання preservation-послідовності
+  (витяг fingerprint з HTML → завантаження CSS → копія в `dist/styles/`) той
+  самий URL повернув 200.
+- Fixture також підтвердив, що `live-probe-light` завершується помилкою, коли
+  попередній CSS повертає 404, і проходить, коли він повертає 200. Це локальний
+  дрил, а не ін’єкція у production workflow.
+- З preservation step старі fingerprint-файли з production копіюються у
+  `dist/styles/`; після deploy `live-probe-light` перевіряє отримані URL-и,
+  очікуючи HTTP 200.
+- Production acceptance не перевірено: потрібен звичайний авторизований deploy
+  із цим workflow та зелений post-deploy probe на кожен попередній URL.
+
+## D-17 — retention CSS не роздуває активний бюджет (T-4.2)
+
+**2026-11-19 — локально PASS.**
+
+- У тимчасовій копії збірки тричі запущено `bundle-styles.mjs`, змінюючи CSS
+  перед другим і третім проходом. Отримано 3 різні site + print пари; головний
+  HTML посилається на третю.
+- `node scripts/size-budget.mjs <fixture>/dist` завершився кодом 0:
+  retention-гейт побачив усі 3 пари, а `cssTotal` і сторінковий бюджет
+  врахували лише два файли активної пари (6.3 КіБ). `node scripts/check.mjs
+  <fixture>/dist` також пройшов активний CSS gate.
+- Fixture існував лише в `/tmp/opencode/`; джерела та production не змінювалися.
+
+## D-18 — неочікуваний файл у production dist (T-4.3)
+
+**2026-11-19 — PASS, локально.**
+
+- Додано випадковий `dist/leak.txt`; `node scripts/check-dist-inventory.mjs`
+  завершився кодом 1 і назвав `leak.txt` поза allowlist.
+- Після вилучення fixture гейт пройшов: 80 файлів у `dist/` відповідають
+  allowlist.
+- Тимчасовий Markdown-файл у корені пройшов через `npm run build`, але не
+  з’явився у `dist/` завдяки `/*.md` у `.eleventyignore`.
+- Fixture прибрано; source і production не змінювалися.
+
+## D-19 — lazy loading на LCP-кадрі NICHLYST (T-5.1)
+
+**2026-11-19 — PASS, локально.**
+
+- Обидві локалі віддають перший кадр галереї з `loading="eager"`,
+  `fetchpriority="high"`, `decoding="async"` і responsive 450w/700w/900w `srcset`.
+- Варіанти, згенеровані зовнішнім cwebp: 450w — 14 462 байти (q90), 700w —
+  16 282 байти (q80). Mobile Lighthouse з DPR 2 обрав саме 700w.
+  `npm run check` gate G-19 перевіряє метрику `img.nichlyst-gallery
+  figure:first-child`, розмір обох responsive variants та lazy-loading решти
+  двох кадрів.
+- Ін’єкція: тимчасово повернуто `loading="lazy"` першому img у зібраній
+  українській сторінці; `npm run check` завершився кодом 1 із помилкою G-19.
+  Fixture відновлено перед повторним зеленим прогоном.
+- Lighthouse: desktop LCP 764 мс (performance 0.99), mobile LCP 834 мс
+  (performance 0.92; лише warning-поріг композитного score); desktop LCP
+  request discovery підтвердив `fetchpriority=high`, discoverable request і eager loading.
+  Mobile profile запросив `/nichlyst/first-knock-700.webp`: 16 587 байтів
+  transfer (16 282 байти payload). Critical CSS не інлайниться. Production
+  deploy не запускався.
+
+## D-20 — видалення генерації directory-index redirects (T-6.1)
+
+**2026-11-19 — PASS, локально.**
+
+- Netlify static server підтвердив `/blog/index.html` → `301 /blog/`,
+  `/en/index.html` → `301 /en/`, а `/404.html` і `/en/404.html` повертають 404.
+- Форсовані точні правила стоять перед `/en/* … 404`: Netlify оцінює правила
+  послідовно, тож ширший fallback інакше перехоплював би `/en/index.html`.
+- Дрил: генерацію postbuild відключено лише у тимчасовій копії output;
+  `/blog/index.html` тоді повернув 200. Light-probe проти цієї копії
+  завершився кодом 1 на перевірці очікуваного 301. Джерело після тесту
+  відновлено; production не змінювався.
+
+## D-21 — відсутній прямий HTTP www redirect (T-6.2)
+
+**2026-11-19 — BLOCKED: Netlify нормалізує www до `_redirects`.**
+
+- `npm run check` вимагає explicit HTTP і HTTPS www.fyi та HTTP apex правила.
+- Deploy `6aff53adcc9404b36d1c0f98` містить ці правила. Після нього
+  `curl -sIL http://www.koztechie.fyi/` показав 2 hops:
+  HTTP www → HTTPS www → HTTPS apex.
+- Тимчасово вимкнено site-level `force_ssl` і додано www до domain aliases:
+  Netlify все одно перенаправив HTTP www → HTTP apex перед `_redirects`, тобто
+  залишив 2 hops. Обидва hosting налаштування повернуто до початкових значень
+  (`force_ssl=true`, alias list — лише `koztechie.pp.ua`).
+- Final `curl` підтвердив два хопи; `npm run live-probe:light` пройшов.
+  HSTS і Force HTTPS лишаються активними. One-hop acceptance потребує
+  підтримуваного рішення поза поточним Netlify routing.
+
+## D-22 — netlify.app mirror не перенаправляє (T-6.3)
+
+**2026-11-19 — production PASS, усі три маршрути перевірено.**
+
+- Source `_redirects` має forced 301 для `https://koztechie.netlify.app/*`
+  на `https://koztechie.fyi/:splat`; `npm run check` вимагає точне правило.
+- Правило розміщено перед іншими redirects. Production light-probe перевіряє
+  корінь, `/en/` і вкладений URL із query string; усі мають 301 на тотожний
+  шлях `.fyi` за один хоп.
+- DNS-тріаж більше не використовує mirror як живий еталон: перевіряє кожну
+  відповідь A окремо командою
+  `curl -sI https://koztechie.fyi/ --resolve "koztechie.fyi:443:${IP}"`.
+- Production deploy `6aff56afb997157ceb4d4967`: корінь уже повертає 301;
+  додаткові перевірки шляху виконано після розміщення правила на початку
+  `_redirects`.
 
 ## Правило ескалації
 

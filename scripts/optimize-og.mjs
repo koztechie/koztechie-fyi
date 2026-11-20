@@ -238,9 +238,14 @@ manifest.theme_color = themeColors.paper;
 manifest.background_color = themeColors.paper;
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
-const faviconIco = resolve("dist/favicon.ico");
-const appleIcon = resolve("dist/apple-touch-icon.png");
-const iconTempDir = mkdtempSync(join(distDir, ".icons-"));
+  const faviconIco = resolve("dist/favicon.ico");
+  const appleIcon = resolve("dist/apple-touch-icon.png");
+  const manifestIcons = [
+    { size: 180, path: appleIcon },
+    { size: 192, path: resolve("dist/icon-192.png") },
+    { size: 512, path: resolve("dist/icon-512.png") },
+  ];
+  const iconTempDir = mkdtempSync(join(distDir, ".icons-"));
 try {
   const renderIcon = (size, path) => {
     const rawPath = join(iconTempDir, `raw-${size}.png`);
@@ -272,8 +277,21 @@ try {
     ]);
   };
   const iconPngs = [16, 32, 48].map((size) => join(iconTempDir, `favicon-${size}.png`));
-  if (!renderIcon(180, appleIcon) || ![16, 32, 48].every((size, index) => renderIcon(size, iconPngs[index]))) {
+  if (
+    !manifestIcons.every(({ size, path }) => renderIcon(size, path)) ||
+    ![16, 32, 48].every((size, index) => renderIcon(size, iconPngs[index]))
+  ) {
     throw new Error("Для генерації favicon потрібен ImageMagick або librsvg.");
+  }
+  for (const { size, path } of manifestIcons) {
+    const image = readFileSync(path);
+    if (
+      image.toString("ascii", 1, 4) !== "PNG" ||
+      image.readUInt32BE(16) !== size ||
+      image.readUInt32BE(20) !== size
+    ) {
+      throw new Error(`${path.slice(distDir.length + 1)}: очікувався PNG ${size}×${size}.`);
+    }
   }
   if (!runImageMagick([...iconPngs, faviconIco])) {
     throw new Error("Не вдалося зібрати favicon.ico з розмірів 16, 32 і 48 пікселів.");
