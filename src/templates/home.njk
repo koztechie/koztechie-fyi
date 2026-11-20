@@ -37,7 +37,7 @@
       "sameAs": {{ schema.person.sameAs | json | safe }},
       "url": {{ schema.siteUrl | json | safe }},
       "image": {{ (schema.siteUrl + "og/home-v2.png") | json | safe }},
-      "jobTitle": {{ strings.home.thesis | json | safe }}
+      "jobTitle": {{ (strings.home.thesis_a ~ ", " ~ strings.home.thesis_b) | json | safe }}
     },
     {
       "@type": "WebSite",
@@ -63,7 +63,7 @@
       {{ m }}{% if not loop.last %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
       {%- endfor %}
     </p>
-    <h1>{{ strings.home.thesis }}</h1>
+    <h1>{{ strings.home.thesis_a }}<span class="sep" aria-hidden="true"> · </span>{{ strings.home.thesis_b }}</h1>
     <p class="home-lead">{{ strings.home.lead }}</p>
 
     {#- CTA лишається на /contact/: проміжна сторінка показує адресу,
