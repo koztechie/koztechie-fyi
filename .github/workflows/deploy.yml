@@ -15,7 +15,7 @@ concurrency:
 jobs:
   static:
     name: Static QA gate
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:
@@ -31,6 +31,9 @@ jobs:
       - name: Verify Node pin (G-09)
         run: npm run check:node-pin
 
+      - name: Verify deploy CLI pin (G-16)
+        run: npm run check:deploy-pin
+
       - name: Install pinned ImageMagick
         run: |
           sudo find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -print0 \
@@ -39,6 +42,7 @@ jobs:
             -o Acquire::http::Timeout=20 \
             -o Acquire::https::Timeout=20 update
           IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
+          # Expected on ubuntu-24.04 (noble): 8:6.9.12.98+dfsg1-5.2build2.
           case "$IM_VERSION" in
             8:6.9.*) ;;
             *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
@@ -72,7 +76,8 @@ jobs:
 
   measured-quality:
     name: Measured quality gate
-    runs-on: ubuntu-22.04
+    needs: [static]
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
@@ -85,24 +90,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Install ImageMagick for build
-        run: |
-          sudo find /etc/apt -type f \( -name '*.list' -o -name '*.sources' \) -print0 \
-            | xargs -0 -r sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g'
-          sudo apt-get -o Acquire::Retries=3 \
-            -o Acquire::http::Timeout=20 \
-            -o Acquire::https::Timeout=20 update
-          IM_VERSION="$(apt-cache policy imagemagick | awk '/Candidate:/ {print $2}')"
-          case "$IM_VERSION" in
-            8:6.9.*) ;;
-            *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
-          esac
-          sudo apt-get install --yes "imagemagick=${IM_VERSION}" librsvg2-bin
-
-      - name: Install locked dependencies and build
-        run: |
-          npm ci --ignore-scripts
-          npm run build
+      - name: Download deterministic static build
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v7.3.0
+        with:
+          name: deploy-dist-${{ github.sha }}
+          path: dist
 
       - name: Install locked QA tools
         run: npm ci --ignore-scripts
@@ -167,7 +159,7 @@ jobs:
     name: Deploy production
     needs: [static, measured-quality]
     if: ${{ needs.static.result == 'success' && needs.measured-quality.result == 'success' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     steps:
@@ -180,11 +172,33 @@ jobs:
           name: deploy-dist-${{ github.sha }}
           path: dist
 
+      - name: Install locked QA tools
+        run: npm ci --ignore-scripts
+        working-directory: scripts/tools
+
       - name: Deploy only after all QA gates
+        id: deploy
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        run: npx --yes netlify-cli deploy --prod --dir=dist --auth="$NETLIFY_AUTH_TOKEN" --site="$NETLIFY_SITE_ID"
+        run: |
+          deploy_json="$(npx --prefix scripts/tools netlify deploy --prod --dir=dist --auth="$NETLIFY_AUTH_TOKEN" --site="$NETLIFY_SITE_ID" --json)"
+          printf '%s\n' "$deploy_json"
+          deploy_id="$(printf '%s' "$deploy_json" | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{const d=JSON.parse(s);process.stdout.write(d.deploy_id||"")})')"
+          test -n "$deploy_id" || { echo "Deploy JSON did not contain deploy_id"; exit 1; }
+          echo "deploy_id=$deploy_id" >> "$GITHUB_OUTPUT"
+
+      - name: Post-deploy live smoke (headers/redirects/CSP parity)
+        id: smoke
+        run: npm run live-probe:light
+
+      - name: Auto-rollback on smoke failure
+        if: failure() && steps.smoke.outcome == 'failure'
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          CURRENT_DEPLOY_ID: ${{ steps.deploy.outputs.deploy_id }}
+        run: node scripts/rollback-production.mjs
 
       - name: Verify feedback channel after deploy (G-01)
         run: npm run email-dns-gate

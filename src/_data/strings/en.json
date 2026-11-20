@@ -9,11 +9,12 @@
     "date_suffix": ""
   },
   "home": {
-    "browser_title": "koztechie — Eugene Kozlovsky, developer",
+    "browser_title": "koztechie — Eugene Kozlovsky, AI-Assisted Developer",
     "lead": "This is my personal website. It's a collection of my projects, code, and writing. I share what I'm working on in two languages, with no strict publishing schedule.",
     "latest_title": "Latest entries",
     "sections_title": "What's here",
-    "thesis": "Developer and systems architect",
+    "thesis_a": "AI-Assisted Developer",
+    "thesis_b": "Systems Architect",
     "doc_updated": "Updated",
     "meta": [
       "Eugene Kozlovsky",

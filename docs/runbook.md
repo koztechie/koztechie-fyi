@@ -140,8 +140,12 @@ Reflow є вторинним візуальним гейтом після a11y-�
 порівнює PNG через ImageMagick `compare -fuzz 2% -metric AE`. Допускається до
 `0,1%` пікселів; перевищення блокує перевірку. Для кожної відмінності створюється
 `qa-artifacts/reflow/*-diff.png`, який CI завантажує як artifact при падінні.
+Канонічне середовище references — GitHub Actions `ubuntu-24.04` із locked
+Playwright/Chromium; не оновлюй їх з іншого runner чи локальної ОС. fontconfig,
+freetype та raster-бібліотеки впливають на пікселі.
 
-Після навмисної зміни layout або стилів онови baseline в такому порядку:
+Після навмисної зміни layout або стилів онови baseline в такому порядку на
+`ubuntu-24.04` runner:
 
 ```bash
 npm run build
@@ -154,7 +158,10 @@ node scripts/reflow-check.mjs
 
 Не використовуй `UPDATE_SCREENSHOTS=1` для звичайної перевірки: він замінює
 references поточними знімками. Перед commit переглянь усі зміни в
-`test-references/`; фінальний запуск виконуй без прапорця.
+`test-references/` і `docs/reference/`; фінальний запуск виконуй без прапорця.
+Після міграції runner-а перенеси лише CI-знімки з цільової ОС: OG — `dist/og/`,
+favicon — raster output з `rsvg-convert`, reflow — `qa-artifacts/reflow/*.png`.
+Фінальний CI має дати `AE=0` для OG/favicon та пройти reflow tolerance.
 
 ---
 
@@ -231,21 +238,25 @@ npx netlify-cli deploy --prod --dir=dist
 
 ---
 
-## 0. Триаж — три команди (3 хвилини)
+## 0. Тріаж DNS/HTTPS (3 хвилини)
 
 ```bash
-# 1. Резолвиться чи ні?
+# 1. Делегування та A-відповідь:
+dig NS koztechie.fyi +noall +answer
 dig +short A koztechie.fyi
-# 2. Що відповідає?
+# 2. Прямий HTTPS через одну з отриманих A-адрес, без DNS-резолву curl:
+IP="$(dig +short A koztechie.fyi | head -n1)"
+curl -sI https://koztechie.fyi/ --resolve "koztechie.fyi:443:${IP}" | head -3
+# 3. Звичайний запит і контрольний домен Netlify:
 curl -sI -m 10 https://koztechie.fyi/ | head -3
-# 3. Живий узагалі? (еталон — той самий сайт на netlify.app)
 curl -sI -m 10 https://koztechie.netlify.app/ | head -3
 ```
 
 | Симптом | Гілка |
 |---|---|
-| `dig` порожній або старі IP (`34.216…`/`54.149…`) | **A. DNS** |
-| `dig` дає Netlify (`75.2.60.5`/`99.83.231.61`), але `curl` — помилка з'єднання/сертифіката | **B. HTTPS** |
+| `dig NS` не повертає Netlify DNS `*.p07.nsone.net`, A немає або A не відповідає активній цілі зони Netlify | **A. DNS** |
+| `curl --resolve` відповідає `200`, а звичайний запит — ні | **A. DNS / кеш резолвера** |
+| A відповідає активній Netlify-цілі, але `curl --resolve` не проходить з'єднання/сертифікат | **B. HTTPS / Netlify endpoint** |
 | `netlify.app` працює, а `.fyi` — 404 або не той контент | **C. Контент/деплой** |
 | Обидва лежать (netlify.app теж) | **E. Netlify** |
 | Сайт відповідає, але впали заголовки (нема CSP/HSTS/`noai`) | **D. Заголовки** |
@@ -254,25 +265,34 @@ curl -sI -m 10 https://koztechie.netlify.app/ | head -3
 
 ## A. DNS: не резолвиться або старі IP
 
-**Еталон (не чіпати):** NS `launch1/launch2.spaceship.net`; apex **ALIAS →
-`apex-loadbalancer.netlify.com`**; `www` **CNAME → `koztechie.netlify.app`**.
+**Еталон:** авторитетні NS — Netlify DNS (`*.p07.nsone.net`). Apex A-відповідь
+географічно залежить від резолвера; не звіряй її з фіксованим списком IP.
+Перевір, що apex-запис у зоні Netlify DNS налаштований на поточний Netlify
+endpoint, і що запит до кожної отриманої A-адреси проходить через
+`curl --resolve` та повертає HTTP 200.
 
-1. Авторитетна перевірка (міністово, без локального кешу):
+1. Перевір NS і A:
    ```bash
-   dig @launch1.spaceship.net koztechie.fyi A +short   # → 75.2.60.5 / 99.83.231.61
-   dig @launch1.spaceship.net www.koztechie.fyi +short  # → koztechie.netlify.app.
+   dig NS koztechie.fyi +noall +answer
+   dig A koztechie.fyi +noall +answer
    ```
-2. Якщо відповіді немає або старі IP — перезаписати зону (інструмент ШІ
-   `spaceship.dns_records_save` або панель Spaceship → DNS → запис:
-   - `@` **ALIAS** → `apex-loadbalancer.netlify.com`
-   - `www` **CNAME** → `koztechie.netlify.app`
-3. **Заборонено:** змінювати NS (мають лишатися launch1/launch2).
-4. Полінг: `dig` повторювати до появи Netlify IP (зазвичай ≤ 5 хв).
+2. Звір NS з Netlify DNS (`dns1.p07.nsone.net.` … `dns4.p07.nsone.net.`).
+   Якщо делегування інше — зупинися й виправ його у реєстратора за актуальними
+   NS з панелі Netlify; не створюй DNS-зону в Spaceship.
+3. У панелі Netlify DNS перевір apex-запис і його ціль. Не підставляй
+   запам'ятовані A-IP; вони можуть відрізнятися за регіоном.
+4. Для кожної відповіді A перевір домен без DNS-залежності:
+   ```bash
+   for IP in $(dig +short A koztechie.fyi); do
+     curl -sI https://koztechie.fyi/ --resolve "koztechie.fyi:443:${IP}" | head -1
+   done
+   ```
+   Очікувано: кожен запит повертає HTTP 200. Після поширення DNS звичайний
+   `curl -sI https://koztechie.fyi/` також має повернути 200.
 5. Далі — розділ «Після будь-якої дії».
 
-**Довідка для відкату DNS:** старий openresty-сервер — `34.216.117.25`,
-`54.149.79.189` (`deploy.md` §8; він уже вимкнений автором — на нього не
-розраховувати, лише не переплутати під час діагностики).
+**Довідка для відкату DNS:** історичний openresty-сервер описано в
+`deploy.md` §8; він вимкнений і не є чинним DNS-еталоном.
 
 ---
 
@@ -340,25 +360,51 @@ curl -sI -m 10 https://koztechie.netlify.app/ | head -3
 
 ## Відкат деплою (крок за кроком)
 
-1. Віднови відомий добрий deploy через CLI:
+1. Знайди останні деплої сайту:
    ```bash
-   netlify deploy:restore <deploy-id>
+   : "${NETLIFY_SITE_ID:?Задай ID сайту Netlify}"
+   netlify api listSiteDeploys \
+     --data '{ "site_id": "'"$NETLIFY_SITE_ID"'", "per_page": 10 }'
    ```
-2. Або зроби `git revert` проблемного commit і дозволь workflow
+   Вибери останній відомий добрий production deploy: `state` має бути
+   `ready`, `context` — `production`. Збережи його `id` як `DEPLOY_ID`.
+2. Віднови його офіційним API-методом:
+   ```bash
+   : "${DEPLOY_ID:?Задай ID відомого доброго deploy}"
+   netlify api restoreSiteDeploy \
+     --data '{ "site_id": "'"$NETLIFY_SITE_ID"'", "deploy_id": "'"$DEPLOY_ID"'" }'
+   ```
+   `netlify deploy:restore` і `netlify deploy:list` не існують у Netlify CLI
+   27.20.0; `restoreSiteDeploy` — канонічний метод відновлення. Для списку
+   використано `listSiteDeploys`, бо команда `deploy:list` у цій версії CLI
+   відсутня.
+3. Або зроби `git revert` проблемного commit і дозволь workflow
    виконати повний build та обидва QA-gates перед повторним deploy.
-3. Перевір production за розділом «Після будь-якої дії».
-4. **Заборонено** видаляти погані деплої до повної верифікації — вони
+4. Перевір production за розділом «Після будь-якої дії».
+5. **Заборонено** видаляти погані деплої до повної верифікації — вони
    потрібні як доказ для діагностики.
+
+`deploy.yml` запускає `live-probe:light` одразу після production deploy. Якщо
+smoke завершується помилкою, workflow бере ID щойно створеного deploy із
+`deploy --json`, знаходить через `netlify api listSiteDeploys` попередній
+`ready` production deploy і викликає `restoreSiteDeploy`. Після відновлення той
+самий live-smoke запускається повторно. Якщо попереднього deploy немає або
+повторний smoke не проходить, workflow лишається failed: перевір стан вручну
+за цим розділом; не запускай сліпий повторний deploy.
 
 ---
 
 ## Після будь-якої дії (обов'язкова верифікація)
 
 Повний чек-лист із очікуваними відповідями: **`docs/deploy.md` §6**.
-Мінімум — три команди:
+Мінімум — перевірити делегування, HTTP напряму до отриманої A-адреси та
+звичайний production-запит:
 
 ```bash
-dig +short A koztechie.fyi                                # → 75.2.60.5 / 99.83.231.61
+dig NS koztechie.fyi +noall +answer                       # → dns*.p07.nsone.net
+dig +short A koztechie.fyi                                # геозалежні A; звіряти з Netlify DNS
+IP="$(dig +short A koztechie.fyi | head -n1)"
+curl -sI https://koztechie.fyi/ --resolve "koztechie.fyi:443:${IP}" | head -1
 curl -sI https://koztechie.fyi/ | head -1                 # → HTTP/2 200
 curl -s https://koztechie.fyi/ | grep -o "<h1[^>]*>[^<]*</h1>"  # → актуальний h1
 ```
@@ -384,8 +430,10 @@ curl -s https://koztechie.fyi/ | grep -o "<h1[^>]*>[^<]*</h1>"  # → актуа
 ## Швидка картка (копіювати)
 
 ```bash
-dig @launch1.spaceship.net koztechie.fyi A +short      # DNS-еталон
-dig +short A koztechie.fyi                             # локальний кеш
+dig NS koztechie.fyi +noall +answer                     # еталон: Netlify DNS / *.p07.nsone.net
+dig +short A koztechie.fyi                              # geo-залежна A-відповідь, не фіксований IP
+IP="$(dig +short A koztechie.fyi | head -n1)"
+curl -sI https://koztechie.fyi/ --resolve "koztechie.fyi:443:${IP}" | head -3 # без DNS
 curl -sI https://koztechie.fyi/ | head -3              # живий?
 curl -sI https://koztechie.netlify.app/ | head -3      # еталон Netlify
 curl -sI https://koztechie.fyi/poetry/ | grep -i x-robots-tag   # ШІ-правило

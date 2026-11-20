@@ -87,6 +87,70 @@
 команди, ненульового коду gate та факту видалення fixture/гілки. D-09 містить
 два різні класи дефектів і має бути виконаний двома окремими ін’єкціями.
 
+## D-11 — production rollback (T-1.1)
+
+**2026-11-19 — PASS, ручний дрил; автоматичний gate T-1.3 ще не додано.**
+
+- Throwaway-гілка: `drill/d-11-prod-rollback` (локально видалена після прогону).
+- Ін’єкція: вилучено `X-Frame-Options: DENY` із `static/root/_headers`.
+- Deploy: `6aff1abc5bb5826b496bfce8` (`production`, `ready`); live-заголовок
+  був відсутній.
+- Відкат виконано командою `netlify api restoreSiteDeploy` з runbook,
+  `DEPLOY_ID=6aff16a0164640cedf7e68d0`.
+- Перевірка після відкату: активний deploy знову
+  `6aff16a0164640cedf7e68d0` (`ready`, `production`); CSP, HSTS,
+  Referrer-Policy, Permissions-Policy, X-Content-Type-Options і
+  X-Frame-Options присутні на production.
+- Повторні `npm run build` і `npm run check` після вилучення ін’єкції — pass.
+
+## D-12 — невідома команда Netlify у runbook (T-1.3)
+
+**2026-11-19 — PASS.** У тимчасовий bash-блок `docs/runbook.md` додано
+`netlify deploy:restore`. `node scripts/check-runbook-commands.mjs` завершився
+кодом 1 і вказав невідому команду; ін’єкцію вилучено, повторний гейт проходить.
+
+## D-13 — вилучений pin Netlify CLI (T-2.1)
+
+**2026-11-19 — PASS.** Тимчасово вилучено `netlify-cli` із
+`scripts/tools/package.json`. `node scripts/check-deploy-pin.mjs` завершився
+кодом 1 з повідомленням про обов’язковий точний pin `27.20.0`; початковий
+manifest відновлено, гейт проходить.
+
+## D-14 — post-deploy CSP smoke і rollback (T-2.2)
+
+**2026-11-19 — PASS, production.**
+
+- Throwaway-гілка: `drill/d-14-post-deploy-rollback` (локально видалена).
+- На гілці прибрано CSP з `static/root/_headers`. Збірка до ін’єкції пройшла;
+  build-time CSP/favicon guard зупиняє звичайну збірку без `style-src`, тому
+  ту саму CSP-ін’єкцію прибрано також із готового `dist/_headers` перед deploy.
+- Пошкоджений production deploy: `6aff2ac9914fefa5e86157a7`.
+- `npm run live-probe:light` завершився кодом 1: CSP відсутня на чотирьох
+  перевірених сторінках.
+- `scripts/rollback-production.mjs` обрав попередній `ready` production
+  `6aff26050731eec078e893e0`, відновив його через `restoreSiteDeploy` і
+  повторно запустив live-smoke — PASS. CSP та `X-Frame-Options` на production
+  підтверджені; повторний зовнішній smoke — PASS.
+
+## D-15 — stale visual reference після міграції runner-а (T-3.3)
+
+**2026-11-19 — PASS.**
+
+- Позитивний baseline run `44583333266` на PR #15 (head `cb228c3`):
+  `static` і `measured-quality` пройшли на `ubuntu-24.04`. Determinism:
+  два послідовні build дали ідентичний `dist`; favicon і всі 15 OG references
+  — `AE=0`; усі 9 reflow screenshots — без diff, у межах tolerance.
+- Під час перевірки використано ImageMagick
+  `8:6.9.12.98+dfsg1-5.2build2`, Playwright `1.65.1` / Chromium
+  `159.0.8154.6` (`v1255`); runner toolchain записано в `docs/environment.md`.
+- Ін’єкція: у тимчасовому коміті `454c7b0` повернуто старий
+  `docs/reference/og/blog-manifesto-en-v2.png`. Run `44584973242` відхилив
+  baseline: favicon `AE=0`, stale OG `AE=32954`; `static` завершився помилкою.
+  `measured-quality` того самого прогону пройшов.
+- Старий PNG відновлено в `c640d06`. Після відновлення run `44587135774`
+  пройшов: `static` і `measured-quality` — green; усі еталони прийнято.
+  Навмисна stale-версія лишається лише в історії D-15 commit.
+
 ## Правило ескалації
 
 Жоден дефект не уникнув відповідного gate. Якби gate завершився кодом `0`,

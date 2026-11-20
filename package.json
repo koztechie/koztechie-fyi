@@ -14,6 +14,7 @@
     "check": "node scripts/check.mjs && node scripts/typography.mjs && node scripts/palette-check.mjs",
     "check:determinism": "node scripts/check-determinism.mjs",
     "check:node-pin": "node scripts/check-node-pin.mjs",
+    "check:deploy-pin": "node scripts/check-deploy-pin.mjs",
     "check:lighthouse-mobile": "node scripts/check-lighthouse-mobile.mjs",
     "chaos:scroll-labels": "node scripts/chaos-scroll-labels.mjs",
     "qa:all": "node scripts/qa-all.mjs",
