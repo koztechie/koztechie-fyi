@@ -7,6 +7,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
 import { createHash } from "node:crypto";
 import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
+import { getBuildEpoch, getBuildSha } from "./build-provenance.mjs";
 
 const distDir = resolve(process.argv[2] || "dist");
 const stylesDir = resolve("src/styles");
@@ -16,6 +17,50 @@ let totalWarnings = 0;
 
 console.log("=== CHECK (ВУЗОЛ-0) ===");
 console.log(`dist: ${distDir}`);
+console.log("");
+
+// Deploy provenance: HEAD meta та version.json мають ідентифікувати той самий build.
+console.log("--- DEPLOY PROVENANCE ---");
+const versionPath = join(distDir, "version.json");
+if (!existsSync(versionPath)) {
+  console.log("  ❌ dist/version.json відсутній");
+  totalErrors++;
+} else {
+  let version;
+  try {
+    version = JSON.parse(readFileSync(versionPath, "utf8"));
+  } catch {
+    version = null;
+  }
+
+  const expectedSha = getBuildSha();
+  const expectedEpoch = getBuildEpoch();
+  const validEpoch = version?.epoch === null
+    || (Number.isSafeInteger(version?.epoch) && version.epoch >= 0);
+  const epochMatches = expectedEpoch === null || version?.epoch === expectedEpoch;
+  if (!version || version.sha !== expectedSha || !validEpoch || !epochMatches) {
+    console.log(
+      `  ❌ version.json: очікується ${JSON.stringify({ sha: expectedSha, epoch: expectedEpoch })}, отримано ${JSON.stringify(version)}`,
+    );
+    totalErrors++;
+  } else {
+    console.log(`  ✅ version.json: ${version.sha || "невідомий commit"}, epoch=${version.epoch}`);
+  }
+
+  let invalidMeta = 0;
+  for (const file of walkDir(distDir).filter((path) => path.endsWith(".html"))) {
+    const html = readFileSync(file, "utf8");
+    if (!html.includes(`<meta name="x-commit" content="${expectedSha}">`)) {
+      invalidMeta++;
+      totalErrors++;
+    }
+  }
+  if (invalidMeta) {
+    console.log(`  ❌ x-commit meta відсутній або не збігається у ${invalidMeta} HTML-файлах`);
+  } else {
+    console.log("  ✅ x-commit meta збігається в усіх HTML-файлах");
+  }
+}
 console.log("");
 
 // G-14/F-05. Заява про доступність не може старіти, а feedback-канал має
@@ -2318,6 +2363,48 @@ if (!existsSync(redirectsPath)) {
   } else if (redirectErrors === 0) {
     console.log(`  ✅ ${redirectRules} правил (_redirects): 301 редиректи та локалізована 404`);
   }
+
+  const redirectLines = readFileSync(redirectsPath, "utf-8")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"));
+  const wwwRuleLines = redirectLines
+    .filter((line) => /^(https?):\/\/www\.koztechie\.fyi\/\*/.test(line));
+  if (wwwRuleLines.length !== 2) {
+    console.log(`  ❌ www→apex: очікуються дві scheme rules, знайдено ${wwwRuleLines.length}`);
+    redirectErrors++;
+  }
+  const wwwRules = new Map(
+    wwwRuleLines
+      .map((line) => {
+        const [from, to, status] = line.split(/\s+/);
+        return [new URL(from.replace("*", "matrix-path")).protocol, { from, to, status }];
+      }),
+  );
+  const redirectMatrix = [
+    ["https:", "/", ""],
+    ["https:", "/manifest/", ""],
+    ["https:", "/manifest/", "?source=matrix"],
+    ["http:", "/", ""],
+    ["http:", "/manifest/", ""],
+    ["http:", "/manifest/", "?source=matrix"],
+  ];
+  let matrixPassed = 0;
+  for (const [protocol, path, search] of redirectMatrix) {
+    const rule = wwwRules.get(protocol);
+    const expected = `https://koztechie.fyi${path}${search}`;
+    const actual = rule?.to
+      .replace(":splat", path.replace(/^\//, "").split("?")[0])
+      .concat(search);
+    const sourceMatches = rule?.from === `${protocol}//www.koztechie.fyi/*`;
+    if (sourceMatches && rule.status === "301!" && actual === expected) {
+      matrixPassed++;
+    } else {
+      console.log(`  ❌ www→apex ${protocol} ${path}${search}: правило не відповідає ${expected}`);
+      redirectErrors++;
+    }
+  }
+  console.log(`  ${matrixPassed === redirectMatrix.length ? "✅" : "❌"} www→apex matrix: ${matrixPassed}/${redirectMatrix.length}`);
   totalErrors += redirectErrors;
 }
 console.log("");

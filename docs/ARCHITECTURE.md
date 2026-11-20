@@ -321,11 +321,13 @@ LICENSE
 **`static/root/_redirects`:**
 
 ```
-# Крок PLAN 158: koztechie.pp.ua → 301 на основний домен.
+# Крок PLAN 158: koztechie.pp.ua → .fyi; www.koztechie.fyi → apex.
 # Тримати pp.ua, поки .fyi не проіндексований; після індексації — видалити.
 # Домен-рівневі редиректи (доки Netlify, "Domain-level redirects").
 # `!` (force): без нього правило не спрацює на / — існує index.html (shadowing).
 
+https://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
+http://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
 https://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 http://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 https://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
