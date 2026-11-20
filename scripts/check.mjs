@@ -7,6 +7,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
 import { createHash } from "node:crypto";
 import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
+import { getBuildEpoch, getBuildSha } from "./build-provenance.mjs";
 
 const distDir = resolve(process.argv[2] || "dist");
 const stylesDir = resolve("src/styles");
@@ -16,6 +17,50 @@ let totalWarnings = 0;
 
 console.log("=== CHECK (ВУЗОЛ-0) ===");
 console.log(`dist: ${distDir}`);
+console.log("");
+
+// Deploy provenance: HEAD meta та version.json мають ідентифікувати той самий build.
+console.log("--- DEPLOY PROVENANCE ---");
+const versionPath = join(distDir, "version.json");
+if (!existsSync(versionPath)) {
+  console.log("  ❌ dist/version.json відсутній");
+  totalErrors++;
+} else {
+  let version;
+  try {
+    version = JSON.parse(readFileSync(versionPath, "utf8"));
+  } catch {
+    version = null;
+  }
+
+  const expectedSha = getBuildSha();
+  const expectedEpoch = getBuildEpoch();
+  const validEpoch = version?.epoch === null
+    || (Number.isSafeInteger(version?.epoch) && version.epoch >= 0);
+  const epochMatches = expectedEpoch === null || version?.epoch === expectedEpoch;
+  if (!version || version.sha !== expectedSha || !validEpoch || !epochMatches) {
+    console.log(
+      `  ❌ version.json: очікується ${JSON.stringify({ sha: expectedSha, epoch: expectedEpoch })}, отримано ${JSON.stringify(version)}`,
+    );
+    totalErrors++;
+  } else {
+    console.log(`  ✅ version.json: ${version.sha || "невідомий commit"}, epoch=${version.epoch}`);
+  }
+
+  let invalidMeta = 0;
+  for (const file of walkDir(distDir).filter((path) => path.endsWith(".html"))) {
+    const html = readFileSync(file, "utf8");
+    if (!html.includes(`<meta name="x-commit" content="${expectedSha}">`)) {
+      invalidMeta++;
+      totalErrors++;
+    }
+  }
+  if (invalidMeta) {
+    console.log(`  ❌ x-commit meta відсутній або не збігається у ${invalidMeta} HTML-файлах`);
+  } else {
+    console.log("  ✅ x-commit meta збігається в усіх HTML-файлах");
+  }
+}
 console.log("");
 
 // G-14/F-05. Заява про доступність не може старіти, а feedback-канал має
