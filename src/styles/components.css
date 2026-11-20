@@ -41,6 +41,11 @@
   margin: var(--s4) 0 var(--s8);
 }
 
+/* D-08 drill fixture: hide keyboard focus on the contact link. */
+.page-body .contact-method a:focus-visible {
+  outline: none;
+}
+
 .contact-address {
   display: inline-block;
   max-width: 100%;
