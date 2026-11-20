@@ -204,9 +204,8 @@ jobs:
 
   deploy:
     name: Deploy production
-    needs: [static]
-    # Measured quality is advisory; only a failed static gate blocks production.
-    if: ${{ !cancelled() && needs.static.result == 'success' }}
+    needs: [static, measured-quality]
+    if: ${{ !cancelled() && needs.static.result == 'success' && needs.measured-quality.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
