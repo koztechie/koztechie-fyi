@@ -22,17 +22,20 @@ const pages = [
 const viewports = [320, 768, 1440];
 const failures = [];
 
-function makeImagesEager(directory) {
+function makeImagesEager(directory, originals) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) {
-      makeImagesEager(path);
+      makeImagesEager(path, originals);
     } else if (entry.isFile() && entry.name.endsWith(".html")) {
       const source = readFileSync(path, "utf8");
       const eager = source
         .replaceAll('loading="lazy"', 'loading="eager"')
         .replaceAll('decoding="async"', 'decoding="sync"');
-      if (eager !== source) writeFileSync(path, eager);
+      if (eager !== source) {
+        originals.push([path, source]);
+        writeFileSync(path, eager);
+      }
     }
   }
 }
@@ -62,52 +65,57 @@ function compareImages(actual, reference, diff) {
   return { metric, threshold: imagePixels(actual) * pixelThreshold };
 }
 
-// Full-page capture scrolls the document; eager loading removes lazy-image timing races.
-makeImagesEager(join(repoRoot, "dist"));
-mkdirSync(actualDir, { recursive: true });
-if (update) mkdirSync(referencesDir, { recursive: true });
+// Full-page capture scrolls the document; restore the build byte-for-byte afterward.
+const eagerOriginals = [];
+try {
+  makeImagesEager(join(repoRoot, "dist"), eagerOriginals);
+  mkdirSync(actualDir, { recursive: true });
+  if (update) mkdirSync(referencesDir, { recursive: true });
 
-for (const [name, path] of pages) {
-  for (const width of viewports) {
-    const filename = `${name}-${width}.png`;
-    const actual = join(actualDir, filename);
-    const reference = join(referencesDir, filename);
-    execFileSync(playwrightBin, [
-      "screenshot",
-      "--full-page",
-      "--wait-for-timeout",
-      "1000",
-      "--viewport-size",
-      `${width},900`,
-      `${origin}${path}`,
-      actual,
-    ], { cwd: toolsDir, stdio: "inherit" });
+  for (const [name, path] of pages) {
+    for (const width of viewports) {
+      const filename = `${name}-${width}.png`;
+      const actual = join(actualDir, filename);
+      const reference = join(referencesDir, filename);
+      execFileSync(playwrightBin, [
+        "screenshot",
+        "--full-page",
+        "--wait-for-timeout",
+        "1000",
+        "--viewport-size",
+        `${width},900`,
+        `${origin}${path}`,
+        actual,
+      ], { cwd: toolsDir, stdio: "inherit" });
 
-    if (update) {
-      execFileSync("cp", [actual, reference]);
-      console.log(`Оновлено reference: ${reference}`);
-    } else if (!existsSync(reference)) {
-      failures.push(`${filename}: reference відсутній`);
-    } else {
-      const diff = join(actualDir, `${name}-${width}-diff.png`);
-      const { metric, threshold } = compareImages(actual, reference, diff);
-      if (metric === 0) {
-        unlinkSync(diff, { force: true });
-        console.log(`✅ ${filename}: без diff`);
-      } else if (metric > threshold) {
-        failures.push(
-          `${filename}: ${metric} відмінних пікселів > ${Math.floor(threshold)} (${pixelThreshold * 100}%); diff: ${diff}`
-        );
-        console.error(
-          `❌ ${filename}: ${metric} пікселів > поріг ${Math.floor(threshold)}; diff: ${diff}`
-        );
+      if (update) {
+        execFileSync("cp", [actual, reference]);
+        console.log(`Оновлено reference: ${reference}`);
+      } else if (!existsSync(reference)) {
+        failures.push(`${filename}: reference відсутній`);
       } else {
-        console.log(
-          `⚠️ ${filename}: ${metric} пікселів у межах допуску ${Math.floor(threshold)}; diff: ${diff}`
-        );
+        const diff = join(actualDir, `${name}-${width}-diff.png`);
+        const { metric, threshold } = compareImages(actual, reference, diff);
+        if (metric === 0) {
+          unlinkSync(diff, { force: true });
+          console.log(`✅ ${filename}: без diff`);
+        } else if (metric > threshold) {
+          failures.push(
+            `${filename}: ${metric} відмінних пікселів > ${Math.floor(threshold)} (${pixelThreshold * 100}%); diff: ${diff}`
+          );
+          console.error(
+            `❌ ${filename}: ${metric} пікселів > поріг ${Math.floor(threshold)}; diff: ${diff}`
+          );
+        } else {
+          console.log(
+            `⚠️ ${filename}: ${metric} пікселів у межах допуску ${Math.floor(threshold)}; diff: ${diff}`
+          );
+        }
       }
     }
   }
+} finally {
+  for (const [path, source] of eagerOriginals) writeFileSync(path, source);
 }
 
 if (failures.length) {
