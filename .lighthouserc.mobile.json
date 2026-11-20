@@ -35,7 +35,7 @@
           }
         ],
         "categories:seo": [
-          "warn",
+          "error",
           {
             "minScore": 0.95
           }

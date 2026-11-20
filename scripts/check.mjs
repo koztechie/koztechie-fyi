@@ -138,6 +138,48 @@ if (existsSync(distDir)) {
     console.log(`  ✅ ${htmlFiles.length} HTML-файлів: обидва RSS title непорожні`);
   }
 
+  console.log("--- SEO title/description budgets ---");
+  let seoBudgetErrors = 0;
+  for (const file of htmlFiles) {
+    const rel = file.replace(distDir + "/", "");
+    const html = readFileSync(file, "utf-8");
+    const titleMatches = [...html.matchAll(/<title\b[^>]*>([\s\S]*?)<\/title\s*>/gi)];
+    const descriptionTags = [...html.matchAll(/<meta\b[^>]*>/gi)]
+      .map(([tag]) => parseHtmlAttributes(tag))
+      .filter((attributes) => attributes.name?.toLowerCase() === "description");
+    const title = titleMatches.length === 1
+      ? displayText(titleMatches[0][1])
+      : "";
+    const description = descriptionTags.length === 1
+      ? decodeHtmlEntities(descriptionTags[0].content || "").trim()
+      : "";
+    const titleLength = [...title].length;
+    const descriptionLength = [...description].length;
+
+    if (titleMatches.length !== 1 || titleLength === 0) {
+      console.log(`  ❌ ${rel}: потрібен рівно один непорожній <title>`);
+      seoBudgetErrors++;
+      totalErrors++;
+    } else if (titleLength > 60) {
+      console.log(`  ❌ ${rel}: title має ${titleLength} символів (ліміт 60)`);
+      seoBudgetErrors++;
+      totalErrors++;
+    }
+
+    if (descriptionTags.length !== 1 || descriptionLength === 0) {
+      console.log(`  ❌ ${rel}: потрібен рівно один непорожній meta description`);
+      seoBudgetErrors++;
+      totalErrors++;
+    } else if (descriptionLength > 155) {
+      console.log(`  ❌ ${rel}: description має ${descriptionLength} символів (ліміт 155)`);
+      seoBudgetErrors++;
+      totalErrors++;
+    }
+  }
+  if (seoBudgetErrors === 0) {
+    console.log(`  ✅ ${htmlFiles.length} HTML-файлів: 0 title понад 60 і 0 description понад 155 символів`);
+  }
+
   let overBudget = 0;
   for (const file of htmlFiles) {
     const content = readFileSync(file);
@@ -2664,4 +2706,31 @@ function walkDir(dir) {
     // Тека не існує або недоступна
   }
   return results;
+}
+
+function parseHtmlAttributes(tag) {
+  const attributes = {};
+  for (const match of tag.matchAll(/([^\s=/>]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g)) {
+    attributes[match[1].toLowerCase()] = match[2] ?? match[3] ?? match[4] ?? "";
+  }
+  return attributes;
+}
+
+function decodeHtmlEntities(value) {
+  const named = { amp: "&", apos: "'", gt: ">", lt: "<", nbsp: "\u00a0", quot: '"' };
+  return value.replace(/&(#(?:x[0-9a-f]+|[0-9]+)|[a-z][a-z0-9]+);/gi, (entity, reference) => {
+    if (reference[0] !== "#") return named[reference.toLowerCase()] ?? entity;
+    const hexadecimal = reference[1]?.toLowerCase() === "x";
+    const codePoint = Number.parseInt(reference.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10);
+    if (!Number.isInteger(codePoint) || codePoint < 0 || codePoint > 0x10ffff) return entity;
+    try {
+      return String.fromCodePoint(codePoint);
+    } catch {
+      return entity;
+    }
+  });
+}
+
+function displayText(value) {
+  return decodeHtmlEntities(value.replace(/<[^>]*>/g, "")).replace(/\s+/g, " ").trim();
 }

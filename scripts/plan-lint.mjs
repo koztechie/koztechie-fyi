@@ -191,8 +191,12 @@ canonicalAssert(/\| CSS \+ favicon \(сумарно\) \| ≤ 25 КБ/.test(stand
   "docs/TECH_STANDARDS.md: бюджет CSS + favicon не дорівнює 25 КБ");
 canonicalAssert(/\| Lighthouse accessibility \| = 100; error gate/.test(standards),
   "docs/TECH_STANDARDS.md: Lighthouse accessibility не має error gate 100");
-canonicalAssert(/\| Lighthouse SEO \| ≥ 95; warning only/.test(standards),
-  "docs/TECH_STANDARDS.md: Lighthouse SEO не має warning-only статусу");
+canonicalAssert(/\| HTML `<title>` \| 1 непорожній; ≤ 60 символів у кожному `dist\/\*\*\/\*\.html`/.test(standards),
+  "docs/TECH_STANDARDS.md: відсутній бюджет title для кожного dist HTML");
+canonicalAssert(/\| Meta description \| 1 непорожній; ≤ 155 символів у кожному `dist\/\*\*\/\*\.html`/.test(standards),
+  "docs/TECH_STANDARDS.md: відсутній бюджет description для кожного dist HTML");
+canonicalAssert(/\| Lighthouse SEO \| ≥ 95; error gate/.test(standards),
+  "docs/TECH_STANDARDS.md: Lighthouse SEO не має error gate");
 canonicalAssert(!/\[заповнити\]/i.test(facts),
   "docs/facts.md: залишилися placeholder-факти");
 
@@ -215,8 +219,9 @@ for (const [index, config] of lighthouseConfigs.entries()) {
     `${name}: accessibility має бути error з minScore=1`
   );
   canonicalAssert(
-    assertions["categories:seo"]?.[0] === "warn",
-    `${name}: SEO має бути warning-only`
+    assertions["categories:seo"]?.[0] === "error" &&
+      assertions["categories:seo"]?.[1]?.minScore === 0.95,
+    `${name}: SEO має бути error з minScore=0.95`
   );
 }
 
