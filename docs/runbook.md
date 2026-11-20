@@ -42,10 +42,22 @@ LINKCHECK_ORIGIN=https://koztechie.fyi node scripts/external-linkcheck.mjs --str
 перевіряються без використання локального `dist` як джерела сторінок. Probe
 не виконує `netlify deploy`, не змінює baseline і не оновлює контент.
 
-Повний понеділковий probe додатково виконує незалежну W3C Nu-перевірку п’яти
-production-сторінок через `validator.w3.org/nu/?doc=<url>&out=json`; gate
-відхиляє будь-яке повідомлення з `type: "error"`. Це доповнює, а не замінює
-локальний `html-validate`.
+Повний понеділковий probe додатково виконує W3C Nu-перевірку п’яти
+production-сторінок через `validator.w3.org/nu/?doc=<url>&out=json`. HTTP 429
+повторюється до двох разів із `Retry-After` або зростаючою паузою; якщо сервіс
+і далі недоступний, Nu залишається advisory, а тіло вже отриманого production
+HTML перевіряється локальним `html-validate`. Недоступність Nu не маскує
+помилки локальної перевірки. Якщо Nu доступний, його повідомлення `type: error`
+залишаються помилкою probe.
+
+Щоб перевірити fallback без навмисного навантаження на зовнішній валідатор:
+
+```bash
+LIVE_PROBE_NU_SIMULATE_429=1 npm run live-probe
+```
+
+Очікуваний результат — три simulated 429 на кожній із п’яти сторінок,
+п’ять успішних `html-validate` перевірок і загальний успіх probe.
 
 ### Клавіатура
 

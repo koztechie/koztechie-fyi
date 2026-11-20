@@ -1,15 +1,18 @@
 #!/usr/bin/env node
-// Синтетична production-перевірка без сторонніх сервісів і залежностей.
+// Синтетична production-перевірка; Nu advisory і має локальний HTML fallback.
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
+const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const origin = (process.env.LIVE_PROBE_ORIGIN || "https://koztechie.fyi").replace(/\/$/, "");
 const timeoutMs = 15_000;
 const userAgent = "koztechie.fyi live-probe/1.0";
 const failures = [];
 const ogImages = new Set();
+const fetchedProductionHtml = new Map();
 
 function fail(message) {
   failures.push(message);
@@ -126,6 +129,7 @@ async function checkPage(entry, sitemapMap) {
   }
 
   const html = await result.response.text();
+  fetchedProductionHtml.set(entry.loc, html);
   const parsed = parseHtml(html, entry.loc);
   for (const image of parsed.socialImages) ogImages.add(image);
   if (parsed.canonical !== entry.loc) {
@@ -342,39 +346,80 @@ async function checkNuValidation() {
   for (const path of paths) {
     const documentUrl = `${origin}${path}`;
     const nuUrl = `https://validator.w3.org/nu/?doc=${encodeURIComponent(documentUrl)}&out=json`;
+    let unavailableReason = "";
     try {
       let response;
       for (let attempt = 1; attempt <= 3; attempt++) {
-        response = await fetch(nuUrl, {
-          headers: { "user-agent": userAgent },
-          signal: AbortSignal.timeout(timeoutMs),
-        });
+        response = process.env.LIVE_PROBE_NU_SIMULATE_429 === "1"
+          ? new Response(null, { status: 429 })
+          : await fetch(nuUrl, {
+              headers: { "user-agent": userAgent },
+              signal: AbortSignal.timeout(timeoutMs),
+            });
         if (response.status !== 429 || attempt === 3) break;
-        const retryAfter = Number(response.headers.get("retry-after"));
-        const delayMs = Number.isFinite(retryAfter)
-          ? Math.min(retryAfter * 1000, 15_000)
-          : attempt * 3_000;
+        const retryAfter = response.headers.get("retry-after");
+        const retrySeconds = retryAfter?.trim() ? Number(retryAfter) : Number.NaN;
+        const retryDate = retryAfter ? Date.parse(retryAfter) : Number.NaN;
+        const delayMs = Number.isFinite(retrySeconds) && retrySeconds >= 0
+          ? Math.min(retrySeconds * 1000, 15_000)
+          : Number.isFinite(retryDate)
+            ? Math.min(Math.max(retryDate - Date.now(), 0), 15_000)
+            : Math.min(attempt * 3_000, 15_000);
         console.warn(`⚠️ Nu ${path}: HTTP 429, повтор через ${delayMs / 1000} с`);
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
       if (!response.ok) {
-        console.warn(`⚠️ Nu ${path}: зовнішній валідатор повернув HTTP ${response.status}; локальна HTML-перевірка лишається обов'язковою`);
-        continue;
-      }
-      const report = await response.json();
-      const errors = Array.isArray(report.messages)
-        ? report.messages.filter((message) => message.type === "error")
-        : [];
-      if (errors.length) {
-        fail(`Nu ${path}: ${errors.length} error(s)`);
-        for (const error of errors) {
-          console.error(`  ${error.message}${error.lastLine ? ` (${error.lastLine}:${error.lastColumn || 1})` : ""}`);
-        }
+        unavailableReason = `HTTP ${response.status}`;
       } else {
-        console.log(`✅ Nu ${path}: 0 errors`);
+        const report = await response.json();
+        const errors = Array.isArray(report.messages)
+          ? report.messages.filter((message) => message.type === "error")
+          : [];
+        if (errors.length) {
+          fail(`Nu ${path}: ${errors.length} error(s)`);
+          for (const error of errors) {
+            console.error(`  ${error.message}${error.lastLine ? ` (${error.lastLine}:${error.lastColumn || 1})` : ""}`);
+          }
+        } else {
+          console.log(`✅ Nu ${path}: 0 errors`);
+        }
       }
     } catch (error) {
-      console.warn(`⚠️ Nu ${path}: зовнішній валідатор недоступний (${error.message}); локальна HTML-перевірка лишається обов'язковою`);
+      unavailableReason = error.message;
+    }
+
+    if (unavailableReason) {
+      console.warn(`⚠️ Nu ${path}: advisory — ${unavailableReason}; запускаю локальний html-validate на production HTML`);
+      const html = fetchedProductionHtml.get(documentUrl);
+      if (!html) {
+        fail(`html-validate ${path}: не маю збереженої відповіді production HTML`);
+        continue;
+      }
+      const validator = spawnSync(
+        join(repoRoot, "scripts/tools/node_modules/.bin/html-validate"),
+        [
+          "--config",
+          join(repoRoot, ".htmlvalidate.json"),
+          "--stdin",
+          "--stdin-filename",
+          `production${path.replace(/\/$/, "") || "/index"}.html`,
+        ],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          input: html,
+        }
+      );
+      if (validator.error) {
+        fail(`html-validate ${path}: ${validator.error.message}`);
+      } else if (validator.status !== 0) {
+        fail(`html-validate ${path}: помилка(и) у production HTML`);
+        for (const line of `${validator.stdout || ""}${validator.stderr || ""}`.trim().split(/\r?\n/)) {
+          if (line) console.error(`  ${line}`);
+        }
+      } else {
+        console.log(`✅ html-validate ${path}: production HTML валідний`);
+      }
     }
   }
 }
