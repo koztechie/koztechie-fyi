@@ -2363,6 +2363,48 @@ if (!existsSync(redirectsPath)) {
   } else if (redirectErrors === 0) {
     console.log(`  ✅ ${redirectRules} правил (_redirects): 301 редиректи та локалізована 404`);
   }
+
+  const redirectLines = readFileSync(redirectsPath, "utf-8")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"));
+  const wwwRuleLines = redirectLines
+    .filter((line) => /^(https?):\/\/www\.koztechie\.fyi\/\*/.test(line));
+  if (wwwRuleLines.length !== 2) {
+    console.log(`  ❌ www→apex: очікуються дві scheme rules, знайдено ${wwwRuleLines.length}`);
+    redirectErrors++;
+  }
+  const wwwRules = new Map(
+    wwwRuleLines
+      .map((line) => {
+        const [from, to, status] = line.split(/\s+/);
+        return [new URL(from.replace("*", "matrix-path")).protocol, { from, to, status }];
+      }),
+  );
+  const redirectMatrix = [
+    ["https:", "/", ""],
+    ["https:", "/manifest/", ""],
+    ["https:", "/manifest/", "?source=matrix"],
+    ["http:", "/", ""],
+    ["http:", "/manifest/", ""],
+    ["http:", "/manifest/", "?source=matrix"],
+  ];
+  let matrixPassed = 0;
+  for (const [protocol, path, search] of redirectMatrix) {
+    const rule = wwwRules.get(protocol);
+    const expected = `https://koztechie.fyi${path}${search}`;
+    const actual = rule?.to
+      .replace(":splat", path.replace(/^\//, "").split("?")[0])
+      .concat(search);
+    const sourceMatches = rule?.from === `${protocol}//www.koztechie.fyi/*`;
+    if (sourceMatches && rule.status === "301!" && actual === expected) {
+      matrixPassed++;
+    } else {
+      console.log(`  ❌ www→apex ${protocol} ${path}${search}: правило не відповідає ${expected}`);
+      redirectErrors++;
+    }
+  }
+  console.log(`  ${matrixPassed === redirectMatrix.length ? "✅" : "❌"} www→apex matrix: ${matrixPassed}/${redirectMatrix.length}`);
   totalErrors += redirectErrors;
 }
 console.log("");
