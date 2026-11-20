@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: production-deploy
@@ -206,15 +207,42 @@ jobs:
 
       - name: Post-deploy live smoke (headers/redirects/CSP parity)
         id: smoke
+        env:
+          EXPECTED_COMMIT_SHA: ${{ github.sha }}
         run: npm run live-probe:light
 
       - name: Auto-rollback on smoke failure
+        id: rollback
         if: failure() && steps.smoke.outcome == 'failure'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           CURRENT_DEPLOY_ID: ${{ steps.deploy.outputs.deploy_id }}
         run: node scripts/rollback-production.mjs
+
+      - name: Open incident issue after smoke failure
+        if: failure() && steps.smoke.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.sha }}
+          DEPLOY_ID: ${{ steps.deploy.outputs.deploy_id }}
+          ROLLBACK_OUTCOME: ${{ steps.rollback.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          issue_body="$(cat <<EOF
+          Post-deploy smoke failed for production.
+
+          - Commit: \`$COMMIT_SHA\`
+          - Netlify deploy ID: \`${DEPLOY_ID:-missing}\`
+          - Rollback step: \`${ROLLBACK_OUTCOME:-not-run}\`
+          - Workflow run: $RUN_URL
+
+          Review the smoke and rollback logs, verify the active production deploy, and close this issue after resolving the incident.
+          EOF
+          )"
+          gh issue create \
+            --title "Production smoke failed: ${COMMIT_SHA:0:12}" \
+            --body "$issue_body"
 
       - name: Verify feedback channel after deploy (G-01)
         run: npm run email-dns-gate

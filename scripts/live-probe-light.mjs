@@ -3,15 +3,23 @@
 
 const origin = (process.env.LIVE_PROBE_ORIGIN || "https://koztechie.fyi").replace(/\/$/, "");
 const timeoutMs = 4_500;
-const requestSignal = AbortSignal.timeout(timeoutMs);
 const checks = [
   "/",
   "/en/",
   "/accessibility/",
   "/en/accessibility/",
+  "/colophon/",
+  "/en/colophon/",
+  "/contact/",
+  "/en/contact/",
+  "/manifest/",
+  "/en/manifest/",
+  "/privacy/",
+  "/en/privacy/",
   "/.well-known/security.txt",
 ];
 const failures = [];
+const stylesheetPaths = new Set();
 
 function fail(message) {
   failures.push(message);
@@ -23,7 +31,7 @@ async function get(path, options = {}) {
     return await fetch(`${origin}${path}`, {
       redirect: options.redirect || "follow",
       headers: { "user-agent": "koztechie.fyi light-live-probe/1.0" },
-      signal: requestSignal,
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (error) {
     fail(`${path}: ${error.message}`);
@@ -33,6 +41,7 @@ async function get(path, options = {}) {
 
 const pageResults = await Promise.all(checks.map(async (path) => [path, await get(path)]));
 let rootHtml = "";
+const htmlPages = [];
 
 for (const [path, response] of pageResults) {
   if (!response) continue;
@@ -67,7 +76,9 @@ for (const [path, response] of pageResults) {
         fail(`${path}: Cache-Control не містить max-age=0,must-revalidate`);
       }
     }
-    if (path === "/") rootHtml = await response.text();
+    const html = await response.text();
+    htmlPages.push({ path, html });
+    if (path === "/") rootHtml = html;
   } else {
     const body = await response.text();
     if (!/^Contact:\s*mailto:\S+$/mi.test(body)) {
@@ -76,6 +87,72 @@ for (const [path, response] of pageResults) {
   }
 
   console.log(`✅ ${path}: 200`);
+}
+
+console.log(`HTML-сторінок перевірено: ${htmlPages.length}/${checks.length - 1}`);
+
+const versionResponse = await get("/version.json");
+let deployedSha = "";
+if (versionResponse?.status !== 200) {
+  fail(`/version.json: очікувався 200, отримано ${versionResponse?.status || "network"}`);
+} else {
+  try {
+    const version = await versionResponse.json();
+    deployedSha = typeof version.sha === "string" ? version.sha : "";
+  } catch {
+    fail("/version.json: невалідний JSON");
+  }
+}
+
+const expectedSha = process.env.EXPECTED_COMMIT_SHA?.trim() || deployedSha;
+if (!/^[a-f0-9]{40}$/i.test(expectedSha)) {
+  fail(`Очікуваний commit SHA не задано або він невалідний: «${expectedSha || "порожній"}»`);
+}
+
+for (const { path, html } of htmlPages) {
+  const commitSha = html.match(/<meta\b(?=[^>]*\bname=["']x-commit["'])[^>]*\bcontent=["']([^"']*)["'][^>]*>/i)?.[1];
+  if (commitSha !== expectedSha) {
+    fail(`${path}: x-commit «${commitSha || "відсутній"}» не збігається з ${expectedSha}`);
+  }
+
+  // JSON-LD є даними, а не виконуваним JavaScript; решта script-тегів заборонена.
+  const scriptTags = [...html.matchAll(/<script\b[^>]*>/gi)].map((match) => match[0]);
+  const executableTags = scriptTags.filter(
+    (tag) => !/\btype=["']application\/ld\+json["']/i.test(tag),
+  );
+  if (executableTags.length) {
+    fail(`${path}: знайдено ${executableTags.length} виконуваних <script> (дозволено лише JSON-LD)`);
+  }
+
+  const stylesheetTag = [...html.matchAll(/<link\b[^>]*>/gi)]
+    .map((match) => match[0])
+    .find((tag) => {
+      const rel = tag.match(/\brel=["']([^"']+)["']/i)?.[1] || "";
+      const href = tag.match(/\bhref=["']([^"']+)["']/i)?.[1] || "";
+      return rel.split(/\s+/).includes("stylesheet") && /\/styles\/site\.[^/]+\.css$/.test(href);
+    });
+  const pageStylesheet = stylesheetTag?.match(/\bhref=["']([^"']+)["']/i)?.[1];
+  if (!pageStylesheet) {
+    fail(`${path}: fingerprinted site stylesheet відсутній`);
+  } else {
+    stylesheetPaths.add(new URL(pageStylesheet, `${origin}/`).pathname);
+  }
+
+  console.log(`✅ ${path}: x-commit ${commitSha === expectedSha ? "PASS" : "FAIL"}; виконуваних script ${executableTags.length}`);
+}
+
+for (const path of stylesheetPaths) {
+  const response = await get(path);
+  if (response?.status !== 200) {
+    fail(`${path}: очікувався 200, отримано ${response?.status || "network"}`);
+    continue;
+  }
+  const css = await response.text();
+  if (!/--paper\s*:/.test(css)) {
+    fail(`${path}: CSS не містить palette token --paper`);
+  } else {
+    console.log(`✅ ${path}: palette token --paper присутній`);
+  }
 }
 
 const stylesheetTag = [...rootHtml.matchAll(/<link\b[^>]*>/gi)]
