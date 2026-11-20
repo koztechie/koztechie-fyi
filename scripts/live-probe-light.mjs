@@ -90,6 +90,15 @@ for (const [path, response] of pageResults) {
 }
 
 console.log(`HTML-сторінок перевірено: ${htmlPages.length}/${checks.length - 1}`);
+if (htmlPages.length < 10) {
+  fail(`Перевірено лише ${htmlPages.length} HTML-сторінок; потрібно щонайменше 10`);
+}
+if (
+  !htmlPages.some(({ path }) => !path.startsWith("/en/")) ||
+  !htmlPages.some(({ path }) => path.startsWith("/en/"))
+) {
+  fail("У smoke мають успішно перевірятися HTML-сторінки обома мовами");
+}
 
 const versionResponse = await get("/version.json");
 let deployedSha = "";
