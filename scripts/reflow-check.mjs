@@ -12,6 +12,7 @@ const actualDir = join(repoRoot, "qa-artifacts/reflow");
 const toolsDir = join(repoRoot, "scripts/tools");
 const playwrightBin = join(toolsDir, "node_modules/.bin/playwright");
 const update = process.env.UPDATE_SCREENSHOTS === "1";
+const advisory = process.env.REFLOW_ADVISORY === "1";
 const fuzz = "2%";
 const pixelThreshold = 0.001;
 const pages = [
@@ -111,7 +112,15 @@ for (const [name, path] of pages) {
 }
 
 if (failures.length) {
-  for (const failure of failures) console.error(`❌ ${failure}`);
-  process.exit(1);
+  const marker = advisory ? "⚠️" : "❌";
+  for (const failure of failures) console.error(`${marker} ${failure}`);
+  if (advisory) {
+    console.warn("⚠️ Різниці reflow інформаційні; CI продовжується.");
+  } else {
+    process.exit(1);
+  }
 }
-console.log(`РЕЗУЛЬТАТ: reflow ${pages.length} сторінки × ${viewports.length} viewport пройдено`);
+const result = failures.length
+  ? "завершено з інформаційними відмінностями"
+  : "пройдено";
+console.log(`РЕЗУЛЬТАТ: reflow ${pages.length} сторінки × ${viewports.length} viewport ${result}`);

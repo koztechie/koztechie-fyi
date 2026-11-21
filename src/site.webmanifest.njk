@@ -28,6 +28,6 @@ eleventyExcludeFromCollections: true
       "type": "image/png"
     }
   ],
-  "theme_color": "#fafafa",
-  "background_color": "#fafafa"
+  "theme_color": {{ themeColors.paper | json | safe }},
+  "background_color": {{ themeColors.paper | json | safe }}
 }

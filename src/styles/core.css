@@ -1,17 +1,14 @@
 /* core.css: типографічна база
-   Канонічне джерело: docs/design-system.md §5
+   Канонічне джерело: docs/design-system.md §3
    Порядок завантаження: core → layout → components → themes → print
    TECH_STANDARDS.md §4.1 */
 
 /* Системні шрифтові стеки: без завантажень шрифтових файлів. */
 :root {
-  /* Основний текст — системний гротеск. */
-  --font-text: system-ui, -apple-system, "Segoe UI", sans-serif;
-
-  /* Інтерфейс — системний гротеск. */
+  /* Display та читання спираються лише на локальні системні гарнітури. */
+  --font-display: ui-serif, Georgia, "Times New Roman", serif;
+  --font-text: Georgia, "Times New Roman", serif;
   --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
-
-  /* Моноширинний стек для міток і коду. */
   --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 
   --text-sm: 0.875rem;
@@ -19,12 +16,11 @@
   --text-lg: 1.125rem;
   --text-xl: 1.25rem;
 
-  /* Вертикальний ритм та ширина рядка. */
+  /* Ритм читання та межі головної композиції. */
   --leading: 1.65;
-  --measure: 40rem;
-
-  --container: 84rem;
-  --header-h: 4.5rem;
+  --measure: 44rem;
+  --container: 100rem;
+  --rail: 16rem;
   --tap: 44px;
 
   /* Шкала відступів. */
@@ -35,7 +31,7 @@
   --s24: 6rem;    /* 96px */
 }
 
-/* Типографічна база (design-system.md §5).
+/* Типографічна база (design-system.md §3).
    Змінні визначені вище; кольори --paper/--ink — у themes.css (порядок не важливий
    для var(), резолв у computed time). */
 /* Padding враховується у ширині елемента. */
@@ -62,25 +58,26 @@ main:focus {
   outline: none;
 }
 
-/* Заголовки: стисла ієрархія та системний гротеск. */
-h1,
-h2,
-h3 {
-  font-family: var(--font-ui);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+/* Заголовки й керування — системний гротеск; довгий текст — антиква. */
+h1 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
   text-wrap: balance;
 }
-h1 {
-  font-size: clamp(2.5rem, 1.5rem + 5vw, 6rem);
-}
 h2 {
-  font-size: clamp(1.75rem, 1.25rem + 2vw, 2.75rem);
+  font-family: var(--font-ui);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  font-size: clamp(1.5rem, 1.2rem + 1.35vw, 2.2rem);
 }
 h3 {
-  font-size: var(--text-xl);
+  font-family: var(--font-ui);
   font-weight: 700;
+  line-height: 1.2;
+  font-size: var(--text-xl);
   letter-spacing: 0;
 }
 h4,
@@ -119,14 +116,14 @@ h6 {
   color: var(--paper);
 }
 
-:is(.site-header, .site-footer, .home-hero, .card--nichlyst, pre) ::selection,
+:is(.site-header, .site-footer, .home-hero, .home-panel--nichlyst, pre) ::selection,
 :is(.entry-line, .nichlyst-status, .content-warning, .passport .hl,
     .pagination .current, .letter-cta a)::selection {
-  background: var(--paper);
-  color: var(--link);
+  background: var(--accent-night);
+  color: var(--night);
 }
 
-article.home .card--nichlyst ::selection {
+article.home .home-panel--nichlyst ::selection {
   background: var(--world-bg);
   color: var(--world-accent);
 }
@@ -204,7 +201,7 @@ a:focus-visible {
 
   .entry--closed .entry-line,
   .nichlyst-status,
-  article.home .card--nichlyst {
+  article.home .home-panel--nichlyst {
     forced-color-adjust: auto;
   }
 }

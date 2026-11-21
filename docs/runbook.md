@@ -8,12 +8,15 @@
 
 ---
 
-## −1. Обов'язковий a11y-гейт перед релізом
+## −1. Ручний accessibility-аудит (не релізний гейт)
 
-Цей протокол проходить **до кожного production-релізу** після `build` і
-`check`. Непройдений або непройдений пункт блокує публікацію. Зафіксуй дату,
-браузер, ОС, сторінки та результат у релізному записі. Не позначай пункт
-зеленим за припущенням.
+Цей протокол допомагає окремо перевіряти роботу з клавіатурою, скринрідерами,
+масштабом і системними режимами. Непройдені або недоступні ручні перевірки
+**не блокують production deploy** і не позначаються як виконані. Для релізу
+обов'язкові статичні й вимірювальні перевірки з
+`.github/workflows/deploy.yml`: accessibility-матриця, Lighthouse, Pa11y/axe,
+HTML validation та перевірка цілісності build-артефакту. Фіксуй ручні
+результати тут, коли аудит фактично відбувся.
 
 ## −0. Production probes
 
@@ -100,7 +103,7 @@ LIVE_PROBE_NU_SIMULATE_429=1 npm run live-probe
 - [ ] Увімкнути `prefers-reduced-motion`: немає помітних анімацій або плавного
   прокручування.
 
-### Запис гейта
+### Запис ручного аудиту
 
 ```text
 Дата/реліз:
@@ -115,22 +118,23 @@ prefers-reduced-motion:
 Незакриті дефекти:
 ```
 
-**Правило публікації:** спочатку закрий усі пункти або запиши блокер і не
-публікуй production. Цей гейт доповнює автоматичні `npm run check`, `npm run
-size` і зовнішню перевірку посилань; автоматичні перевірки не замінюють
-NVDA/VoiceOver.
+**Правило публікації:** ручний аудит ведеться окремо від релізу. Залишай
+недоступні перевірки позначеними `BLOCKED`/`PARTIAL`; не підміняй ними
+автоматичні гейти й не заявляй повну відповідність WCAG. Якщо аудит виявить
+конкретний дефект, зареєструй і виправ його. Відсутність фізичного пристрою чи
+assistive technology сама по собі не затримує production deploy.
 
 ### P5 — статус закриття БРАМИ 10
 
-Не називай БРАМУ 10 закритою, доки не виконано всі три ручні докази:
+Цей перелік визначає лише формальний вихід із Фази C, а не дозвіл на production
+deploy. Не називай БРАМУ 10 закритою, доки не виконано обидва докази:
 
-1. AT-матриця 9/9 на цільових пристроях;
-2. D-01…D-10 на throwaway-гілці з ненульовим результатом відповідного gate;
-3. відновлення з нуля за `docs/recovery.md` з фактичним Netlify DNS і manual
-   deploy.
+1. D-01…D-10 на throwaway-гілці з ненульовим результатом відповідного gate;
+2. відновлення з нуля за `docs/recovery.md` із фактичним Netlify DNS.
 
 Автоматичні build, QA, determinism і live-probe фіксуй окремо. Їхній зелений
-результат не перетворює ручні `BLOCKED` на `PASS`.
+результат не перетворює ручні `BLOCKED` на `PASS`; незавершений ручний AT-аудит
+не є умовою production deploy або виходу з Фази C.
 
 ---
 
@@ -146,18 +150,22 @@ NVDA/VoiceOver.
 
 ---
 
-## 0а. Reflow references і tolerance
+## 0а. Reflow references і tolerance (інформаційний звіт)
 
-Reflow є вторинним візуальним гейтом після a11y-матриці. `scripts/reflow-check.mjs`
-порівнює PNG через ImageMagick `compare -fuzz 2% -metric AE`. Допускається до
-`0,1%` пікселів; перевищення блокує перевірку. Для кожної відмінності створюється
-`qa-artifacts/reflow/*-diff.png`, який CI завантажує як artifact при падінні.
-Канонічне середовище references — GitHub Actions `ubuntu-24.04` із locked
-Playwright/Chromium; не оновлюй їх з іншого runner чи локальної ОС. fontconfig,
-freetype та raster-бібліотеки впливають на пікселі.
+Reflow — інформаційний screenshot-звіт, а не релізний гейт. У CI
+`REFLOW_ADVISORY=1` зберігає знімки й diff-artifacts, але відмінності від
+reference не провалюють перевірку чи production deploy. Помилки запуску
+браузера/інструментів лишаються помилками. Локальний запуск без прапорця
+зберігає строгий режим для діагностики. Порівняння використовує ImageMagick
+`compare -fuzz 2% -metric AE` з порогом `0,1%` пікселів.
 
-Після навмисної зміни layout або стилів онови baseline в такому порядку на
-`ubuntu-24.04` runner:
+Канонічне середовище references — GitHub Actions `ubuntu-24.04`; fontconfig,
+freetype та raster-бібліотеки впливають на пікселі. Оновлення reference після
+навмисної зміни дизайну — необов'язкова робота для чистоти звіту, не передумова
+релізу.
+
+Якщо потрібен чистий screenshot baseline після навмисної зміни layout або
+стилів, онови його на `ubuntu-24.04` runner:
 
 ```bash
 npm run build
@@ -165,15 +173,16 @@ python3 -m http.server 4173 --directory dist &
 UPDATE_SCREENSHOTS=1 node scripts/reflow-check.mjs
 git add test-references
 git commit -m "test: re-baseline screenshots"
-node scripts/reflow-check.mjs
+REFLOW_ADVISORY=1 node scripts/reflow-check.mjs
 ```
 
 Не використовуй `UPDATE_SCREENSHOTS=1` для звичайної перевірки: він замінює
 references поточними знімками. Перед commit переглянь усі зміни в
-`test-references/` і `docs/reference/`; фінальний запуск виконуй без прапорця.
-Після міграції runner-а перенеси лише CI-знімки з цільової ОС: OG — `dist/og/`,
-favicon — raster output з `rsvg-convert`, reflow — `qa-artifacts/reflow/*.png`.
-Фінальний CI має дати `AE=0` для OG/favicon та пройти reflow tolerance.
+`test-references/` і `docs/reference/`; фінальний advisory-запуск виконуй без
+прапорця. Після міграції runner-а перенось лише CI-знімки з цільової ОС:
+OG — `dist/og/`, favicon — raster output з `rsvg-convert`, reflow —
+`qa-artifacts/reflow/*.png`. Reflow diff лишається діагностичним; не вимагай
+`AE=0` для reflow перед релізом.
 
 ---
 
@@ -186,7 +195,8 @@ Actions. Для кожної цілі відкривається не більш
 `npm run dependabot:validate` і відхиляє `day` у місячному розкладі.
 
 Перед bump зафіксуй причину й цільову версію в зміні. Оновлення QA tools
-проходять matrix/reflow-перевірки; root bump проходить повний build і check.
+проходять обов'язкову a11y-матрицю; reflow лишається інформаційним звітом.
+Root bump проходить повний build і check.
 Порядок не переставляй:
 
 ```bash

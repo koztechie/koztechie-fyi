@@ -19,12 +19,15 @@ eleventyExcludeFromCollections: true
 {% block social_meta %}{% endblock %}
 
 {% block content %}
-<article class="page">
+<article class="error-record">
+  <p class="error-record__code" aria-hidden="true">404</p>
   <h1>{{ strings.page_404.text }}</h1>
-  <p>{{ strings.page_404.explanation }}</p>
-  <ul>
-    <li><a href="/en/">{{ strings.page_404.home_link }}</a></li>
-    <li><a href="/en/#home-sections-h">{{ strings.page_404.sections_link }}</a></li>
-  </ul>
+  <p class="error-record__explanation">{{ strings.page_404.explanation }}</p>
+  <nav aria-label="{{ strings.page_404.sections_link }}">
+    <ul class="error-record__links">
+      <li><a href="/en/">{{ strings.page_404.home_link }}</a></li>
+      <li><a href="/en/#home-sections-h">{{ strings.page_404.sections_link }}</a></li>
+    </ul>
+  </nav>
 </article>
 {% endblock %}

@@ -1,7 +1,7 @@
 ---
 title: "NICHLYST"
 lang: uk
-layout: page.njk
+layout: project.njk
 structured_data: nichlyst
 updated: 2026-11-20
 content_warning: [війна, травма]
@@ -9,7 +9,7 @@ summary: "NICHLYST — сюжетна гра для Android про збиран�
 og_description: "Сюжетна гра для Android про збирання та збереження пам'яті від Євгенія Козловського."
 og_title: "NICHLYST — koztechie"
 og_image: "/og/nichlyst-uk-v2.png"
-og_image_alt: "koztechie — нічна картка NICHLYST із назвою гри, рожевим маркером сигналу та лініями запису."
+og_image_alt: "koztechie — темне поле NICHLYST із назвою гри та теракотовою лінією."
 translation_status: complete
 draft: false
 ---

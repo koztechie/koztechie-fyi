@@ -1,7 +1,7 @@
 ---
 title: "NICHLYST"
 lang: en
-layout: page.njk
+layout: project.njk
 structured_data: nichlyst
 updated: 2026-11-20
 content_warning: [війна, травма]
@@ -9,7 +9,7 @@ summary: "NICHLYST is an indie narrative game for Android about memory, listenin
 og_description: "An indie narrative game for Android by Eugene Kozlovsky. Listen, document, and protect stories from corruption."
 og_title: "NICHLYST — koztechie"
 og_image: "/og/nichlyst-en-v2.png"
-og_image_alt: "koztechie — a night-themed NICHLYST card with the game title, a pink signal marker, and record lines."
+og_image_alt: "koztechie — a dark NICHLYST field with the game title and a terracotta line."
 translation_status: complete
 draft: false
 ---

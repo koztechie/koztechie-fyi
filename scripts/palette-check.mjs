@@ -3,9 +3,11 @@
 
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { selectActiveCssFiles } from "./active-css.mjs";
 import { readThemeColors, paletteRatioRows, renderPaletteRatioTable } from "./theme-colors.mjs";
 
 const themePath = resolve("src/styles/themes.css");
+const distDir = resolve("dist");
 if (!existsSync(themePath)) {
   console.error("❌ src/styles/themes.css не існує");
   process.exit(1);
@@ -58,8 +60,16 @@ function filesUnder(path) {
   );
 }
 
-const auditedFiles = [...new Set(colorSources.flatMap(filesUnder))]
-  .filter((file) => /\.(?:css|njk|svg|webmanifest)$/i.test(file));
+const colorFiles = [...new Set(colorSources.flatMap(filesUnder))];
+const retainedCss = colorFiles.filter((file) =>
+  file.startsWith(`${distDir}/styles/`)
+  && /^(?:site|print)\.[a-f0-9]{12}\.css$/i.test(file.slice(file.lastIndexOf("/") + 1))
+);
+const activeCss = new Set(selectActiveCssFiles(distDir, retainedCss));
+const auditedFiles = colorFiles
+  .filter((file) => /\.(?:css|njk|svg|webmanifest)$/i.test(file))
+  // Старі fingerprints лишаються для N-1 кешованого HTML, але не є активною темою.
+  .filter((file) => !retainedCss.includes(file) || activeCss.has(file));
 const allowedHex = new Set(Object.values(baseColors));
 for (const file of auditedFiles) {
   const content = readFileSync(file, "utf8");

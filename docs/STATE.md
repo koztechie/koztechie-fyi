@@ -10,10 +10,10 @@
 
 | Поле | Значення |
 |------|----------|
-| Фаза | A (Запуск) |
-| Крок | 155–200 (кроки 1–154 виконано, БРАМИ 0–4 пройдено) |
+| Фаза | C (антикрихкість; вихід не підтверджено; відкриті кроки A/B лишаються окремими блокерами) |
+| Крок | 318 — вихід із Фази C / БРАМА 10 (`⏳`) |
 | Рівень енергії | [ОНОВЛЮВАТИ ВРУЧНУ, 0–10] |
-| Блокери | 155: текст допису відсутній — потрібен експорт Facebook (автор) |
+| Блокери | 155: потрібен експорт Facebook; 166: не підтверджене подання sitemap у GSC; БРАМА 6: анонс не підтверджено; БРАМИ 7–9: лишилися незавершені контентні й тестові кроки; БРАМА 10: D-01…D-10, D-21, G-13 і zero-to-live не підтверджені. Ручний AT-аудит незавершений, але не блокує deploy або вихід із Фази C |
 
 ---
 
@@ -40,11 +40,11 @@
 | A | 77–104 | 3 | `design-system.md`; 6 CSS-файлів; ≤ 15 КБ | ✅ 2026-10-18 |
 | A | 105–136 | 4 | Сайт збирається; мови працюють; RSS валідний | ✅ 2026-10-25 |
 | A | 137–168 | 5 | Сайт живе на `koztechie.fyi`; історія чиста | ✅ 2026-11-07 |
-| A | 169–200 | 6 | ≥ 14 днів; баги закриті; репозиторій публічний | ⏳ |
-| B | 201–229 | 7 | Палітра NICHLYST зелена; лінки живі | ⏳ |
-| B | 230–268 | 8 | Усі розділи; жодних «скоро» | ⏳ |
-| B | 269–279 | 9 | Усі перевірки зелені | ⏳ |
-| C | 280–318 | 10 | Ритм, ранбук, тест смерті | ⏳ |
+| A | 169–200 | 6 | ≥ 14 днів; баги закриті; анонс опубліковано; репозиторій публічний | ⏳ Репозиторій public, відкритих GitHub issues 0; анонс/пост і двотижневий підсумок не підтверджені (PLAN 192–193, 198–199) |
+| B | 201–229 | 7 | Палітра NICHLYST зелена; юридичне правило дотримано; лінки живі | ⏳ Акт 7 не завершено: у PLAN 201–229 виконання повністю не підтверджене |
+| B | 230–268 | 8 | Усі розділи; жодних «скоро» | ⏳ Незавершені контентні кроки; зокрема PLAN 234–256 і відкриті редакційні блокери |
+| B | 269–279 | 9 | Усі перевірки зелені | ⏳ Ручне читання та ACT 9 не підтверджені; Reflow matrix у run 44824303294 завершився failure, тепер це інформаційний звіт, не release gate |
+| C | 280–318 | 10 | Ритм, ранбук, тест смерті й аудит публічних тверджень: machine gate або ACCEPT | ⏳ D-01…D-10, D-21, G-13 і zero-to-live не підтверджені; D-16 production PASS у run 44824303294. Ручний AT-аудит не блокує фазу чи deploy |
 
 ---
 
@@ -252,3 +252,5 @@
 | 2026-11-20 | T-7.3 / Z-19 | Netlify DNS zone `koztechie.fyi` (`6af06223dbb8325f043b58f0`), `docs/infra-email.md` | Перед зміною експортовано всі 10 записів у `/mnt/data/koztechie-fyi-dns-zone-2026-11-20-t73.json` (0600, поза git). Додано обидва CAA `issue`/`issuewild` для letsencrypt.org; `dig CAA` підтвердив обидва. Поточний `zmail` DKIM — 1024-бітний, G-01 проходить. Перегенерація DKIM заблокована: Zoho Admin показує форму входу, активної авторизованої сесії немає; ключ не змінювався. |
 | 2026-11-19 | T-6.3 / D-22 | `static/root/_redirects`, `scripts/check.mjs`, `scripts/live-probe-light.mjs`, `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, `docs/runbook.md`, `docs/drills.md` | Обрано єдиний canonical host: forced 301 для `https://koztechie.netlify.app/*` на `.fyi`, правило стоїть перед path redirects. Netlify URL більше не діагностичне дзеркало; runbook спирається на `curl --resolve` для перевірки DNS-незалежного endpoint. Корінь, `/en/` і вкладений URL із query перевірено production probe-ом за один хоп. |
 | 2026-11-20 | T-9.4 | `.github/workflows/deploy.yml`, `scripts/live-probe.mjs`, `scripts/external-linkcheck.mjs` | Виправлено хибні deploy-блокери: production OG перевіряється на HTTP 200 та PNG 1200×630 замість піксельного порівняння з локальним reference; W3C Nu 429 і зовнішні link-помилки є advisory; live a11y матриця працює на зібраному `dist`; production crawler більше не завантажує очікувані 404 documents. У workflow статична QA лишається обов’язковою, Lighthouse/a11y/reflow/Pa11y — advisory і не блокують deploy. Build, `qa:all`, determinism, full live-probe пройшли; post-deploy light smoke та G-01 пройшли. Production deploy `6affef3f2cfa308eae0a9d48` — ready. |
+| 2026-11-21 | 4.8 / status reconciliation | `docs/PLAN.md`, `docs/STATE.md`, `docs/drills.md` | Локально пройшли `build`, `qa:all`, `plan-lint`, `check:determinism`, `git diff --check`. GitHub run [44824303294](https://github.com/koztechie/koztechie-fyi/actions/runs/44824303294), SHA `21224f6`: Static QA, production deploy, post-deploy smoke і G-01 — success; D-16 перевірено production probe-ом: попередні CSS fingerprints = HTTP 200. Той самий run: Lighthouse desktop/mobile і a11y matrix завершилися success, але advisory Reflow matrix — failure; не позначати всі вимірювання зеленими. Наступний Netlify production deploy `6b0152554c08238358db1d8f` ready; live `/` і `/.well-known/security.txt` = 200, HSTS присутній. Deploy-preview `6aff1988ddaa5bad08db6130` = HTTP 200 + `X-Robots-Tag: noindex` (PLAN 162 підтверджено). GitHub repo — public; відкритих issues — 0. Гейт 6 лишився відкритим через непідтверджений анонс; 7–9 — через незавершені кроки та Reflow; брама 10 лишається `⏳` через AT, chaos-drills, D-21 і G-13/recovery. PLAN 166 повернуто в `⏳`: подання sitemap у GSC не має авторського підтвердження. |
+| 2026-11-21 | R3.0 / локальний QA | `docs/design-system.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, `docs/testing.md`, `docs/PLAN.md`, шаблони й валідатор | Після збірки та `qa:all` пройшла axe-матриця 38 сторінок × 7 режимів; усі 38 HTML перевірено на 320/768/1440px (114 комбінацій), без overflow і без відхилень h1. Mobile Lighthouse виконав 9 прогонів на Playwright Chromium 159: error-гейти LCP ≤1434 мс, CLS=0, TBT≤564 мс, a11y=1 і SEO=1 пройшли; performance головної — 0.85–0.93 за warning-порогом 0.95. Системний Google Chrome локально падає в crashpad; тест завершено штатним Chromium Playwright. `check:determinism` (два ідентичні build), `plan-lint` і `git diff --check` пройшли. Screenshot baseline не оновлено; після R3.1 reflow працює в advisory-режимі й diff не блокує CI чи deploy. Ручний AT-аудит лишається незавершеним, але не є release gate. PLAN 271, 272 і 274 позначено виконаними; `/now/` uk/en оновлено по суті статусу проєкту. |

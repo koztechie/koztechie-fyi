@@ -2,7 +2,7 @@
 title: "Зараз"
 lang: uk
 layout: now.njk
-updated: 2026-11-20
+updated: 2026-11-21
 summary: "Над чим я зараз працюю: розробка особистого сайту koztechie.fyi та гри NICHLYST."
 og_description: "Сторінка «Зараз». Над чим я працюю саме в цей час."
 translation_status: complete
@@ -11,7 +11,7 @@ season: "листопад 2026 року"
 working_on:
   - label: "koztechie.fyi"
     url: "/"
-    detail: "— production-деплой і автоматичні перевірки доступності, CI-гейти для reflow і Lighthouse, квартальний chaos drill для семи типів дефектів та monthly cadence для QA-залежностей пройдено; перший deploy з успішними static QA, measured-quality та post-deploy smoke позначено релізом v1.0.0; ручна AT-верифікація триває."
+    detail: "— завершив переосмислення сайту: окрема композиція для кожного типу сторінки, світле поле читання й темна навігація. Автоматичні адаптивні та доступнісні перевірки пройшли; ручний AT-аудит триває окремо."
   - label: "NICHLYST"
     url: "/nichlyst/"
     detail: "— доповнюю сторінку гри й прескіт."

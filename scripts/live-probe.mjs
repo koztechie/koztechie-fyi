@@ -5,11 +5,13 @@ import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readThemeColors } from "./theme-colors.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const origin = (process.env.LIVE_PROBE_ORIGIN || "https://koztechie.fyi").replace(/\/$/, "");
 const timeoutMs = 15_000;
 const userAgent = "koztechie.fyi live-probe/1.0";
+const themeColors = readThemeColors();
 const failures = [];
 const ogImages = new Set();
 const fetchedProductionHtml = new Map();
@@ -225,8 +227,8 @@ async function checkProductionParity() {
         name: "koztechie",
         short_name: "koztechie",
         description: "Текст без прикрас. Архівний вузол Євгенія Козловського.",
-        theme_color: "#fafafa",
-        background_color: "#fafafa",
+        theme_color: themeColors.paper,
+        background_color: themeColors.paper,
       };
       for (const [key, expected] of Object.entries(required)) {
         if (manifest[key] !== expected) fail(`/site.webmanifest: ${key} не збігається з каноном`);

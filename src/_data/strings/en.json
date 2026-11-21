@@ -5,7 +5,7 @@
     "title": "AI-Assisted Developer and Systems Architect — the koztechie archive.",
     "feed_title": "koztechie — English",
     "bio_short": "AI-Assisted Developer and Systems Architect. The koztechie archive of projects, code, and writing.",
-    "og_image_alt": "koztechie — a light digital-archive card with framed signal markers and the site name.",
+    "og_image_alt": "koztechie — a light field with Eugene Kozlovsky’s name, professional title, and a dark header.",
     "date_suffix": ""
   },
   "home": {
@@ -79,7 +79,10 @@
     "read_uk": "Read in Ukrainian",
     "prev": "Previous",
     "next": "Next",
-    "pagination_label": "Pagination"
+    "pagination_label": "Pagination",
+    "date_label": "Date",
+    "period_label": "Period",
+    "cause_label": "Reason"
   },
   "post": {
     "entry_prefix": "Post №",

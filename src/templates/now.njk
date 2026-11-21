@@ -17,21 +17,28 @@
 {% endblock %}
 
 {% block content %}
-<article class="page">
-  <h1>{{ title }}</h1>
-
-  {%- if season %}
-  <p class="now-season">{{ strings.now.updated }}: {{ season }}</p>
-  {%- endif %}
+<article class="page page--now">
+  <header class="page-header page-header--now">
+    <h1>{{ title }}</h1>
+    {%- if season %}
+    <p class="now-season"><span>{{ strings.now.updated }}:</span><span>{{ season }}</span></p>
+    {%- endif %}
+  </header>
 
   {%- if working_on and working_on.length %}
   <section class="now-section" aria-labelledby="now-working">
       <h2 id="now-working">{{ strings.now.working_on }}</h2>
-    <ul>
+    <ol class="now-work-list">
       {%- for w in working_on %}
-      <li><a href="{{ w.url }}">{{ w.label }}</a> {{ w.detail }}</li>
+      <li>
+        <span class="now-work-list__index" aria-hidden="true">{{ "0" + loop.index }}</span>
+        <div class="now-work-list__body">
+          <a href="{{ w.url }}">{{ w.label }}</a>
+          <p>{{ w.detail }}</p>
+        </div>
+      </li>
       {%- endfor %}
-    </ul>
+    </ol>
   </section>
   {%- endif %}
 

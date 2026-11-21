@@ -173,7 +173,7 @@ manifest відновлено, гейт проходить.
 
 ## D-16 — втрата N-1 CSS fingerprint під час deploy (T-4.1)
 
-**2026-11-19 — локальна модель; production PASS очікує deploy run.**
+**2026-11-21 — PASS: локальна модель і production acceptance.**
 
 - Сценарій: поточний HTML уже посилається на нову пару stylesheet, але
   клієнтський stale HTML ще запитує попередній fingerprint під час purge
@@ -188,8 +188,10 @@ manifest відновлено, гейт проходить.
 - З preservation step старі fingerprint-файли з production копіюються у
   `dist/styles/`; після deploy `live-probe-light` перевіряє отримані URL-и,
   очікуючи HTTP 200.
-- Production acceptance не перевірено: потрібен звичайний авторизований deploy
-  із цим workflow та зелений post-deploy probe на кожен попередній URL.
+- У production deploy run `44824303294` preservation step зберіг обидва
+  попередні fingerprint-и; post-deploy `live-probe:light` підтвердив HTTP 200
+  для `print.4eecbaf9f3e9.css` і `site.8e3a82a337ef.css`. Це закриває
+  production acceptance для D-16 на цій версії workflow.
 
 ## D-17 — retention CSS не роздуває активний бюджет (T-4.2)
 

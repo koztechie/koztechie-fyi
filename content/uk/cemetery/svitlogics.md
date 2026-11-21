@@ -12,10 +12,10 @@ summary: "Svitlogics — ШІ-інструмент для аналізу ман�
 og_description: "Історія проєкту Svitlogics: чим він був і чому я вирішив припинити його розробку."
 og_title: "Svitlogics — koztechie"
 og_image: "/og/svitlogics-uk-v2.png"
-og_image_alt: "koztechie — архівна картка Svitlogics із номером запису, роками роботи й горизонтальними лініями."
+og_image_alt: "koztechie — відкрита композиція Svitlogics із датами запису та позначкою завершеного проєкту."
 translation_status: partial
 draft: false
-layout: post.njk
+layout: cemetery-entry.njk
 ---
 
 **Що це було:** вебзастосунок на базі ШІ для аналізу маніпуляцій і дезінформації в медіапросторі. Я створив його в межах хакатону як інструмент для розвитку критичного мислення.

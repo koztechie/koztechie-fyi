@@ -141,6 +141,11 @@ npm run qa:all                       # єдина послідовність у�
 | `docs/DECISIONS.md` | Канон рішень. 43 розділи |
 | `docs/PLAN.md` | План: 3 фази, 318 кроків, 11 брам |
 | `docs/STATE.md` | Машина станів. Поточний крок, лог сесій |
+| `docs/editorial-checklist.md` | Редакційна й безпекова перевірка текстів |
+| `docs/testing.md` | Локальні, CI та production-перевірки |
+| `docs/maintenance.md` | Щомісячний, квартальний і річний супровід |
+| `docs/lessons.md` | Однорядкові уроки з підтверджених дефектів |
+| `content/_template-post.md` | Чернетковий шаблон допису |
 | `docs/TECH_STANDARDS.md` | Бюджети, заборони, верифікація |
 | `docs/content-model.md` | 6 контент-типів, схема полів, шаблони |
 | `docs/sitemap.md` | Призначення кожного URL |

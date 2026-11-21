@@ -8,9 +8,11 @@ import { join, resolve, extname } from "node:path";
 import { createHash } from "node:crypto";
 import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
 import { selectActiveCssFiles } from "./active-css.mjs";
+import { readThemeColors } from "./theme-colors.mjs";
 
 const distDir = resolve(process.argv[2] || "dist");
 const stylesDir = resolve("src/styles");
+const themeColors = readThemeColors();
 
 let totalErrors = 0;
 let totalWarnings = 0;
@@ -209,8 +211,8 @@ if (existsSync(distDir)) {
     name: "koztechie",
     short_name: "koztechie",
     description: "Текст без прикрас. Архівний вузол Євгенія Козловського.",
-    theme_color: "#fafafa",
-    background_color: "#fafafa",
+    theme_color: themeColors.paper,
+    background_color: themeColors.paper,
   };
   if (!existsSync(manifestFile)) {
     console.log("  ❌ site.webmanifest відсутній");
@@ -1450,7 +1452,7 @@ console.log("--- 7и. robots.txt і _headers ---");
   }
 
   if (!existsSync(headersPath)) {
-    console.log("  ❌ static/root/_headers відсутній (примусова заборона, PLAN 122)");
+      console.log("  ❌ static/root/_headers відсутній (декларативна політика noai, PLAN 122)");
     policyErrors++;
     totalErrors++;
   } else {

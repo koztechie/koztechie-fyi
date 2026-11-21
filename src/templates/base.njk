@@ -1,5 +1,5 @@
 {#- base.njk: базовий шаблон усіх сторінок.
-    Крок 105. docs/design-system.md §9.
+    Крок 105. docs/design-system.md §4.
     Мовна схема: DECISIONS.md §19. uk — корінь, en — /en/.
     Вибір словника (крок 117): {% set strings = strings[lang] | default(strings.uk) %}
     — КОЖЕН дочірній шаблон робить цей set після extends (set у батька
@@ -95,16 +95,20 @@
   {#- Skip-link (TECH_STANDARDS §63): перший елемент — клавіатурна навігація
       відразу до вмісту, оминаючи шапку. Видимий лише при фокусі (layout.css). -#}
   <a class="skip-link" href="#main">{{ (strings[lang] | default(strings.uk) | default(strings)).nav.skip }}</a>
-  <header class="site-header">
-    {% block header %}{% include "header.njk" %}{% endblock %}
-  </header>
+  <div class="site-shell">
+    <header class="site-header">
+      {% block header %}{% include "header.njk" %}{% endblock %}
+    </header>
 
-  <main id="main" tabindex="-1">
-    {% block content %}{{ content | safe }}{% endblock %}
-  </main>
+    <div class="site-stage">
+      <main id="main" class="site-main" tabindex="-1">
+        {% block content %}{{ content | safe }}{% endblock %}
+      </main>
 
-  <footer class="site-footer">
-    {% block footer %}{% include "footer.njk" %}{% endblock %}
-  </footer>
+      <footer class="site-footer">
+        {% block footer %}{% include "footer.njk" %}{% endblock %}
+      </footer>
+    </div>
+  </div>
 </body>
 </html>

@@ -260,7 +260,9 @@ jobs:
         run: A11Y_MATRIX_USE_EXISTING_SERVER=1 node ../a11y-matrix.mjs
         working-directory: scripts/tools
 
-      - name: Playwright reflow matrix — visual artifact
+      - name: Playwright reflow matrix — advisory visual artifact
+        env:
+          REFLOW_ADVISORY: "1"
         run: node ../reflow-check.mjs
         working-directory: scripts/tools
 

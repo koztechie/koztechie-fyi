@@ -58,6 +58,9 @@ const VALID_WARNING = stringsUk?.post?.warnings
 const VALID_LAYOUT = [
   "page.njk",
   "post.njk",
+  "case.njk",
+  "cemetery-entry.njk",
+  "project.njk",
   "poetry.njk",
   "list.njk",
   "home.njk",
@@ -354,8 +357,7 @@ function detectType(relPath, fm) {
   if (relPath.includes("/practice/")) return "case";
   if (relPath.includes("/poetry/")) return "poem";
   if (relPath.includes("/blog/")) return "post";
-  if (fm.layout === "page.njk") return "page";
-  if (fm.layout === "now.njk") return "page"; // /now/: секції з front matter, тіло опційне
+  if (["page.njk", "project.njk", "now.njk"].includes(fm.layout)) return "page";
   return "unknown";
 }
 

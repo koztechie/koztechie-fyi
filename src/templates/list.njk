@@ -5,7 +5,7 @@
     Пагінація (DECISIONS.md §9.3): «Сторінка 1, 2, 3…» + лічильник
     («Усього дописів: N» для блогу, спек 2026-11-05; решта — старий формат).
     Без «∞», без infinite scroll (§9.2).
-    entry-line у списках НЕ виводиться (design-system.md §7.1.2).
+    entry-line у списках НЕ виводиться (design-system.md §4).
     Тексти — зі словників (кроки 117–119). Хардкод заборонено (крок 118).
     Джерела елементів (крок 131):
     - pagination.items — коли задана пагінація (Eleventy);
@@ -36,11 +36,13 @@
     {%- endif -%}
   {%- endfor -%}
 {%- endif -%}
-<article class="list{% if section === 'cemetery' %} list--cemetery{% endif %}">
-  <h1>{{ title }}</h1>
-  {%- if intro %}
-  <p class="list-intro">{{ intro }}</p>
-  {%- endif %}
+<article class="list list--{{ section | default('section') }}">
+  <header class="list-header">
+    <h1>{{ title }}</h1>
+    {%- if intro %}
+    <p class="list-intro">{{ intro }}</p>
+    {%- endif %}
+  </header>
   {%- if content %}
   <div class="list-body">{{ content | safe }}</div>
   {%- endif %}
@@ -55,19 +57,33 @@
   {%- else -%}
     {%- set all = items -%}
   {%- endif -%}
-  <ul class="archive-list" role="list">
+  <ol class="archive-list index-list index-list--{{ section | default('section') }}">
     {%- for item in items %}
     {%- if item.data.draft !== true and item.url %}
     <li>
-      <a href="{{ item.url if item.url else "#" }}">{{ item.data.title }}</a>
-      {%- if item.data.date %}
-      <span class="sep" aria-hidden="true"> · </span>
-      <time datetime="{{ item.data.date.toISOString().slice(0, 10) }}">{% if pageLang === "en" %}{{ item.data.date | enDate }}{% else %}{{ item.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
-      {%- endif %}
+      <span class="index-entry__number">{{ item.data.entry }}</span>
+      <div class="index-entry__body">
+        <a href="{{ item.url }}">{{ item.data.title }}</a>
+        {%- if section === "cemetery" and item.data.epitaph %}
+        <p class="index-entry__summary">{{ item.data.epitaph }}</p>
+        {%- elif section === "practice" and item.data.summary %}
+        <p class="index-entry__summary">{{ item.data.summary }}</p>
+        {%- endif %}
+      </div>
+      <dl class="index-entry__facts">
+        {%- if section === "cemetery" and item.data.period %}
+        <div><dt>{{ strings.list.period_label }}</dt><dd>{{ item.data.period }}</dd></div>
+        {%- elif item.data.date %}
+        <div><dt>{{ strings.list.date_label }}</dt><dd><time datetime="{{ item.data.date.toISOString().slice(0, 10) }}">{% if pageLang === "en" %}{{ item.data.date | enDate }}{% else %}{{ item.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time></dd></div>
+        {%- endif %}
+        {%- if section === "cemetery" and item.data.cause %}
+        <div><dt>{{ strings.list.cause_label }}</dt><dd>{{ item.data.cause }}</dd></div>
+        {%- endif %}
+      </dl>
     </li>
     {%- endif %}
     {%- endfor %}
-  </ul>
+  </ol>
 
   {%- if pagination %}
   {%- set totalPages = pagination.pages.length -%}

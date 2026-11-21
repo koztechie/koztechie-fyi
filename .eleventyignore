@@ -6,6 +6,7 @@ test-references/
 .github/
 README.md
 AGENTS.md
+content/_template-post.md
 LICENSE
 /*.md
 package.json

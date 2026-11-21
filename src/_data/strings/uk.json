@@ -5,7 +5,7 @@
     "title": "AI-assisted розробник і Системний архітектор — архівний вузол koztechie.",
     "feed_title": "koztechie — українська",
     "bio_short": "AI-assisted розробник і Системний архітектор. Архів koztechie: проєкти, код і тексти.",
-    "og_image_alt": "koztechie — світла картка цифрового архіву з контрастними рамками, вузлами сигналу й назвою сайту.",
+    "og_image_alt": "koztechie — світле поле з ім’ям Євгеній Козловський, позиціонуванням автора й темною шапкою.",
     "date_suffix": " року"
   },
   "home": {
@@ -80,7 +80,10 @@
     "read_uk": "Читати українською",
     "prev": "Попередня",
     "next": "Наступна",
-    "pagination_label": "Пагінація"
+    "pagination_label": "Пагінація",
+    "date_label": "Дата",
+    "period_label": "Період",
+    "cause_label": "Причина"
   },
   "post": {
     "entry_prefix": "Допис № ",

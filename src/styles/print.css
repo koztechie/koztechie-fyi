@@ -9,7 +9,7 @@
     color-scheme: light;
   }
 
-  body[data-world="night"] {
+  :where([data-world="night"]) {
     --paper: var(--paper-day);
     --surface: var(--surface-day);
     --ink: var(--ink-day);
@@ -23,6 +23,19 @@
     background: var(--paper);
   }
 
+  .site-shell,
+  .site-stage {
+    display: block;
+    min-height: 0;
+  }
+
+  .site-main,
+  .site-footer {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
   /* Приховати навігацію та перемикачі */
   .site-header nav,
   .site-footer nav,
@@ -31,13 +44,19 @@
     display: none;
   }
 
-  /* Прибрати кольорові панелі для друку. */
+  /* Прибрати темний хром для друку. */
   .site-header {
     position: static;
+    min-height: 0;
     color: var(--ink);
     background: transparent;
     border: 0;
     padding: 0;
+  }
+
+  .site-header .site-logo:link,
+  .site-header .site-logo:visited {
+    color: var(--ink);
   }
 
   .site-header__inner {
@@ -76,17 +95,17 @@
     color: var(--ink-dim);
   }
 
-  article.home .card {
+  article.home .home-panel {
     color: var(--ink);
     background: transparent;
     border-color: var(--ink);
   }
 
-  article.home .card--nichlyst {
+  article.home .home-panel--nichlyst {
     color: var(--ink);
     background: transparent;
     border: 1px solid var(--ink);
-    border-top: 4px solid var(--ink);
+    border-top: 3px solid var(--ink);
   }
 
   .nichlyst-logo {
@@ -94,15 +113,15 @@
     border-color: var(--ink);
   }
 
-  article.home .card--nichlyst h2,
-  article.home .card--nichlyst h3,
-  article.home .card--nichlyst p,
-  article.home .card--nichlyst a {
+  article.home .home-panel--nichlyst h2,
+  article.home .home-panel--nichlyst h3,
+  article.home .home-panel--nichlyst p,
+  article.home .home-panel--nichlyst a {
     color: var(--ink);
     background: transparent;
   }
 
-  article.home .card--nichlyst a {
+  article.home .home-panel--nichlyst a {
     text-decoration: underline;
   }
 
@@ -151,9 +170,9 @@
   .content-warning,
   .passport .hl,
   .pagination .current,
-  article.home .card--nichlyst h2,
-  article.home .card--nichlyst p,
-  article.home .card--nichlyst a {
+   article.home .home-panel--nichlyst h2,
+   article.home .home-panel--nichlyst p,
+   article.home .home-panel--nichlyst a {
     color: var(--ink);
     background: transparent;
   }

@@ -1,0 +1,61 @@
+{#- Проєктна сторінка: окрема композиція медіа й фактичних відомостей. -#}
+{% extends "base.njk" %}
+{%- set strings = strings[lang] | default(strings.uk) %}
+
+{% block title %}<title>{{ title }} — {{ strings.site.name }}</title>{% endblock %}
+
+{% block description %}
+{%- if summary %}
+<meta name="description" content="{{ summary }}">
+{%- endif %}
+{% endblock %}
+
+{% block head %}
+{% if structured_data === "nichlyst" %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["VideoGame", "SoftwareApplication"],
+  "@id": {{ ("https://koztechie.fyi" + page.url + "#game") | json | safe }},
+  "name": {{ title | json | safe }},
+  "description": {{ summary | json | safe }},
+  "url": {{ ("https://koztechie.fyi" + page.url) | json | safe }},
+  "image": {{ ("https://koztechie.fyi" + og_image) | json | safe }},
+  "author": {
+    "@type": "Person",
+    "@id": {{ (schema.siteUrl + "#person") | json | safe }},
+    "name": {{ schema.person.name | json | safe }},
+    "url": {{ schema.siteUrl | json | safe }}
+  },
+  "operatingSystem": "Android",
+  "applicationCategory": "GameApplication",
+  "gamePlatform": "Android",
+  "inLanguage": {{ (lang | default("uk")) | json | safe }},
+  "offers": {
+    "@type": "Offer",
+    "description": {{ schema.oneTimeOffer[lang] | json | safe }}
+  }
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<article class="project-page project-page--nichlyst">
+  <header class="project-header">
+    <h1>{{ title }}</h1>
+    {%- if updated %}
+    <p class="page-updated"><span>{{ strings.now.updated }}</span> <time datetime="{{ updated | isoDate }}">{{ updated | isoDate }}</time></p>
+    {%- endif %}
+    {%- if content_warning %}
+    {%- set contentWarnings = [content_warning] if content_warning is string else content_warning %}
+    <aside class="content-warning" role="note">
+      <p>{{ strings.post.warning_prefix }} {% for warning in contentWarnings %}{{ strings.post.warnings[warning] or warning }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>
+    </aside>
+    {%- endif %}
+  </header>
+  <div class="project-body page-body">
+    {{ content | safe }}
+  </div>
+</article>
+{% endblock %}

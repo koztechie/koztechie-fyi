@@ -21,9 +21,10 @@
 {%- set raw = page.url if page.url else "/" -%}
 {%- set ukHref = raw.slice(3) if raw.indexOf("/en/") === 0 else raw -%}
 <article class="translation-pending">
+  <p class="translation-pending__label">{{ strings.stub.title }}</p>
   <h1>{{ strings.stub.title }}</h1>
   <p lang="uk">{{ title_uk }}</p>
-  <p><a href="{{ ukHref }}" hreflang="uk">{{ strings.stub.link }} <span aria-hidden="true">→</span></a></p>
+  <p class="translation-pending__link"><a href="{{ ukHref }}" hreflang="uk">{{ strings.stub.link }} <span aria-hidden="true">↗</span></a></p>
   {%- if raw.indexOf("/cemetery/") !== -1 %}
   <nav class="pagination entry-navigation" aria-label="{{ strings.post.navigation_label }}">
     <a href="/en/cemetery/">{{ strings.post.archive_project }}</a>

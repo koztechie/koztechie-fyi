@@ -74,6 +74,9 @@
 │   ├── templates/
 │   │   ├── base.njk
 │   │   ├── post.njk
+│   │   ├── case.njk                    # Записи Практики
+│   │   ├── cemetery-entry.njk          # Закриті проєкти
+│   │   ├── project.njk                 # NICHLYST
 │   │   ├── list.njk
 │   │   ├── page.njk
 │   │   ├── poetry.njk
@@ -212,6 +215,11 @@ LICENSE
 
 **Аналогічно для:** `practice`, `cemetery`, `poetry`, `pages`.
 
+**Макети записів:** блог використовує `post.njk`; записи Практики —
+`case.njk`; записи Кладовища — `cemetery-entry.njk`; поезія — `poetry.njk`.
+Індекси розділів лишаються на `list.njk`. NICHLYST використовує
+`project.njk`, інші статичні сторінки — `page.njk`, `/now/` — `now.njk`.
+
 **Головна:** `content/uk/index.md` → `/`; `content/en/index.md` → `/en/`.
 
 ---
@@ -244,7 +252,9 @@ LICENSE
 
 **Контрольований словник:** `content/shared/topics.json` (≤ 6, ≤ 3 на пост).
 
-**Сторінок `/blog/tags/` немає.** Групування в `/blog/archive/`.
+**Сторінок `/blog/tags/` і `/blog/archive/` наразі немає.** Не створюй
+архівне групування за роками чи тегами, доки обсяг дописів не виправдовує
+окрему навігацію; поле `entry` лишається нумерацією окремих дописів.
 
 ---
 
@@ -349,7 +359,7 @@ http://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
 
-# Примусова заборона ШІ-доступу (PLAN 122): X-Robots-Tag на рівні хостингу.
+# Декларативна політика noai (PLAN 122/313): X-Robots-Tag на рівні хостингу.
 # Ті самі шляхи, що в robots.txt: поезія та тексти авторські.
 
 /poetry/*

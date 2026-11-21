@@ -1,24 +1,24 @@
-/* Єдине джерело кольорів для світлого полотна й локального нічного світу. */
+/* Єдине джерело кольорів для читального поля й темних робочих зон. */
 :root {
   color-scheme: only light;
 
-  --paper: #fafafa;
+  --paper: #eff1ee;
   --surface: var(--paper);
-  --ink: #121212;
-  --ink-dim: #545454;
-  --rule-soft: #e2e2e2;
-  --rule-strong: #8a8a8a;
-  --rule-soft-night: #383838;
-  --rule-strong-night: #686868;
+  --ink: #1a211f;
+  --ink-dim: #424a46;
+  --rule-soft: #d9ded9;
+  --rule-strong: #68736d;
+  --rule-soft-night: #353f3a;
+  --rule-strong-night: #73817a;
 
-  --accent: #821447;
+  --accent: #843814;
   --link: var(--accent);
   --focus: var(--accent);
 
-  --night: #0f0f0f;
-  --text-night: #f2f2f2;
-  --text-dim: #a3a3a3;
-  --accent-night: #f08cb0;
+  --night: #171e1c;
+  --text-night: #f0f1eb;
+  --text-dim: #afb8b2;
+  --accent-night: #f0a17c;
 
   --paper-day: var(--paper);
   --surface-day: var(--surface);
@@ -29,7 +29,7 @@
   --accent-day: var(--accent);
 }
 
-/* Світлі токени зберігаються окремо для спільного хрому й друку. */
+/* Темна зона однаково працює на проєктних сторінках і в навігаційному хромі. */
 :where([data-world="night"]) {
   --paper: var(--night);
   --surface: var(--night);
@@ -47,17 +47,4 @@
   --world-accent: var(--accent-night);
   --world-rule-soft: var(--rule-soft-night);
   --world-rule-strong: var(--rule-strong-night);
-}
-
-/* Шапка й підвал лишаються світлими зонами переходу між світами. */
-:where([data-world="night"]) :is(.site-header, .site-footer) {
-  --paper: var(--paper-day);
-  --surface: var(--surface-day);
-  --ink: var(--ink-day);
-  --ink-dim: var(--ink-dim-day);
-  --rule-soft: var(--rule-soft-day);
-  --rule-strong: var(--rule-strong-day);
-  --accent: var(--accent-day);
-  --link: var(--accent-day);
-  --focus: var(--accent-day);
 }

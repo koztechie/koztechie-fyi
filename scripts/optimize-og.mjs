@@ -97,7 +97,10 @@ try {
         themeColors.ink,
         themeColors.night,
         themeColors["text-night"],
+        themeColors["text-dim"],
         themeColors["accent-night"],
+        themeColors["rule-soft-night"],
+        themeColors["rule-strong-night"],
       ])]
       : isHomeCard
         ? [...new Set([
@@ -105,7 +108,10 @@ try {
           themeColors.ink,
           themeColors["ink-dim"],
           themeColors["rule-soft"],
+          themeColors["rule-strong"],
           themeColors.accent,
+          themeColors.night,
+          themeColors["text-night"],
           themeColors["accent-night"],
         ])]
         : paletteColors;

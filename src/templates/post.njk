@@ -59,31 +59,28 @@
     {%- set records = records.concat([item]) -%}
   {%- endif -%}
 {%- endfor -%}
-<article class="entry{% if isProject %} entry--closed{% endif %}">
-  {%- if isProject %}
-  <p class="entry-line">{{ strings.post.project_label }} <span class="closed-status"><span class="sep" aria-hidden="true"> · </span>{{ strings.post.closed_label }}</span></p>
-  {%- elif entry %}
-  <p class="entry-line">{{ strings.post.entry_prefix }}{{ entry }}</p>
-  {%- endif %}
-  <h1>{{ title }}</h1>
-  {#- Попередження (§32.2): «Під заголовком. Перед текстом. Над часом читання.»
-      Поле — категорія (content-model §5.1). Текст — канон §32.4 у словнику. -#}
-  {%- if content_warning %}
-  <aside class="content-warning" role="note">
-    <p>{{ strings.post.warning_prefix }} {{ strings.post.warnings[content_warning] or content_warning }}.</p>
-  </aside>
-  {%- endif %}
-  <p class="entry-meta">
-    {%- if isProject and period %}
-    <span class="closed-period">{{ period }}</span>
-    {%- elif date %}
-    <time datetime="{{ date.toISOString().slice(0, 10) }}">{% if (lang | default("uk")) === "en" %}{{ date | enDate }}{% else %}{{ date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
+<article class="entry entry--essay">
+  <header class="entry-header">
+    {%- if entry %}
+    <p class="entry-line">{{ strings.post.entry_prefix }}{{ entry }}</p>
     {%- endif %}
-    {%- if not isProject and date and content %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
-    {%- if not isProject and content %}
-    {% set mins = content | readingTime %}{{ mins }}{{ strings.post.reading_unit }}
+    <h1>{{ title }}</h1>
+    {#- Попередження стоїть після назви й до метаданих та основного тексту. -#}
+    {%- if content_warning %}
+    <aside class="content-warning" role="note">
+      <p>{{ strings.post.warning_prefix }} {{ strings.post.warnings[content_warning] or content_warning }}.</p>
+    </aside>
     {%- endif %}
-  </p>
+    <p class="entry-meta">
+      {%- if date %}
+      <time datetime="{{ date.toISOString().slice(0, 10) }}">{% if (lang | default("uk")) === "en" %}{{ date | enDate }}{% else %}{{ date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
+      {%- endif %}
+      {%- if date and content %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
+      {%- if content %}
+      {% set mins = content | readingTime %}{{ mins }}{{ strings.post.reading_unit }}
+      {%- endif %}
+    </p>
+  </header>
 
   <div class="entry-body">
     {{ content | safe }}

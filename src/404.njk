@@ -4,8 +4,8 @@ lang: uk
 noindex: true
 eleventyExcludeFromCollections: true
 ---
-{#- 404.njk: архівна картка «Запис відсутній.»
-    Крок 123. docs/design-system.md §9.8, DECISIONS.md §17.1.
+{#- 404.njk: відсутній маршрут і контекстні переходи.
+    Крок 123. DECISIONS.md §17.1.
     Українська сторінка 404; англійське дзеркало — src/en/404.njk.
     Правила §17.1:
     - шапка з навігацією обов'язкова (доступність);
@@ -29,12 +29,15 @@ eleventyExcludeFromCollections: true
 {% block social_meta %}{% endblock %}
 
 {% block content %}
-<article class="page">
+<article class="error-record">
+  <p class="error-record__code" aria-hidden="true">404</p>
   <h1>{{ strings.page_404.text }}</h1>
-  <p>{{ strings.page_404.explanation }}</p>
-  <ul>
-    <li><a href="/">{{ strings.page_404.home_link }}</a></li>
-    <li><a href="/#home-sections-h">{{ strings.page_404.sections_link }}</a></li>
-  </ul>
+  <p class="error-record__explanation">{{ strings.page_404.explanation }}</p>
+  <nav aria-label="{{ strings.page_404.sections_link }}">
+    <ul class="error-record__links">
+      <li><a href="/">{{ strings.page_404.home_link }}</a></li>
+      <li><a href="/#home-sections-h">{{ strings.page_404.sections_link }}</a></li>
+    </ul>
+  </nav>
 </article>
 {% endblock %}
