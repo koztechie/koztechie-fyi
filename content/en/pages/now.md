@@ -11,7 +11,7 @@ season: "November 2026"
 working_on:
   - label: "koztechie.fyi"
     url: "/en/"
-    detail: "— completed a redesign with a distinct composition for each page type, a light reading field, and dark navigation. Automated responsive and accessibility checks have passed; the manual AT audit continues separately."
+    detail: "— released R3.0 to production through GitHub Actions: required static and measured gates, post-deploy smoke, and G-01 passed. The manual AT audit remains separate and unfinished."
   - label: "NICHLYST"
     url: "/en/nichlyst/"
     detail: "— updating the game page and press kit."

@@ -323,8 +323,11 @@ manifest відновлено, гейт проходить.
   а некоректний `version.json` і відсутній прапорець відхиляються.
 - Поточний відновлений production пройшов оновлений `live-probe:light` із
   legacy-прапорцем: 12 HTML, заголовки, stylesheet, redirects, 404/RSS і всі
-  три canonical mirror маршрути. Новий production deploy із виправленням ще
-  очікує workflow.
+  три canonical mirror маршрути.
+- Після виправлення commit `8976b481ab4238a25f111cd4600720df40abbc95` успішно
+  розгорнуто в run `44929792864` (Netlify deploy
+  `6b01d5a5ebe97269cfea0493`). Static QA, Measured quality, post-deploy smoke
+  зі строгим SHA та G-01 пройшли; повторний live-probe production також пройшов.
 
 ## Правило ескалації
 
