@@ -23,6 +23,8 @@ console.log("\n=== QA: voice-lint morphology fixture ===");
 execFileSync("npm", ["run", "test:voice-lint"], { stdio: "inherit" });
 console.log("\n=== QA: facts-sync seeded mismatch fixture ===");
 execFileSync("npm", ["run", "test:facts-sync"], { stdio: "inherit" });
+console.log("\n=== QA: plan-lint seeded reference fixture ===");
+execFileSync("npm", ["run", "test:plan-lint"], { stdio: "inherit" });
 
 for (const command of commands) {
   console.log(`\n=== QA: npm run ${command} ===`);

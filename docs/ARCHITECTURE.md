@@ -264,7 +264,7 @@ LICENSE
 |--------|-------------|
 | `check.mjs` | Бюджети, CSS-патерни, hex, origin, h1, alt, entry |
 | `validate-content.mjs` | Обов'язкові поля, ISO, довжини, slug, consent |
-| `plan-lint.mjs` | Нумерація плану |
+| `plan-lint.mjs` | Нумерація та перехресні посилання PLAN/DECISIONS, README і STATE |
 | `voice-lint.mjs` | Заборонені слова, соцмережі, емодзі, UTM |
 | `export-devto.mjs` | Експорт девлогів з dev.to API |
 

@@ -19,6 +19,7 @@
     "chaos:scroll-labels": "node scripts/chaos-scroll-labels.mjs",
     "qa:all": "node scripts/qa-all.mjs",
     "plan-lint": "node scripts/plan-lint.mjs docs/PLAN.md",
+    "test:plan-lint": "node scripts/drill-plan-lint.mjs",
     "live-probe": "node scripts/live-probe.mjs",
     "live-probe:light": "node scripts/live-probe-light.mjs",
     "dependabot:validate": "node scripts/validate-dependabot.mjs",
