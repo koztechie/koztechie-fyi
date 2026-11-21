@@ -28,6 +28,7 @@
     "test:voice-lint": "node scripts/drill-voice-lint.mjs",
     "facts-sync": "node scripts/facts-sync.mjs",
     "test:facts-sync": "node scripts/drill-facts-sync.mjs",
+    "test:live-probe": "node scripts/drill-live-probe-light.mjs",
     "size": "node scripts/size-budget.mjs",
     "palette": "node scripts/palette-check.mjs",
     "validate": "node scripts/validate-content.mjs content/",

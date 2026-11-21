@@ -6,3 +6,4 @@
 
 | Дата | Симптом | Причина | Урок / регресійний запобіжник | Перевірка |
 |------|---------|---------|-------------------------------|-----------|
+| 2026-11-21 | Post-deploy smoke і повторна перевірка rollback впали | Mirror fetch посилався на неоголошений timeout; попередній production не мав `version.json` | Задавай timeout напряму; legacy provenance дозволяй лише явно після rollback і лише для 404 | `test:live-probe`; live-probe restored production пройшов; повторний реліз очікує CI |

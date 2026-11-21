@@ -408,10 +408,16 @@ endpoint, і що запит до кожної отриманої A-адреси
 `deploy.yml` запускає `live-probe:light` одразу після production deploy. Якщо
 smoke завершується помилкою, workflow бере ID щойно створеного deploy із
 `deploy --json`, знаходить через `netlify api listSiteDeploys` попередній
-`ready` production deploy і викликає `restoreSiteDeploy`. Після відновлення той
-самий live-smoke запускається повторно. Якщо попереднього deploy немає або
-повторний smoke не проходить, workflow лишається failed: перевір стан вручну
-за цим розділом; не запускай сліпий повторний deploy.
+`ready` production deploy і викликає `restoreSiteDeploy`. Після відновлення
+запускається той самий live-smoke з `LIVE_PROBE_ALLOW_LEGACY_PROVENANCE=1`:
+це дозволяє пропустити provenance лише коли старий deploy повертає 404 на
+`/version.json` і очікуваний SHA не заданий. Усі перевірки сторінок, заголовків,
+CSS, redirects і canonical mirror лишаються обов’язковими; невалідний JSON чи
+інший HTTP-статус не ігнорується. Звичайний post-deploy smoke не має цього
+прапорця та вимагає збіг `EXPECTED_COMMIT_SHA`, `version.json` і `x-commit`.
+Якщо попереднього deploy немає або повторний smoke не проходить, workflow
+лишається failed: перевір стан вручну за цим розділом; не запускай сліпий
+повторний deploy.
 
 ---
 

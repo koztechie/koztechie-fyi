@@ -19,8 +19,9 @@
     ```
 
     `qa:all` запускає статичні гейти, контентні перевірки, бюджет, внутрішні
-    лінки та вбудовані seeded-drills. Якщо змінено генерацію, CSS або стабільність
-    виходу, додай `npm run check:determinism`.
+    лінки та вбудовані seeded-drills, зокрема `test:live-probe` для суворого
+    provenance й rollback-сумісності. Якщо змінено генерацію, CSS або
+    стабільність виходу, додай `npm run check:determinism`.
     `check:lighthouse-mobile` перевіряє конфігурацію G-10, а не запускає
     вимірювання. Mobile Lighthouse виконується окремо locked LHCI tool-ом:
 
@@ -46,6 +47,9 @@
   ресурсів; `npm run linkcheck` — локальні внутрішні посилання.
 - `npm run live-probe:light` перевіряє зовнішній production endpoint і
   заголовки; повний `npm run live-probe` додає розширені зовнішні перевірки.
+- `LIVE_PROBE_ALLOW_LEGACY_PROVENANCE=1` використовує лише helper автоматичного
+  rollback: він дозволяє відсутній `/version.json` зі статусом 404 на старому
+  deploy, але не послаблює інші production-перевірки.
 - CI окремо запускає обов'язкові accessibility-матрицю, Lighthouse,
   Pa11y/axe та `html-validate`; лише pixel-diff reflow є інформаційним.
   Помилки запуску браузера чи інструментів залишаються помилками.

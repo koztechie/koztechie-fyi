@@ -302,6 +302,30 @@ manifest відновлено, гейт проходить.
   додаткові перевірки шляху виконано після розміщення правила на початку
   `_redirects`.
 
+## D-23 — post-deploy provenance і перевірка rollback для legacy deploy
+
+**2026-11-21 — PASS локальна фікстура та live-перевірка відновленого production.**
+
+- У run `44927585960` Static QA і Measured quality пройшли. Перший post-deploy
+  smoke зупинився на `requestSignal is not defined` у перевірці canonical
+  mirror. `restoreSiteDeploy` відновив попередній `ready` deploy
+  `6b01720067a3f3a96baff3fa`.
+- Повторний smoke helper-а також завершився помилкою: відновлений реліз не має
+  `/version.json` і `x-commit`, бо був опублікований до provenance-файла.
+  Production підтверджено на старій парі CSS fingerprint; R3.0 цим run не
+  залишився опублікованим.
+- Виправлено mirror timeout і rollback verification: лише helper задає
+  `LIVE_PROBE_ALLOW_LEGACY_PROVENANCE=1`; він терпить тільки 404
+  `/version.json` без заданого expected SHA. Звичайний probe лишається строгим
+  і порівнює SHA у `version.json` з очікуваним SHA та HTML `x-commit`.
+- `npm run test:live-probe` проходить локальну матрицю: правильний SHA
+  приймається, розбіжність відхиляється, legacy 404 приймається лише з прапорцем,
+  а некоректний `version.json` і відсутній прапорець відхиляються.
+- Поточний відновлений production пройшов оновлений `live-probe:light` із
+  legacy-прапорцем: 12 HTML, заголовки, stylesheet, redirects, 404/RSS і всі
+  три canonical mirror маршрути. Новий production deploy із виправленням ще
+  очікує workflow.
+
 ## Правило ескалації
 
 Жоден дефект не уникнув відповідного gate. Якби gate завершився кодом `0`,
