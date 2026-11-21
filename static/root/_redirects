@@ -1,10 +1,13 @@
 # Крок PLAN 158: koztechie.pp.ua → 301 на основний домен.
 # Тримати pp.ua, поки .fyi не проіндексований; після індексації — видалити.
 # Домен-рівневі редиректи (ARCHITECTURE §9; доки Netlify, "Domain-level redirects").
+# Канонічний host: https://koztechie.fyi/; www.fyi та всі pp.ua ведуть на нього.
 # `!` (force): без нього правило не спрацює на / — існує index.html (shadowing).
 # http-правила — підстраховка на випадок вимкнення Force HTTPS.
 
 https://koztechie.netlify.app/* https://koztechie.fyi/:splat 301!
+https://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
+http://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
 
 /index.html / 301!
 /poetry/koleso-sansary/ /poetry/vnutrishnya-monholiya/ 301
@@ -16,6 +19,4 @@ https://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 http://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 https://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 http://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
-http://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
-https://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
 http://koztechie.fyi/* https://koztechie.fyi/:splat 301!

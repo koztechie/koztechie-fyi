@@ -15,6 +15,7 @@ const allowed = [
   /^apple-touch-icon\.png$/,
   /^icon-(?:192|512)\.png$/,
   /^site\.webmanifest$/,
+  /^version\.json$/,
   /^feed\.xml$/,
   /^en\/feed\.xml$/,
   /^sitemap\.xml$/,

@@ -88,7 +88,7 @@
 | D-05 plain `hello@` | CHECK-EMAIL-PLAIN | ⏳ потрібен throwaway-контент |
 | D-06 відносний feed href | G-05 | ⏳ потрібен throwaway-feed |
 | D-07 видалити `start_url` | G-06 | ⏳ потрібен throwaway-manifest |
-| D-08 a11y-дефект | G-08 | ⏳ потрібен перевірений CI run |
+| D-08 a11y-дефект | G-08 | ✅ PASS — 2026-11-20; журнал нижче |
 | D-09 long-cache / OG pixel | G-04 / G-11 | ⏳ потрібні окремі fixtures |
 | D-10 AT-повтор | G-14 | ⏳ потрібен авторський AT-сеанс |
 
@@ -106,6 +106,24 @@
   повідомляє про відсутній DKIM selector.
 - Fixture ізолює resolver і HTTP fetch у пам’яті; реальний DNS та production
   конфігурація не змінюються.
+
+## D-08 — a11y-дефект блокує production deploy
+
+**2026-11-20 — PASS; дефект не потрапив у production.**
+
+- Throwaway-гілка `drill/d-08-a11y-gate`, commit `05dd2c5`: приховано
+  клавіатковий фокус посилання контактної сторінки (`outline: none`).
+- `npm run check` у production workflow завершився кодом 1 на перевірці
+  `CSS: ховає фокус — outline: none`; job `Static QA gate` — failure.
+- Production workflow run
+  [44786302480](https://github.com/koztechie/koztechie-fyi/actions/runs/44786302480)
+  запущено вручну з throwaway ref: `Measured quality gate` і
+  `Deploy production` — skipped; жоден production deploy не створювався.
+- PR #19: обов’язковий `Measured quality budgets` завершився failure; PR
+  закрито без merge. Це лишило `main` захищеним required checks.
+- Після дрилу `/version.json` і `main HEAD` досі мали SHA
+  `d0e8c8fca0056b53b4de2710d747c5c864250bed`.
+- PR і віддалену throwaway-гілку видалено; ін’єкцію прибрано.
 
 ## D-11 — production rollback (T-1.1)
 

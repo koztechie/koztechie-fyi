@@ -1,4 +1,5 @@
 import { readThemeColors } from "./scripts/theme-colors.mjs";
+import { getBuildSha } from "./scripts/build-provenance.mjs";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -47,6 +48,7 @@ export default function (eleventyConfig) {
     en: stringsEn.site.feed_title,
   });
   eleventyConfig.addGlobalData("themeColors", readThemeColors());
+  eleventyConfig.addGlobalData("buildSha", getBuildSha());
   const epoch = Number(process.env.SOURCE_DATE_EPOCH);
   eleventyConfig.addGlobalData("buildDate", Number.isFinite(epoch) ? new Date(epoch * 1000) : new Date());
 

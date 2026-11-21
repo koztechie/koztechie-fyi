@@ -4,6 +4,7 @@
 // Також: noindex для не-production контекстів Netlify (PLAN 162).
 // Використання: node scripts/postbuild.mjs (викликається зі скрипта build)
 
+import { getBuildEpoch, getBuildSha } from "./build-provenance.mjs";
 import { readdirSync, statSync, unlinkSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
@@ -28,6 +29,12 @@ try {
 } catch (e) {
   // dist/ не існує — нема чого прибирати. Не падаємо.
   console.log(`postbuild: ${dist}/ не існує, пропущено`);
+}
+
+if (existsSync(dist)) {
+  const version = { sha: getBuildSha(), epoch: getBuildEpoch() };
+  writeFileSync(join(dist, "version.json"), `${JSON.stringify(version)}\n`);
+  console.log(`postbuild: записано version.json для ${version.sha || "невідомого commit"}`);
 }
 
 // T-6.1: force directory-index redirects so they win over existing index.html.
