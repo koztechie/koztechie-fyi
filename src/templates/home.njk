@@ -1,6 +1,6 @@
 {#- home.njk: лейаут головної.
     Структура за спеком автора: 2026-11-05 (фінальна редакція, §6).
-    Головна: герой (мета-рядок, теза, лід, лист) → Про автора і сайт (паспорт) →
+    Головна: герой (мета-рядок, теза, лід без CTA) → Про автора і сайт (паспорт) →
     Основні принципи (DECISIONS §1.7) → Що тут є → Останні записи →
     Головний проєкт (NICHLYST). Блок маніфесту прибрано (повтор теми).
     Паспорт рахується, не лежить у словнику: мови — з наявних мовних дерев,
@@ -67,15 +67,6 @@
       <h1>{{ strings.home.thesis }}</h1>
       <div class="home-hero__aside">
         <p class="home-lead">{{ strings.home.lead }}</p>
-        {%- set ctaHref = "/contact/" -%}
-        {%- if homeIsEn -%}
-          {%- set ctaCand = "/en/contact/" -%}
-          {%- if collections.all | findByUrl(ctaCand) %}{% set ctaHref = ctaCand %}{% endif -%}
-        {%- endif -%}
-        <p class="letter-cta">
-          <a href="{{ ctaHref }}">{{ strings.home.cta_text }} <span aria-hidden="true">↗</span></a>
-          <span class="letter-note">{{ strings.home.cta_note }}</span>
-        </p>
       </div>
     </header>
 

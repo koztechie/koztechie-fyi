@@ -21,6 +21,8 @@ console.log("\n=== QA: D-01-ext email DNS fixture ===");
 execFileSync("npm", ["run", "test:email-dns-gate"], { stdio: "inherit" });
 console.log("\n=== QA: voice-lint morphology fixture ===");
 execFileSync("npm", ["run", "test:voice-lint"], { stdio: "inherit" });
+console.log("\n=== QA: homepage contact hierarchy fixture ===");
+execFileSync("npm", ["run", "test:home-contact"], { stdio: "inherit" });
 console.log("\n=== QA: facts-sync seeded mismatch fixture ===");
 execFileSync("npm", ["run", "test:facts-sync"], { stdio: "inherit" });
 console.log("\n=== QA: live-probe provenance and rollback fixture ===");

@@ -10,6 +10,7 @@ import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
 import { selectActiveCssFiles } from "./active-css.mjs";
 import { readThemeColors } from "./theme-colors.mjs";
 import { getBuildEpoch, getBuildSha } from "./build-provenance.mjs";
+import { auditHomeContactHierarchy } from "./home-contact-contract.mjs";
 
 const distDir = resolve(process.argv[2] || "dist");
 const stylesDir = resolve("src/styles");
@@ -332,8 +333,14 @@ if (existsSync(distDir)) {
     totalErrors++;
   };
   const homeTemplate = resolve("src/templates/home.njk");
-  if (existsSync(homeTemplate) && /\{%-?\s*block\s+og_description\b/.test(readFileSync(homeTemplate, "utf-8"))) {
-    templateError("home.njk: невикористаний block og_description");
+  if (existsSync(homeTemplate)) {
+    const source = readFileSync(homeTemplate, "utf-8");
+    if (/\{%-?\s*block\s+og_description\b/.test(source)) {
+      templateError("home.njk: невикористаний block og_description");
+    }
+    if (/letter-cta|letter-note|cta_text|cta_note|ctaHref/.test(source)) {
+      templateError("home.njk: герой не має окремого CTA або примітки про відповідь");
+    }
   }
   const stringsDir = resolve("src/_data/strings");
   for (const lang of ["uk", "en"]) {
@@ -344,6 +351,9 @@ if (existsSync(distDir)) {
     }
     try {
       const data = JSON.parse(readFileSync(stringsFile, "utf-8"));
+      if (Object.hasOwn(data.home || {}, "cta_text") || Object.hasOwn(data.home || {}, "cta_note")) {
+        templateError(`strings.${lang}.home: ключі CTA не належать до архівної головної`);
+      }
       const browserTitle = data.home?.browser_title;
       if (typeof browserTitle !== "string" || !browserTitle.trim()) {
         templateError(`strings.${lang}.home.browser_title порожній`);
@@ -354,6 +364,19 @@ if (existsSync(distDir)) {
       templateError(`strings.${lang}.json: невалідний JSON (${error.message})`);
     }
   }
+  for (const [lang, relativePath] of [
+    ["uk", "index.html"],
+    ["en", join("en", "index.html")],
+  ]) {
+    const homePath = join(distDir, relativePath);
+    if (!existsSync(homePath)) {
+      templateError(`${lang}: dist головної відсутній`);
+      continue;
+    }
+    for (const error of auditHomeContactHierarchy(readFileSync(homePath, "utf-8"), lang)) {
+      templateError(`${lang}: home contact hierarchy: ${error}`);
+    }
+  }
   const postTemplate = resolve("src/templates/post.njk");
   if (!existsSync(postTemplate)
       || !/defaultPostImage\s*=\s*"\/og\/home-en-v2\.png"\s+if\s+lang\s*===\s*"en"/.test(readFileSync(postTemplate, "utf-8"))
@@ -361,7 +384,7 @@ if (existsSync(distDir)) {
     templateError("post.njk: BlogPosting.image не має мовно-залежного дефолту");
   }
   if (templateErrors === 0) {
-    console.log("  ✅ G-07: невикористані блоки відсутні, browser_title ≤60, OG fallback мовний");
+    console.log("  ✅ G-07: template hygiene, browser title ≤60, OG fallback і ієрархія контактів головної");
   }
 
   // 1b. Бюджет активної CSS-пари (brotli) — DECISIONS.md §44.1, TECH_STANDARDS §1

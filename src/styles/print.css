@@ -86,15 +86,6 @@
     border-left-color: var(--ink);
   }
 
-  .letter-cta a {
-    color: var(--ink);
-    background: transparent;
-  }
-
-  .letter-note {
-    color: var(--ink-dim);
-  }
-
   article.home .home-panel {
     color: var(--ink);
     background: transparent;
@@ -191,10 +182,6 @@
   .passport .hl,
   .pagination .current {
     text-decoration: underline;
-  }
-
-  .letter-cta a {
-    border-color: var(--ink);
   }
 
   /* Розширити текстовий блок */

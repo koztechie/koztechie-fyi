@@ -118,7 +118,7 @@ h6 {
 
 :is(.site-header, .site-footer, .home-hero, .home-panel--nichlyst, pre) ::selection,
 :is(.entry-line, .nichlyst-status, .content-warning, .passport .hl,
-    .pagination .current, .letter-cta a)::selection {
+    .pagination .current)::selection {
   background: var(--accent-night);
   color: var(--night);
 }
