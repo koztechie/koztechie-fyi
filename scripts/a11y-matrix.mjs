@@ -166,13 +166,13 @@ try {
         if ((urlPath === "/" || urlPath === "/en/")
             && ["default", "reflow-320"].includes(mode.name)) {
           const contactPath = urlPath === "/en/" ? "/en/contact/" : "/contact/";
-          const links = await page.evaluate(() =>
+          const links = await page.evaluate((properties) =>
             [...document.querySelectorAll(".home-sections-list a[href]")].map((anchor) => {
               const style = getComputedStyle(anchor);
               return {
                 path: new URL(anchor.href).pathname,
                 style: Object.fromEntries(
-                  HOME_CONTACT_VISUAL_PROPERTIES.map((property) => [property, style[property]])
+                  properties.map((property) => [property, style[property]])
                 ),
               };
             }),
