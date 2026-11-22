@@ -23,6 +23,34 @@ const source = Object.fromEntries(
 
 assert.deepEqual(auditPageExperience(source), []);
 
+const arbitraryHomeHeadingWrap = {
+  ...source,
+  layout: source.layout.replace(
+    /\.home-hero h1\s*\{[^}]*\}/,
+    ".home-hero h1 { max-width: 10ch; overflow-wrap: anywhere; }"
+  ),
+};
+assert(
+  auditPageExperience(arbitraryHomeHeadingWrap).some((error) =>
+    error.includes("H1 головної")
+  ),
+  "гейт має відхиляти вузьку ch-ширину й довільний розрив H1 головної"
+);
+
+const narrowMobileHomeHeading = {
+  ...source,
+  layout: source.layout.replace(
+    /(\.home-hero h1\s*\{[^}]*\})([\s\S]*?)(\.home-hero h1\s*\{[^}]*\})/,
+    "$1$2.home-hero h1 { max-width: 11ch; }"
+  ),
+};
+assert(
+  auditPageExperience(narrowMobileHomeHeading).some((error) =>
+    error.includes("H1 головної")
+  ),
+  "гейт має відхиляти повернення ch-обмеження у вузькому breakpoint"
+);
+
 const flattenedPoem = {
   ...source,
   components: source.components
