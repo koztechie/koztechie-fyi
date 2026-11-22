@@ -2,19 +2,18 @@
   "site": {
     "name": "koztechie",
     "name_en": "koztechie",
-    "title": "AI-Assisted Developer and Systems Architect — the koztechie archive.",
+    "title": "The koztechie archive: projects, code, and writing.",
     "feed_title": "koztechie — English",
-    "bio_short": "AI-Assisted Developer and Systems Architect. The koztechie archive of projects, code, and writing.",
-    "og_image_alt": "koztechie — a light field with Eugene Kozlovsky’s name, professional title, and a dark header.",
+    "bio_short": "The koztechie archive of projects, code, and writing.",
+    "og_image_alt": "koztechie — an archive of projects, code, and writing.",
     "date_suffix": ""
   },
   "home": {
-    "browser_title": "koztechie — AI-Assisted Developer, Systems Architect",
+    "browser_title": "koztechie — an archive of projects, code, and writing",
     "lead": "This archive records projects, code, and writing without turning the site into a services portfolio.",
     "latest_title": "Latest entries",
     "sections_title": "What's here",
-    "thesis_a": "AI-Assisted Developer",
-    "thesis_b": "Systems Architect",
+    "thesis": "An archive of projects, code, and writing.",
     "doc_updated": "Updated",
     "meta": [
       "Eugene Kozlovsky",

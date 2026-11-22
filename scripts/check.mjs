@@ -2466,7 +2466,7 @@ console.log("--- 7о. JSON-LD ---");
             if (node.image !== "https://koztechie.fyi/og/home-v2.png") {
               fail(`${rel}: Person.image ≠ default OG image (очікується https://koztechie.fyi/og/home-v2.png)`);
             }
-            if (typeof node.jobTitle !== "string" || !node.jobTitle.trim()) fail(`${rel}: Person.jobTitle порожній`);
+            if (Object.hasOwn(node, "jobTitle")) fail(`${rel}: Person.jobTitle не має позиціонувати головну як портфоліо`);
             const alt = node.alternateName;
             if (!Array.isArray(alt) || alt.length === 0) {
               fail(`${rel}: Person.alternateName не масив або порожній (решта форм — сюди, §9)`);

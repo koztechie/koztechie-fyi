@@ -2,19 +2,18 @@
   "site": {
     "name": "koztechie",
     "name_en": "koztechie",
-    "title": "AI-assisted розробник і Системний архітектор — архівний вузол koztechie.",
+    "title": "Архів koztechie: проєкти, код і тексти.",
     "feed_title": "koztechie — українська",
-    "bio_short": "AI-assisted розробник і Системний архітектор. Архів koztechie: проєкти, код і тексти.",
-    "og_image_alt": "koztechie — світле поле з ім’ям Євгеній Козловський, позиціонуванням автора й темною шапкою.",
+    "bio_short": "Архів koztechie: проєкти, код і тексти.",
+    "og_image_alt": "koztechie — архів проєктів, коду й текстів.",
     "date_suffix": " року"
   },
   "home": {
-    "browser_title": "koztechie — AI-assisted розробник, Системний архітектор",
+    "browser_title": "koztechie — архів проєктів, коду й текстів",
     "lead": "Цей архів фіксує проєкти, код і тексти, а не перетворюється на вітрину послуг.",
     "latest_title": "Останні записи",
     "sections_title": "Що тут є",
-    "thesis_a": "AI-assisted розробник",
-    "thesis_b": "Системний архітектор",
+    "thesis": "Архів проєктів, коду й текстів.",
     "doc_updated": "Оновлено",
     "meta": [
       "Євгеній Козловський",

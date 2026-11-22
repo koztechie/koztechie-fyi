@@ -7,7 +7,7 @@
   <text x="1128" y="72" fill="{{THEME_ACCENT_NIGHT}}" font-family="monospace" font-size="18" letter-spacing="2" text-anchor="end">ВУЗОЛ-0 / 00</text>
   <path d="M72 156h1056" stroke="{{THEME_RULE_SOFT}}" stroke-width="2"/>
   <text x="72" y="286" fill="{{THEME_INK}}" font-family="Arial, sans-serif" font-size="68" font-weight="700" letter-spacing="-2">Євгеній Козловський</text>
-  <text x="72" y="342" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="20" letter-spacing="1">AI-ASSISTED РОЗРОБНИК · СИСТЕМНИЙ АРХІТЕКТОР</text>
+  <text x="72" y="342" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="20" letter-spacing="1">АРХІВ ПРОЄКТІВ · КОДУ · ТЕКСТІВ</text>
   <path d="M72 430h1056" stroke="{{THEME_RULE_STRONG}}" stroke-width="2"/>
   <path d="M72 430h132" stroke="{{THEME_ACCENT}}" stroke-width="5"/>
   <text x="72" y="520" fill="{{THEME_INK}}" font-family="Arial, sans-serif" font-size="25">Текст · системи · свідчення</text>

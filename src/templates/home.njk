@@ -36,8 +36,7 @@
       "alternateName": {{ schema.person.alternateName | json | safe }},
       "sameAs": {{ schema.person.sameAs | json | safe }},
       "url": {{ schema.siteUrl | json | safe }},
-      "image": {{ (schema.siteUrl + "og/home-v2.png") | json | safe }},
-      "jobTitle": {{ (strings.home.thesis_a ~ ", " ~ strings.home.thesis_b) | json | safe }}
+      "image": {{ (schema.siteUrl + "og/home-v2.png") | json | safe }}
     },
     {
       "@type": "WebSite",
@@ -65,7 +64,7 @@
         {{ m }}{% if not loop.last %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
         {%- endfor %}
       </p>
-      <h1><span class="home-hero__role">{{ strings.home.thesis_a }}</span> <span class="home-hero__discipline">{{ strings.home.thesis_b }}</span></h1>
+      <h1>{{ strings.home.thesis }}</h1>
       <div class="home-hero__aside">
         <p class="home-lead">{{ strings.home.lead }}</p>
         {%- set ctaHref = "/contact/" -%}

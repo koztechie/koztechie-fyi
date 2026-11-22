@@ -192,75 +192,65 @@ for (const filePath of targets) {
   console.log("");
 }
 
-// У повному режимі першого візиту позиціонування мусить збігатися з каноном §10.
+// У повному режимі перший екран головної має називати архів, не професію автора.
 if (args.length === 0) {
-  const positioning = [
+  const archiveIdentity = [
     {
       lang: "uk",
       file: resolve("src/_data/strings/uk.json"),
       homeContent: resolve("content/uk/index.md"),
-      author: "AI-assisted розробник · Системний архітектор",
-      template: resolve("src/templates/home.njk"),
+      canonical: "Архів проєктів, коду й текстів.",
     },
     {
       lang: "en",
       file: resolve("src/_data/strings/en.json"),
       homeContent: resolve("content/en/index.md"),
-      author: "AI-Assisted Developer · Systems Architect",
-      template: resolve("src/templates/home.njk"),
+      canonical: "An archive of projects, code, and writing.",
     },
   ];
-  let positioningErrors = 0;
-  const homeTemplate = readFileSync(positioning[0].template, "utf-8");
-  if (
-    !homeTemplate.includes("{{ strings.home.thesis_a }}") ||
-    !homeTemplate.includes("{{ strings.home.thesis_b }}") ||
-    !homeTemplate.includes('"jobTitle": {{ (strings.home.thesis_a ~ ", " ~ strings.home.thesis_b)')
-  ) {
-    console.log("❌ POSITIONING: головний h1 і JSON-LD мають спиратися на спільні поля канонічного позиціонування");
-    positioningErrors++;
+  let archiveErrors = 0;
+  const homeTemplate = readFileSync(resolve("src/templates/home.njk"), "utf-8");
+  if (!homeTemplate.includes("{{ strings.home.thesis }}") || homeTemplate.includes('"jobTitle"')) {
+    console.log("❌ ARCHIVE IDENTITY: h1 має використовувати канонічний архівний текст; Person.jobTitle не повинен задавати професійне позиціювання");
+    archiveErrors++;
   }
-  for (const item of positioning) {
+  for (const item of archiveIdentity) {
     let strings;
     try {
       strings = JSON.parse(readFileSync(item.file, "utf-8"));
     } catch {
-      console.log(`❌ POSITIONING (${item.lang}): не вдалося прочитати мовний словник`);
-      positioningErrors++;
+      console.log(`❌ ARCHIVE IDENTITY (${item.lang}): не вдалося прочитати мовний словник`);
+      archiveErrors++;
       continue;
     }
-    const homePosition = `${strings.home.thesis_a} · ${strings.home.thesis_b}`;
-    const hasOrderedPosition = (value) => {
-      const firstRole = value.indexOf(strings.home.thesis_a);
-      const secondRole = value.indexOf(strings.home.thesis_b);
-      return firstRole >= 0 && secondRole > firstRole;
-    };
+    const canonical = strings.home.thesis;
+    const archiveWord = item.lang === "uk" ? "архів" : "archive";
     const surfaces = [
-      ["h1", homePosition],
+      ["h1", canonical],
       ["site.title", strings.site.title],
       ["site.bio_short", strings.site.bio_short],
       ["home.browser_title", strings.home.browser_title],
     ];
     for (const [surface, value] of surfaces) {
       const aligned = surface === "h1"
-        ? value === item.author
-        : hasOrderedPosition(value);
+        ? value === canonical
+        : typeof value === "string" && value.toLowerCase().includes(archiveWord);
       if (!aligned) {
-        console.log(`❌ POSITIONING (${item.lang}): ${surface} не містить обидві канонічні ролі`);
-        positioningErrors++;
+        console.log(`❌ ARCHIVE IDENTITY (${item.lang}): ${surface} не містить канонічне повідомлення про архів`);
+        archiveErrors++;
       }
     }
     const homeMarkdown = readFileSync(item.homeContent, "utf-8");
     const summary = homeMarkdown.match(/^summary:\s*["'](.+?)["']\s*$/m)?.[1] || "";
-    if (!hasOrderedPosition(summary)) {
-      console.log(`❌ POSITIONING (${item.lang}): головний summary/OG description не містить обидві канонічні ролі`);
-      positioningErrors++;
+    if (!summary.toLowerCase().includes(archiveWord)) {
+      console.log(`❌ ARCHIVE IDENTITY (${item.lang}): головний summary/OG description не містить канонічне повідомлення про архів`);
+      archiveErrors++;
     }
   }
-  totalErrors += positioningErrors;
-  if (positioningErrors === 0) {
-    console.log("=== POSITIONING ===");
-    console.log("✅ H1, browser title, site title, bio та JSON-LD узгоджені з каноном §10 (uk/en).");
+  totalErrors += archiveErrors;
+  if (archiveErrors === 0) {
+    console.log("=== ARCHIVE IDENTITY ===");
+    console.log("✅ H1, browser title, site title та описи головної узгоджені з архівним каноном (uk/en).");
     console.log("");
   }
 }
