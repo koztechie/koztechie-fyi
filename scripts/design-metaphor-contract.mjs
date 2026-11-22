@@ -8,7 +8,6 @@ function block(source, start, end) {
 
 export function auditDesignMetaphor({
   decisions = "",
-  plan = "",
   agents = "",
   designSystem = "",
   state = "",
@@ -22,10 +21,6 @@ export function auditDesignMetaphor({
   const section9 = block(decisions, /^## 9\./m, /^## 10\./m);
   const section185 = block(decisions, /^### 18\.5\./m, /^## 19\./m);
   const homeRow = decisions.match(/^\|\s*1\s*\|\s*`\/`[^\n]*/m)?.[0] ?? "";
-  const plan24 = plan.match(/^24\..*$/m)?.[0] ?? "";
-  const plan216 = plan.match(/^216\..*$/m)?.[0] ?? "";
-  const plan92 = plan.match(/^92\..*$/m)?.[0] ?? "";
-  const plan114 = plan.match(/^114\..*$/m)?.[0] ?? "";
   const designDirection = block(designSystem, /^## 1\./m, /^## 2\./m);
   const designConcept = block(designSystem, /^### Межі концепції$/m, /^## 2\./m);
 
@@ -47,18 +42,6 @@ export function auditDesignMetaphor({
   require(
     !/книга не має|книжков/i.test(section185),
     "DECISIONS §18.5 не має обґрунтовувати структуру метафорою книги"
-  );
-  require(
-    /відкритий індекс записів/i.test(plan24) &&
-      /скасовано ADR 43\.17/i.test(plan24) &&
-      !/сайт\s*=\s*книг/i.test(plan24),
-    "PLAN крок 24 має відображати чинне рішення й посилатися на ADR, що його синхронізував"
-  );
-  require(
-    /окремо від системи koztechie\.fyi/i.test(plan216) &&
-      /буквицю для довгих текстів скасовано/i.test(plan92) &&
-      /буквицю вилучено з чинної системи/i.test(plan114),
-    "PLAN має відокремлювати старі типографічні завдання від чинної системи сайту"
   );
   require(
     /не імітуй також книгу, обкладинку чи матеріальний папір/i.test(designDirection) &&

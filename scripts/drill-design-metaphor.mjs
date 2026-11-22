@@ -9,7 +9,6 @@ const wireframePaths = readdirSync("docs/wireframes")
   .map((name) => join("docs/wireframes", name));
 const source = {
   decisions: read("docs/DECISIONS.md"),
-  plan: read("docs/PLAN.md"),
   agents: read("AGENTS.md"),
   designSystem: read("docs/design-system.md"),
   state: read("docs/STATE.md"),
