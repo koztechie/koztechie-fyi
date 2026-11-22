@@ -36,6 +36,22 @@ assert(
     "Sections and numbered indexes give these materials boundaries. This archive preserves them."
   ), "en").some((error) => error.includes("утримання уваги"))
 );
+for (const [lang, source, thesis] of [
+  ["uk", uk, "AI-assisted розробник · Системний архітектор"],
+  ["en", en, "AI-assisted developer · Systems architect"],
+]) {
+  const concept = source.match(/<p class="home-concept">([\s\S]*?)<\/p>/)[1];
+  const lead = source.match(/<p class="home-lead">([\s\S]*?)<\/p>/)[1];
+  assert(
+    auditHomeConcept(frame(
+      concept,
+      lead,
+      "koztechie",
+      thesis
+    ), lang).some((error) => error.includes("головний h1")),
+    `${lang}: дві професійні ролі не повинні конкурувати в H1`
+  );
+}
 assert(
   auditHomeConcept(frame(en.match(/<p class="home-concept">([\s\S]*?)<\/p>/)[1],
     en.match(/<p class="home-lead">([\s\S]*?)<\/p>/)[1], "koztechie",
