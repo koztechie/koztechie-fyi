@@ -23,6 +23,8 @@ console.log("\n=== QA: voice-lint morphology fixture ===");
 execFileSync("npm", ["run", "test:voice-lint"], { stdio: "inherit" });
 console.log("\n=== QA: homepage contact hierarchy fixture ===");
 execFileSync("npm", ["run", "test:home-contact"], { stdio: "inherit" });
+console.log("\n=== QA: homepage concept fixture ===");
+execFileSync("npm", ["run", "test:home-concept"], { stdio: "inherit" });
 console.log("\n=== QA: facts-sync seeded mismatch fixture ===");
 execFileSync("npm", ["run", "test:facts-sync"], { stdio: "inherit" });
 console.log("\n=== QA: live-probe provenance and rollback fixture ===");

@@ -27,6 +27,7 @@
     "test:email-dns-gate": "node scripts/drill-email-dns-gate.mjs",
     "test:voice-lint": "node scripts/drill-voice-lint.mjs",
     "test:home-contact": "node scripts/drill-home-contact.mjs",
+    "test:home-concept": "node scripts/drill-home-concept.mjs",
     "facts-sync": "node scripts/facts-sync.mjs",
     "test:facts-sync": "node scripts/drill-facts-sync.mjs",
     "test:live-probe": "node scripts/drill-live-probe-light.mjs",

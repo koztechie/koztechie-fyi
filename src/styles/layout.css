@@ -335,6 +335,11 @@ a:hover {
   font: 400 clamp(1.15rem, 1.8vw, 1.45rem) / 1.55 var(--font-text);
 }
 
+.home-concept {
+  margin: 0 0 var(--s3);
+  font: 650 var(--text-sm) / 1.5 var(--font-ui);
+}
+
 .home-panel {
   min-width: 0;
   align-self: start;

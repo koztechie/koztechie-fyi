@@ -11,6 +11,7 @@ import { selectActiveCssFiles } from "./active-css.mjs";
 import { readThemeColors } from "./theme-colors.mjs";
 import { getBuildEpoch, getBuildSha } from "./build-provenance.mjs";
 import { auditHomeContactHierarchy } from "./home-contact-contract.mjs";
+import { auditHomeConcept } from "./home-concept-contract.mjs";
 
 const distDir = resolve(process.argv[2] || "dist");
 const stylesDir = resolve("src/styles");
@@ -376,6 +377,9 @@ if (existsSync(distDir)) {
     for (const error of auditHomeContactHierarchy(readFileSync(homePath, "utf-8"), lang)) {
       templateError(`${lang}: home contact hierarchy: ${error}`);
     }
+    for (const error of auditHomeConcept(readFileSync(homePath, "utf-8"), lang)) {
+      templateError(`${lang}: home concept: ${error}`);
+    }
   }
   const postTemplate = resolve("src/templates/post.njk");
   if (!existsSync(postTemplate)
@@ -384,7 +388,7 @@ if (existsSync(distDir)) {
     templateError("post.njk: BlogPosting.image не має мовно-залежного дефолту");
   }
   if (templateErrors === 0) {
-    console.log("  ✅ G-07: template hygiene, browser title ≤60, OG fallback і ієрархія контактів головної");
+    console.log("  ✅ G-07: template hygiene, browser title ≤60, OG fallback, ієрархія контактів і концепція головної");
   }
 
   // 1b. Бюджет активної CSS-пари (brotli) — DECISIONS.md §44.1, TECH_STANDARDS §1
