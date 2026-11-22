@@ -43,6 +43,10 @@ export default function (eleventyConfig) {
 
   // Мови фідів (крок 125): два виходи /feed.xml та /en/feed.xml
   eleventyConfig.addGlobalData("feedLangs", ["uk", "en"]);
+  eleventyConfig.addGlobalData("feedTitles", {
+    uk: stringsUk.site.feed_title,
+    en: stringsEn.site.feed_title,
+  });
   eleventyConfig.addGlobalData("themeColors", readThemeColors());
   eleventyConfig.addGlobalData("buildSha", getBuildSha());
   const epoch = Number(process.env.SOURCE_DATE_EPOCH);

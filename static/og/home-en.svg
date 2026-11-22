@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="{{THEME_PAPER}}"/>
-  <rect x="38" y="38" width="1124" height="554" fill="none" stroke="{{THEME_RULE_STRONG}}" stroke-width="2"/>
-  <rect x="38" y="38" width="14" height="554" fill="{{THEME_ACCENT}}"/>
-  <text x="88" y="112" fill="{{THEME_INK}}" font-family="Arial, sans-serif" font-size="34" font-weight="700">koztechie</text>
-  <text x="1110" y="110" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="19" letter-spacing="3" text-anchor="end">NODE / 00</text>
-  <line x1="88" y1="150" x2="1110" y2="150" stroke="{{THEME_RULE_SOFT}}" stroke-width="2"/>
-  <text x="88" y="278" fill="{{THEME_INK}}" font-family="Arial, sans-serif" font-size="70" font-weight="700" letter-spacing="-2">Digital archive</text>
-  <text x="88" y="332" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="20" letter-spacing="2">WRITING · SYSTEMS · TESTIMONY</text>
-  <rect x="88" y="398" width="730" height="94" fill="{{THEME_NIGHT}}"/>
-  <path d="M118 444h112m28 0h74m28 0h206m28 0h100" fill="none" stroke="{{THEME_TEXT_NIGHT}}" stroke-width="5"/>
-  <rect x="682" y="428" width="12" height="32" fill="{{THEME_ACCENT_NIGHT}}"/>
-  <circle cx="230" cy="444" r="8" fill="{{THEME_ACCENT_NIGHT}}"/>
-  <text x="1110" y="480" fill="{{THEME_INK}}" font-family="monospace" font-size="22" text-anchor="end">koztechie.fyi</text>
-  <text x="88" y="550" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="17" letter-spacing="2">STORAGE SIGNAL</text>
+  <rect width="1200" height="8" fill="{{THEME_ACCENT}}"/>
+  <rect y="8" width="1200" height="100" fill="{{THEME_NIGHT}}"/>
+  <text x="72" y="73" fill="{{THEME_TEXT_NIGHT}}" font-family="Arial, sans-serif" font-size="32" font-weight="700">koztechie</text>
+  <text x="1128" y="72" fill="{{THEME_ACCENT_NIGHT}}" font-family="monospace" font-size="18" letter-spacing="2" text-anchor="end">NODE / 00</text>
+  <path d="M72 156h1056" stroke="{{THEME_RULE_SOFT}}" stroke-width="2"/>
+  <text x="72" y="286" fill="{{THEME_INK}}" font-family="Arial, sans-serif" font-size="68" font-weight="700" letter-spacing="-2">Eugene Kozlovsky</text>
+  <text x="72" y="342" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="20" letter-spacing="1">ARCHIVE OF PROJECTS · CODE · WRITING</text>
+  <path d="M72 430h1056" stroke="{{THEME_RULE_STRONG}}" stroke-width="2"/>
+  <path d="M72 430h132" stroke="{{THEME_ACCENT}}" stroke-width="5"/>
+  <text x="72" y="520" fill="{{THEME_INK}}" font-family="Arial, sans-serif" font-size="25">Writing · systems · testimony</text>
+  <text x="1128" y="520" fill="{{THEME_INK_DIM}}" font-family="monospace" font-size="20" text-anchor="end">koztechie.fyi</text>
 </svg>

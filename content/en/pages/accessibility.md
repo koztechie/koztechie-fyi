@@ -2,7 +2,7 @@
 title: "Accessibility"
 lang: en
 layout: page.njk
-updated: 2026-11-19
+updated: 2026-11-21
 summary: "The koztechie.fyi accessibility statement and a way to report a barrier."
 og_description: "The koztechie.fyi accessibility statement."
 translation_status: complete
@@ -11,8 +11,10 @@ draft: false
 
 ## Conformance status
 
-This site is self-assessed as conforming to **WCAG 2.2 Level AA**.
-Text and primary interface pairs meet **AAA** contrast where applicable.
+Automated checks cover **WCAG 2.2 AA** criteria; passing them is not
+certification or proof of full conformance.
+Body text is checked for **AAA (≥7:1)**, interface text for **AA (≥4.5:1)**,
+and non-text boundaries for **3:1**, where applicable.
 The implementation follows EN 301 549 good practice and avoids dark patterns.
 
 Automated checks have passed (WCAG 2.2 AA). Manual assistive-technology
@@ -35,5 +37,4 @@ Report a barrier with the page and reproducible steps:
 
 <a href="mailto:{{ (strings[lang] | default(strings.uk)).footer.email | safe }}">Report an accessibility issue</a>
 
-**Statement date:** 19 November 2026<br>
-**Automated-check commit:** `104f945`
+**Statement date:** 21 November 2026

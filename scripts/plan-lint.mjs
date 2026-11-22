@@ -3,7 +3,7 @@
 // Перевіряє: дублі номерів, пропуски, послідовність, підсумок.
 // Використання: node scripts/plan-lint.mjs docs/PLAN.md
 
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const filePath = process.argv[2];
@@ -86,27 +86,67 @@ const summaryPattern = /\|\s*\*\*Разом\*\*\s*\|\s*\|?\s*\*{0,2}(\d+)\*{0,2}
 const summaryMatch = contentNoCode.match(summaryPattern);
 const declaredTotal = summaryMatch ? parseInt(summaryMatch[1], 10) : null;
 
-// Перевірка 6: посилання на неіснуючі розділи DECISIONS.md
+// Перевірка 6: документаційні посилання на PLAN і DECISIONS.
 const decisionsPath = resolve(absPath, "..", "DECISIONS.md");
-let decisionsSections = new Set();
+const repoRoot = resolve(absPath, "..", "..");
+const decisionsSections = new Set();
+const decisionMajorSections = new Set();
+let decisionsContent = "";
 try {
-  const decisionsContent = readFileSync(decisionsPath, "utf-8");
-  const sectionPattern = /^## (\d+)\./gm;
-  let secMatch;
-  while ((secMatch = sectionPattern.exec(decisionsContent)) !== null) {
-    decisionsSections.add(parseInt(secMatch[1], 10));
-  }
+  decisionsContent = readFileSync(decisionsPath, "utf-8");
 } catch {
-  // DECISIONS.md не знайдено — пропускаємо перевірку
+  // Відсутній DECISIONS.md дасть порожній набір і не зламає інші перевірки.
 }
 
-const refPattern = /DECISIONS\.md.*?§(\d+)/g;
-const badRefs = [];
-let refMatch;
-while ((refMatch = refPattern.exec(contentNoCode)) !== null) {
-  const ref = parseInt(refMatch[1], 10);
-  if (decisionsSections.size > 0 && !decisionsSections.has(ref)) {
-    badRefs.push(ref);
+for (const section of decisionsContent.matchAll(/^##\s+(\d+)(?:\s*[–-]\s*(\d+))?\./gm)) {
+  const firstSection = Number(section[1]);
+  const lastSection = Number(section[2] || section[1]);
+  for (let number = firstSection; number <= lastSection; number++) {
+    decisionsSections.add(String(number));
+    decisionMajorSections.add(number);
+  }
+}
+for (const heading of decisionsContent.matchAll(/^#{2,6}\s+(\d+(?:\.\d+)+)\./gm)) {
+  const identifier = heading[1];
+  decisionsSections.add(identifier);
+  decisionsSections.add(identifier.split(".")[0]);
+}
+
+function markdownFiles(directory) {
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = resolve(directory, entry.name);
+    if (entry.isDirectory()) return markdownFiles(path);
+    return entry.isFile() && entry.name.endsWith(".md") ? [path] : [];
+  });
+}
+
+const documentationFiles = [
+  resolve(repoRoot, "README.md"),
+  resolve(repoRoot, "AGENTS.md"),
+  ...markdownFiles(resolve(repoRoot, "docs")),
+].filter(existsSync);
+const missingPlanRefs = [];
+const missingDecisionRefs = [];
+for (const path of documentationFiles) {
+  const source = readFileSync(path, "utf-8").replace(/```[\s\S]*?```/g, "");
+  for (const ref of source.matchAll(/\bPLAN\s+(\d+)(?:\s*[–-]\s*(\d+))?/g)) {
+    const start = Number(ref[1]);
+    const end = Number(ref[2] || ref[1]);
+    if (start > last) {
+      missingPlanRefs.push(`${path.replace(`${repoRoot}/`, "")}: PLAN ${start}`);
+      continue;
+    }
+    for (let step = start; step <= Math.min(end, last); step++) {
+      if (!seen.has(step)) missingPlanRefs.push(`${path.replace(`${repoRoot}/`, "")}: PLAN ${step}`);
+    }
+    if (end > last) missingPlanRefs.push(`${path.replace(`${repoRoot}/`, "")}: PLAN ${last + 1}`);
+  }
+  for (const ref of source.matchAll(/DECISIONS\.md[^\n]{0,120}?§\s*(\d+(?:\.\d+)?)/g)) {
+    const section = ref[1];
+    if (decisionsSections.size > 0 && !decisionsSections.has(section)) {
+      missingDecisionRefs.push(`${path.replace(`${repoRoot}/`, "")}: §${section}`);
+    }
   }
 }
 
@@ -120,12 +160,6 @@ while ((acceptMatch = acceptPattern.exec(contentNoCode)) !== null) {
   }
 }
 
-let decisionsContent = "";
-try {
-  decisionsContent = readFileSync(decisionsPath, "utf-8");
-} catch {
-  // Помилка відсутнього DECISIONS.md вже обробляється перевіркою посилань.
-}
 const decisionAccepts = new Set();
 for (const match of decisionsContent.matchAll(/^\s*###\s+42\.\d+\.\s+ACCEPT\s+((?:[A-Z]\d+)(?:\s*[/,]\s*[A-Z]\d+)*)/gm)) {
   for (const id of match[1].match(/[A-Z]\d+/g) || []) {
@@ -135,7 +169,6 @@ for (const match of decisionsContent.matchAll(/^\s*###\s+42\.\d+\.\s+ACCEPT\s+((
 const missingAccepts = [...new Set(planAccepts)].filter((id) => !decisionAccepts.has(id));
 
 // Перевірка 8: G-15 — ключові твердження канону мають відповідати коду.
-const repoRoot = resolve(absPath, "..", "..");
 const canonicalErrors = [];
 const canonicalFile = (relative) => {
   const path = resolve(repoRoot, relative);
@@ -159,6 +192,7 @@ const readJson = (relative) => {
 };
 
 const readme = canonicalFile("README.md");
+const state = canonicalFile("docs/STATE.md");
 const sitemap = canonicalFile("docs/sitemap.md");
 const deploy = canonicalFile("docs/deploy.md");
 const standards = canonicalFile("docs/TECH_STANDARDS.md");
@@ -179,8 +213,10 @@ canonicalAssert(/Eleventy v3\.1\.8/.test(readme),
   "README.md: версія Eleventy застаріла");
 canonicalAssert(/\*\*Шапка:\*\* 4 активні розділи/.test(sitemap),
   "docs/sitemap.md: шапка не описана як 4 активні розділи");
-canonicalAssert(/\*\*Підвал:\*\* 7[\s\S]*Доступність/.test(sitemap),
-  "docs/sitemap.md: футер не описаний як 7 посилань із доступністю");
+canonicalAssert(/\*\*Підвал:\*\* 6 посилань[\s\S]*Доступність/.test(sitemap),
+  "docs/sitemap.md: футер не описаний як 6 посилань із доступністю");
+canonicalAssert(/\| `\/poetry\/` \|[^\n]*\| Головна, шапка \|/.test(sitemap),
+  "docs/sitemap.md: Поезія не визначена як пункт шапки");
 canonicalAssert(sitemap.includes("| `/404.html` |"), "docs/sitemap.md: відсутній /404.html");
 canonicalAssert(sitemap.includes("| 11 | `/accessibility/` |"), "docs/sitemap.md: відсутня /accessibility/");
 canonicalAssert(/primary = `koztechie\.fyi`/.test(deploy),
@@ -189,18 +225,53 @@ canonicalAssert(/\| CSS \+ favicon \(сумарно\) \| ≤ 25 КБ/.test(stand
   "docs/TECH_STANDARDS.md: бюджет CSS + favicon не дорівнює 25 КБ");
 canonicalAssert(/\| Lighthouse accessibility \| = 100; error gate/.test(standards),
   "docs/TECH_STANDARDS.md: Lighthouse accessibility не має error gate 100");
-canonicalAssert(/\| Lighthouse SEO \| ≥ 95; warning only/.test(standards),
-  "docs/TECH_STANDARDS.md: Lighthouse SEO не має warning-only статусу");
+canonicalAssert(/\| HTML `<title>` \| 1 непорожній; ≤ 60 символів у кожному `dist\/\*\*\/\*\.html`/.test(standards),
+  "docs/TECH_STANDARDS.md: відсутній бюджет title для кожного dist HTML");
+canonicalAssert(/\| Meta description \| 1 непорожній; ≤ 155 символів у кожному `dist\/\*\*\/\*\.html`/.test(standards),
+  "docs/TECH_STANDARDS.md: відсутній бюджет description для кожного dist HTML");
+canonicalAssert(/\| Lighthouse SEO \| ≥ 95; error gate/.test(standards),
+  "docs/TECH_STANDARDS.md: Lighthouse SEO не має error gate");
 canonicalAssert(!/\[заповнити\]/i.test(facts),
   "docs/facts.md: залишилися placeholder-факти");
+
+const decisionSectionCount = decisionMajorSections.size;
+const stateGateRows = state.match(/^\|\s*[ABC]\s*\|\s*\d+[–-]\d+\s*\|\s*(\d+)\s*\|/gm) || [];
+const gateIds = new Set(stateGateRows.map((row) => Number(row.match(/^\|\s*[ABC]\s*\|\s*\d+[–-]\d+\s*\|\s*(\d+)/)?.[1])));
+const stateLog = state.split(/^## 4\./m)[1] || "";
+const gateLogEntries = [...stateLog.matchAll(/\bБРАМА\s+(\d+)\b([^|\n]*)/g)];
+const missingGateIds = [...new Set(gateLogEntries.map((entry) => Number(entry[1])).filter((id) => !gateIds.has(id)))];
+const gateStatusMismatches = [];
+for (const entry of gateLogEntries) {
+  const gate = Number(entry[1]);
+  const context = entry[2];
+  const closedInLog = /ЗАКРИТО|✅/i.test(context);
+  const pendingInLog = /⏳|не закрито|лиш[а-яіїє]*ться/i.test(context);
+  const gateRow = stateGateRows.find((row) => Number(row.match(/^\|\s*[ABC]\s*\|\s*\d+[–-]\d+\s*\|\s*(\d+)/)?.[1]) === gate);
+  if (!gateRow) continue;
+  const closedInTable = /✅/.test(gateRow);
+  const pendingInTable = /⏳/.test(gateRow);
+  if ((closedInLog && !closedInTable) || (pendingInLog && closedInTable)) {
+    gateStatusMismatches.push(`БРАМА ${gate}: таблиця ${closedInTable ? "✅" : pendingInTable ? "⏳" : "без статусу"}, лог ${closedInLog ? "✅" : "⏳"}`);
+  }
+}
+const readmeDecisionCount = Number(readme.match(/^\| `docs\/DECISIONS\.md` \|[^|\n]*?(\d+)\s+розділ/m)?.[1]);
+const readmePlanCount = Number(readme.match(/^\| `docs\/PLAN\.md` \|[^|\n]*?(\d+)\s+кроків/m)?.[1]);
+const readmeGateCount = Number(readme.match(/^\| `docs\/PLAN\.md` \|[^|\n]*?(\d+)\s+брам/m)?.[1]);
+canonicalAssert(readmeDecisionCount === decisionSectionCount,
+  `README.md: зазначено ${readmeDecisionCount || "невідому кількість"} розділів DECISIONS, фактично ${decisionSectionCount}`);
+canonicalAssert(readmePlanCount === steps.length,
+  `README.md: зазначено ${readmePlanCount || "невідому кількість"} кроків PLAN, фактично ${steps.length}`);
+canonicalAssert(readmeGateCount === gateIds.size,
+  `README.md: зазначено ${readmeGateCount || "невідому кількість"} брам STATE, фактично ${gateIds.size}`);
 
 const headerNav = header.match(/set nav = \[([\s\S]*?)\]/)?.[1] || "";
 const footerNav = footer.match(/set nav = \[([\s\S]*?)\]/)?.[1] || "";
 canonicalAssert((headerNav.match(/\bhref:/g) || []).length === 4,
   "header.njk: кількість активних розділів не дорівнює 4");
-canonicalAssert((footerNav.match(/\bhref:/g) || []).length === 7 &&
-  footerNav.includes('key: "accessibility"'),
-  "footer.njk: має бути 7 посилань, включно з accessibility");
+canonicalAssert((footerNav.match(/\bhref:/g) || []).length === 6 &&
+  footerNav.includes('key: "accessibility"') &&
+  !footerNav.includes('key: "poetry"'),
+  "footer.njk: має бути 6 посилань, включно з accessibility, без poetry");
 
 const lighthouseConfigs = [lighthouseDesktop, lighthouseMobile];
 for (const [index, config] of lighthouseConfigs.entries()) {
@@ -212,8 +283,9 @@ for (const [index, config] of lighthouseConfigs.entries()) {
     `${name}: accessibility має бути error з minScore=1`
   );
   canonicalAssert(
-    assertions["categories:seo"]?.[0] === "warn",
-    `${name}: SEO має бути warning-only`
+    assertions["categories:seo"]?.[0] === "error" &&
+      assertions["categories:seo"]?.[1]?.minScore === 0.95,
+    `${name}: SEO має бути error з minScore=0.95`
   );
 }
 
@@ -265,12 +337,30 @@ if (declaredTotal !== null) {
   console.log("⚠️  Підсумок не знайдено у файлі");
 }
 
-// Посилання на DECISIONS.md
-if (badRefs.length > 0) {
-  console.log(`❌ Посилання на неіснуючі розділи DECISIONS.md: §${badRefs.join(", §")}`);
+// Перехресні посилання на PLAN і DECISIONS.
+if (missingPlanRefs.length > 0) {
+  console.log(`❌ Посилання на неіснуючі кроки PLAN: ${[...new Set(missingPlanRefs)].join(", ")}`);
+  hasErrors = true;
+} else {
+  console.log("✅ Посилання на кроки PLAN валідні");
+}
+
+if (missingDecisionRefs.length > 0) {
+  console.log(`❌ Посилання на неіснуючі розділи DECISIONS.md: ${[...new Set(missingDecisionRefs)].join(", ")}`);
   hasErrors = true;
 } else if (decisionsSections.size > 0) {
   console.log("✅ Усі посилання на DECISIONS.md валідні");
+}
+
+if (missingGateIds.length > 0 || gateStatusMismatches.length > 0) {
+  const details = [
+    ...missingGateIds.map((gate) => `БРАМА ${gate}: є в логові, але немає в таблиці`),
+    ...gateStatusMismatches,
+  ];
+  console.log(`❌ STATE: таблиця брам і лог не збігаються: ${details.join("; ")}`);
+  hasErrors = true;
+} else {
+  console.log("✅ STATE: таблиця брам узгоджена з логом");
 }
 
 if (missingAccepts.length > 0) {

@@ -20,7 +20,7 @@ draft: false
 
 ## Інструменти
 
-- **Eleventy 3.1.7** — генератор статичних сайтів.
+- **Eleventy 3.1.8** — генератор статичних сайтів.
 - **Node.js 22** — середовище виконання збірки.
 - **Чистий CSS** — власні стилі без фреймворків чи препроцесорів.
 - **Git** — контроль версій.
@@ -42,15 +42,15 @@ front matter; збірка перевіряє їхню відповідніст�
 
 | Передній план | Тло | Контраст |
 |---|---|---|
-| `--ink` | `--paper` | 17.95:1 |
-| `--ink-dim` | `--paper` | 7.26:1 |
-| `--accent` | `--paper` | 9.40:1 |
-| `--rule-strong` | `--paper` | 3.31:1 |
-| `--text-night` | `--night` | 17.12:1 |
-| `--text-dim` | `--night` | 7.60:1 |
-| `--accent-night` | `--night` | 8.29:1 |
-| `--rule-strong (night)` | `--night` | 3.44:1 |
-| `--paper` | `--accent` | 9.40:1 |
+| `--ink` | `--paper` | 14.43:1 |
+| `--ink-dim` | `--paper` | 8.04:1 |
+| `--accent` | `--paper` | 7.23:1 |
+| `--rule-strong` | `--paper` | 4.34:1 |
+| `--text-night` | `--night` | 14.92:1 |
+| `--text-dim` | `--night` | 8.33:1 |
+| `--accent-night` | `--night` | 8.15:1 |
+| `--rule-strong (night)` | `--night` | 4.16:1 |
+| `--paper` | `--accent` | 7.23:1 |
 
 <!-- PALETTE-RATIOS:END -->
 

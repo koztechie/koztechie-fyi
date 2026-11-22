@@ -3,9 +3,11 @@
 
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { selectActiveCssFiles } from "./active-css.mjs";
 import { readThemeColors, paletteRatioRows, renderPaletteRatioTable } from "./theme-colors.mjs";
 
 const themePath = resolve("src/styles/themes.css");
+const distDir = resolve("dist");
 if (!existsSync(themePath)) {
   console.error("❌ src/styles/themes.css не існує");
   process.exit(1);
@@ -58,8 +60,16 @@ function filesUnder(path) {
   );
 }
 
-const auditedFiles = [...new Set(colorSources.flatMap(filesUnder))]
-  .filter((file) => /\.(?:css|njk|svg|webmanifest)$/i.test(file));
+const colorFiles = [...new Set(colorSources.flatMap(filesUnder))];
+const retainedCss = colorFiles.filter((file) =>
+  file.startsWith(`${distDir}/styles/`)
+  && /^(?:site|print)\.[a-f0-9]{12}\.css$/i.test(file.slice(file.lastIndexOf("/") + 1))
+);
+const activeCss = new Set(selectActiveCssFiles(distDir, retainedCss));
+const auditedFiles = colorFiles
+  .filter((file) => /\.(?:css|njk|svg|webmanifest)$/i.test(file))
+  // Старі fingerprints лишаються для N-1 кешованого HTML, але не є активною темою.
+  .filter((file) => !retainedCss.includes(file) || activeCss.has(file));
 const allowedHex = new Set(Object.values(baseColors));
 for (const file of auditedFiles) {
   const content = readFileSync(file, "utf8");
@@ -126,6 +136,27 @@ for (const [file, language] of [
   const content = readFileSync(resolve(file), "utf8");
   if (!content.includes(renderPaletteRatioTable(baseColors, language))) {
     fail(`${file}: таблиця контрасту не синхронізована з themes.css; запусти npm run build.`);
+  }
+}
+
+// Verify the actual deploy artifact too: a source-side table check alone
+// cannot detect an old or mismatched dist being published.
+for (const [file, language] of [
+  ["dist/colophon/index.html", "uk"],
+  ["dist/en/colophon/index.html", "en"],
+]) {
+  if (!existsSync(resolve(file))) {
+    fail(`${file}: сторінку колофона не знайдено у зібраному dist.`);
+    continue;
+  }
+  const html = readFileSync(resolve(file), "utf8");
+  const block = html.match(/<!-- PALETTE-RATIOS:START -->([\s\S]*?)<!-- PALETTE-RATIOS:END -->/)?.[1];
+  const cells = [...(block || "").matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)]
+    .map(([, cell]) => cell.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").trim());
+  const actualRatios = cells.filter((_, index) => index % 3 === 2);
+  const expectedRatios = paletteRatioRows(baseColors).map((row) => `${row[2]}:1`);
+  if (!block || JSON.stringify(actualRatios) !== JSON.stringify(expectedRatios)) {
+    fail(`${file}: таблиця в dist не відповідає коефіцієнтам поточних токенів themes.css.`);
   }
 }
 

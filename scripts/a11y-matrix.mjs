@@ -11,6 +11,7 @@ const distDir = join(repoRoot, "dist");
 const toolsRequire = createRequire(join(repoRoot, "scripts/tools/package.json"));
 const { chromium } = toolsRequire("playwright");
 const axeSrc = readFileSync(toolsRequire.resolve("axe-core/axe.min.js"), "utf8");
+const axeVersion = toolsRequire("axe-core/package.json").version;
 const localOrigin = "http://127.0.0.1:4173";
 const origin = (process.env.A11Y_MATRIX_ORIGIN || localOrigin).replace(/\/$/, "");
 const remote = origin !== localOrigin;
@@ -94,6 +95,7 @@ async function remotePaths() {
 }
 
 const failures = [];
+let targetSizeRuleChecked = false;
 const server = process.env.A11Y_MATRIX_USE_EXISTING_SERVER === "1" ? null : await startServer();
 const browser = await chromium.launch();
 const files = remote
@@ -130,6 +132,24 @@ try {
           },
           [TAGS, mode.name === "forced-colors"]
         );
+        const targetSizeResult = [
+          ...result.passes,
+          ...result.violations,
+          ...result.incomplete,
+          ...result.inapplicable,
+        ].find(({ id }) => id === "target-size");
+        if (!targetSizeResult) {
+          throw new Error("axe did not execute WCAG 2.5.8 target-size on this page");
+        }
+        if (!targetSizeRuleChecked) {
+          const targetSizeRule = await page.evaluate(() =>
+            window.axe.getRules().find(({ ruleId }) => ruleId === "target-size")
+          );
+          if (!targetSizeRule?.tags.includes("wcag22aa") || !targetSizeRule.tags.includes("wcag258")) {
+            throw new Error(`axe-core ${axeVersion} lacks WCAG 2.5.8 target-size tagging`);
+          }
+          targetSizeRuleChecked = true;
+        }
         const mediaOk = await page.evaluate((modeName) => {
           const queries = {
             "forced-colors": "(forced-colors: active)",
@@ -149,10 +169,28 @@ try {
         });
         const focusOk = await page.evaluate(() => {
           for (const element of document.querySelectorAll("a[href],button,[tabindex='0']")) {
+            element.scrollIntoView({ block: "center", inline: "center" });
             element.focus();
             const style = getComputedStyle(element);
             if (style.outlineStyle === "none" || parseFloat(style.outlineWidth) < 2) {
-              return element.outerHTML.slice(0, 80);
+              return { reason: "focus-indicator", element: element.outerHTML.slice(0, 80) };
+            }
+            const rect = element.getBoundingClientRect();
+            const insetX = Math.min(2, rect.width / 4);
+            const insetY = Math.min(2, rect.height / 4);
+            const points = [
+              [rect.left + rect.width / 2, rect.top + rect.height / 2],
+              [rect.left + insetX, rect.top + insetY],
+              [rect.right - insetX, rect.top + insetY],
+              [rect.left + insetX, rect.bottom - insetY],
+              [rect.right - insetX, rect.bottom - insetY],
+            ].filter(([x, y]) => x >= 0 && y >= 0 && x < innerWidth && y < innerHeight);
+            const visible = points.some(([x, y]) => {
+              const top = document.elementFromPoint(x, y);
+              return top && (top === element || element.contains(top));
+            });
+            if (points.length && !visible) {
+              return { reason: "focus-obscured", element: element.outerHTML.slice(0, 80) };
             }
           }
           return null;
@@ -187,6 +225,7 @@ try {
 const output = join(repoRoot, "qa-artifacts/a11y/matrix.json");
 mkdirSync(join(repoRoot, "qa-artifacts/a11y"), { recursive: true });
 writeFileSync(output, JSON.stringify(failures, null, 2));
+console.log(`axe-core ${axeVersion}; WCAG 2.2 AA (incl. 2.5.8 target-size) + focus obscuration (2.4.11)`);
 console.log(`A11y matrix (${remote ? "production" : "local"}): ${files.length} сторінок × ${modes.length} режимів`);
 console.log(`Артефакт: ${output}`);
 if (failures.length) {

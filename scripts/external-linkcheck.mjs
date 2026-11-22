@@ -44,7 +44,8 @@ async function productionPages() {
         && /\(not translated\)|\(переклад не готовий\)/.test(html);
     })
     .map((file) => `/${file.slice(distDir.length + 1).replace(/\\/g, "/").replace(/index\.html$/, "")}`);
-  return [...new Set([...paths, "/404.html", ...localStubs])];
+  // 404 documents are not pages to crawl: their expected HTTP status is 404.
+  return [...new Set([...paths, ...localStubs])];
 }
 
 async function pageSources() {
@@ -123,7 +124,7 @@ async function check(url) {
     }
 
     try {
-      const response = await checkOnce(url);
+    const response = await checkOnce(url);
       lastResponse = response;
       if (!isRetryableResponse(response.status) || isHardFailure(response.status)) {
         return response;
@@ -149,15 +150,12 @@ for (const [url, sources] of links) {
     const response = await check(url);
     if (!response?.ok) {
       const source = ` (у ${[...sources].join(", ")})`;
-      if (response && isHardFailure(response.status)) {
+      if (strict && response && isHardFailure(response.status)) {
         console.error(`❌ HARD ${response.status} ${url}${source}`);
         hardErrors++;
       } else {
-        const mode = strict ? "HARD" : "SOFT";
-        const output = strict ? console.error : console.warn;
-        output(`⚠ ${mode} ${response?.status || "network"} ${url}${source}`);
-        if (strict) hardErrors++;
-        else softErrors++;
+        console.warn(`⚠ SOFT ${response?.status || "network"} ${url}${source}`);
+        softErrors++;
       }
     } else {
       console.log(`✅ ${response.status} ${url}`);

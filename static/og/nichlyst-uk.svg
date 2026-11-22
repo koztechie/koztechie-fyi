@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="{{THEME_NIGHT}}"/>
-  <rect x="42" y="42" width="1116" height="546" fill="none" stroke="{{THEME_RULE_STRONG_NIGHT}}" stroke-width="2"/>
-  <text x="84" y="104" fill="{{THEME_TEXT_NIGHT}}" font-family="Arial, sans-serif" font-size="30" font-weight="700">koztechie</text>
-  <text x="1116" y="104" fill="{{THEME_TEXT_DIM}}" font-family="monospace" font-size="18" letter-spacing="3" text-anchor="end">NICHLYST / ANDROID</text>
-  <path d="M84 154h1032" stroke="{{THEME_RULE_SOFT_NIGHT}}" stroke-width="2"/>
-  <text x="84" y="284" fill="{{THEME_TEXT_NIGHT}}" font-family="Arial, sans-serif" font-size="82" font-weight="700" letter-spacing="-2">NICHLYST</text>
-  <text x="84" y="342" fill="{{THEME_TEXT_DIM}}" font-family="monospace" font-size="20" letter-spacing="2">СЮЖЕТНА ГРА / АРХІВ СВІДЧЕНЬ</text>
-  <rect x="84" y="392" width="1032" height="112" fill="{{THEME_PAPER}}"/>
-  <path d="M122 448h210m34 0h104m34 0h310" fill="none" stroke="{{THEME_INK}}" stroke-width="5"/>
-  <circle cx="332" cy="448" r="11" fill="{{THEME_ACCENT}}"/>
-  <rect x="803" y="432" width="14" height="32" fill="{{THEME_ACCENT}}"/>
-  <text x="84" y="550" fill="{{THEME_TEXT_NIGHT}}" font-family="Arial, sans-serif" font-size="25">Слухати. Фіксувати. Зберігати.</text>
-  <text x="1116" y="550" fill="{{THEME_ACCENT_NIGHT}}" font-family="monospace" font-size="21" text-anchor="end">koztechie.fyi</text>
+  <rect width="1200" height="8" fill="{{THEME_ACCENT_NIGHT}}"/>
+  <text x="72" y="83" fill="{{THEME_TEXT_NIGHT}}" font-family="Arial, sans-serif" font-size="32" font-weight="700">koztechie</text>
+  <text x="1128" y="82" fill="{{THEME_TEXT_DIM}}" font-family="monospace" font-size="18" letter-spacing="2" text-anchor="end">NICHLYST / ANDROID</text>
+  <path d="M72 132h1056" stroke="{{THEME_RULE_SOFT_NIGHT}}" stroke-width="2"/>
+  <text x="72" y="278" fill="{{THEME_TEXT_NIGHT}}" font-family="Arial, sans-serif" font-size="82" font-weight="700" letter-spacing="-2">NICHLYST</text>
+  <text x="72" y="336" fill="{{THEME_TEXT_DIM}}" font-family="monospace" font-size="20" letter-spacing="1">СЮЖЕТНА ГРА / АРХІВ СВІДЧЕНЬ</text>
+  <path d="M72 424h1056" stroke="{{THEME_RULE_STRONG_NIGHT}}" stroke-width="2"/>
+  <path d="M72 424h150" stroke="{{THEME_ACCENT_NIGHT}}" stroke-width="5"/>
+  <text x="72" y="520" fill="{{THEME_TEXT_NIGHT}}" font-family="Arial, sans-serif" font-size="25">Слухати. Фіксувати. Зберігати.</text>
+  <text x="1128" y="520" fill="{{THEME_ACCENT_NIGHT}}" font-family="monospace" font-size="21" text-anchor="end">koztechie.fyi</text>
 </svg>

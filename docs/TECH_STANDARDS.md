@@ -29,9 +29,11 @@
 | LCP | < 1.5 с | PLAN.md 170 |
 | CLS | = 0 | PLAN.md 170 |
 | TBT mobile | ≤ 1 с | `.lighthouserc.mobile.json` |
+| HTML `<title>` | 1 непорожній; ≤ 60 символів у кожному `dist/**/*.html` | `scripts/check.mjs` |
+| Meta description | 1 непорожній; ≤ 155 символів у кожному `dist/**/*.html` | `scripts/check.mjs` |
 | Lighthouse desktop | ≥ 95 | PLAN.md 169 |
 | Lighthouse accessibility | = 100; error gate | `.lighthouserc*.json` |
-| Lighthouse SEO | ≥ 95; warning only | `.lighthouserc*.json` |
+| Lighthouse SEO | ≥ 95; error gate | `.lighthouserc*.json` |
 | Lighthouse mobile | composite score — діагностичний warning; LCP/CLS/TBT — error-гейти | `.lighthouserc.mobile.json` |
 
 **Виняток із бюджету зображень:** `/feed.xml` росте необмежено (повний архів, §30 DECISIONS). Ліміт фіда — 500 КБ; перевищення → попередження, не помилка.
@@ -253,8 +255,11 @@ render-blocking запит. `/styles/print.<hash>.css` підключаєтьс�
 **Обов'язкові атрибути:**
 - `width` і `height` (CLS).
 - `alt` (осмислений, відповідною мовою). `alt=""` — для суто декоративних.
-- `loading="lazy"` та `decoding="async"` поза першим екраном.
-- `srcset`/`sizes` для адаптивних зображень.
+- `loading="lazy"` та `decoding="async"` поза першим екраном. LCP-зображення
+  першого екрана завантажується eager, має `fetchpriority="high"` і не отримує
+  `loading="lazy"`.
+- `srcset`/`sizes` для адаптивних зображень. Candidate widths мають покривати
+  розмір слота з урахуванням device pixel ratio цільового Lighthouse-профілю.
 
 **EXIF:** Вирізати GPS, модель камери перед публікацією.
 
@@ -284,13 +289,13 @@ form-action 'none'
 вмісту замість `unsafe-inline`.
 
 **Заголовки:**
-- `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+- `Strict-Transport-Security: max-age=31536000; includeSubDomains`
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - `Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=()`
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: DENY` — легасі-дублер для `frame-ancestors 'none'`.
-- HSTS `preload` увімкнено після перевірки HTTPS для `www`; окремий домен
-  `pp.ua` не входить до `includeSubDomains`.
+- HSTS `preload` не використовується; рішення зафіксовано в
+  `DECISIONS.md` §42.5. Окремий домен `pp.ua` не входить до `includeSubDomains`.
 
 **Кешування:**
 - Ассети з хешем (`site.<hash>.css`): `Cache-Control: public, max-age=31536000, immutable`.

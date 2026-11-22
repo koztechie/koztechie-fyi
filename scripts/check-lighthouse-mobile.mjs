@@ -25,6 +25,14 @@ const requiredBudgets = {
   "total-blocking-time": 1000,
 };
 
+const seoAssertion = assertions?.["categories:seo"];
+if (!Array.isArray(seoAssertion) || seoAssertion[0] !== "error") {
+  failures.push("categories:seo має бути error-assertion");
+}
+if (seoAssertion?.[1]?.minScore !== 0.95) {
+  failures.push("categories:seo.minScore має бути 0.95");
+}
+
 for (const [metric, maxNumericValue] of Object.entries(requiredBudgets)) {
   const assertion = assertions?.[metric];
   if (!Array.isArray(assertion) || assertion[0] !== "error") {
@@ -41,4 +49,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("✅ G-10: mobile simulate + LCP≤1500, CLS=0, TBT≤1000 зафіксовані як error-гейти");
+console.log("✅ G-10: mobile simulate + SEO≥0.95, LCP≤1500, CLS=0, TBT≤1000 зафіксовані як error-гейти");

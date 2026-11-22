@@ -12,8 +12,8 @@
 
 | # | Файл | Порушено | Каталог порушення |
 |---|------|----------|-------------------|
-| 1 | `anti-references/01-gradient-hero.svg` | Градієнтний герой + «Hi, I'm Alex, a passionate…» | `DECISIONS.md` §6.1, §6.2; `design-system.md` §2.1 |
-| 2 | `anti-references/02-shadow-cards.svg` | Карткова сітка з тінями, radius 16px, емодзі-іконки | `DECISIONS.md` §6.3; `design-system.md` §2.2, §2.3 |
+| 1 | `anti-references/01-gradient-hero.svg` | Градієнтний герой + «Hi, I'm Alex, a passionate…» | `DECISIONS.md` §6; `design-system.md` §2.1 |
+| 2 | `anti-references/02-shadow-cards.svg` | Карткова сітка з тінями, radius 16px, емодзі-іконки | `DECISIONS.md` §6; `design-system.md` §2.2, §2.3 |
 | 3 | `anti-references/03-glass-3d.svg` | Гласморфізм, 3D-нахил, конічний градієнт, «орби» | `design-system.md` §2.1, §2.4, §2.5; `AGENTS.md` §4 |
 
 Кожен SVG має вбудовані позначки порушень (червоний рядок угорі зліва) —

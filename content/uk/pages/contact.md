@@ -21,7 +21,7 @@ draft: false
 ## Повідомлення про безпеку
 
 Повідомляйте про вразливості на
-`{{ (strings[lang] | default(strings.uk)).footer.email | safe }}`. Додайте URL ураженого ресурсу, опис проблеми та
+<code class="contact-address">{{ (strings[lang] | default(strings.uk)).footer.email | safe }}</code>. Додайте URL ураженого ресурсу, опис проблеми та
 відтворювані кроки. Не надсилайте секрети, персональні дані або робочі
 облікові дані. PGP-ключ не опубліковано.
 

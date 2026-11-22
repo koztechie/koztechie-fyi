@@ -7,10 +7,20 @@ import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
 import { createHash } from "node:crypto";
 import { brotliCompressSync, constants as zlibConstants } from "node:zlib";
+import { selectActiveCssFiles } from "./active-css.mjs";
+import { readThemeColors } from "./theme-colors.mjs";
 import { getBuildEpoch, getBuildSha } from "./build-provenance.mjs";
+import { auditHomeContactHierarchy } from "./home-contact-contract.mjs";
+import { auditHomeConcept } from "./home-concept-contract.mjs";
+import { auditCompositionSignature } from "./composition-signature-contract.mjs";
+import { auditPageExperience } from "./page-experience-contract.mjs";
+import { auditDesignMetaphor } from "./design-metaphor-contract.mjs";
+import { auditActiveNav } from "./active-nav-contract.mjs";
+import { auditMobileNav } from "./mobile-nav-contract.mjs";
 
 const distDir = resolve(process.argv[2] || "dist");
 const stylesDir = resolve("src/styles");
+const themeColors = readThemeColors();
 
 let totalErrors = 0;
 let totalWarnings = 0;
@@ -127,19 +137,101 @@ if (existsSync(distDir)) {
   const htmlFiles = walkDir(distDir).filter((f) => f.endsWith(".html"));
   console.log("--- CHECK-EMAIL-PLAIN ---");
   let plainEmailErrors = 0;
+  const securityEmailSpans = new Set();
   for (const file of htmlFiles) {
+    const rel = file.replace(distDir + "/", "");
     const lines = readFileSync(file, "utf-8").split(/\r?\n/);
     lines.forEach((line, index) => {
-      if (/hello@koztechie\.fyi/.test(line)) {
-        const rel = file.replace(distDir + "/", "");
+      const permittedContact = /^(?:en\/)?contact\/index\.html$/.test(rel);
+      const exactSecuritySpan = '<code class="contact-address">hello@koztechie.fyi</code>';
+      if (permittedContact && line.includes(exactSecuritySpan)) {
+        securityEmailSpans.add(rel);
+      }
+      const scannedLine = permittedContact
+        ? line.replaceAll(exactSecuritySpan, "")
+        : line;
+      if (/hello@koztechie\.fyi/.test(scannedLine)) {
         console.log(`  ❌ ${rel}:${index + 1}: plain email address`);
         plainEmailErrors++;
         totalErrors++;
       }
     });
   }
+  for (const rel of ["contact/index.html", "en/contact/index.html"]) {
+    if (!securityEmailSpans.has(rel)) {
+      console.log(`  ❌ ${rel}: security email is not rendered as the sanctioned code span`);
+      plainEmailErrors++;
+      totalErrors++;
+    }
+  }
   if (plainEmailErrors === 0) {
     console.log("  ✅ CHECK-EMAIL-PLAIN: plain=0 у всіх dist/**/*.html");
+  }
+
+  console.log("--- RSS auto-discovery titles ---");
+  let rssTitleErrors = 0;
+  for (const file of htmlFiles) {
+    const rel = file.replace(distDir + "/", "");
+    const html = readFileSync(file, "utf-8");
+    const rssLinks = [...html.matchAll(/<link\b([^>]*)>/gi)]
+      .map(([, attrs]) => Object.fromEntries(
+        [...attrs.matchAll(/([\w:-]+)\s*=\s*"([^"]*)"/g)]
+          .map(([, key, value]) => [key.toLowerCase(), value])
+      ))
+      .filter((attrs) =>
+        attrs.rel === "alternate" &&
+        attrs.type === "application/rss+xml"
+      );
+    if (rssLinks.length !== 2 || rssLinks.some((attrs) => !attrs.title?.trim())) {
+      console.log(`  ❌ ${rel}: очікуються два RSS alternate-посилання з непорожніми title`);
+      rssTitleErrors++;
+      totalErrors++;
+    }
+  }
+  if (rssTitleErrors === 0) {
+    console.log(`  ✅ ${htmlFiles.length} HTML-файлів: обидва RSS title непорожні`);
+  }
+
+  console.log("--- SEO title/description budgets ---");
+  let seoBudgetErrors = 0;
+  for (const file of htmlFiles) {
+    const rel = file.replace(distDir + "/", "");
+    const html = readFileSync(file, "utf-8");
+    const titleMatches = [...html.matchAll(/<title\b[^>]*>([\s\S]*?)<\/title\s*>/gi)];
+    const descriptionTags = [...html.matchAll(/<meta\b[^>]*>/gi)]
+      .map(([tag]) => parseHtmlAttributes(tag))
+      .filter((attributes) => attributes.name?.toLowerCase() === "description");
+    const title = titleMatches.length === 1
+      ? displayText(titleMatches[0][1])
+      : "";
+    const description = descriptionTags.length === 1
+      ? decodeHtmlEntities(descriptionTags[0].content || "").trim()
+      : "";
+    const titleLength = [...title].length;
+    const descriptionLength = [...description].length;
+
+    if (titleMatches.length !== 1 || titleLength === 0) {
+      console.log(`  ❌ ${rel}: потрібен рівно один непорожній <title>`);
+      seoBudgetErrors++;
+      totalErrors++;
+    } else if (titleLength > 60) {
+      console.log(`  ❌ ${rel}: title має ${titleLength} символів (ліміт 60)`);
+      seoBudgetErrors++;
+      totalErrors++;
+    }
+
+    if (descriptionTags.length !== 1 || descriptionLength === 0) {
+      console.log(`  ❌ ${rel}: потрібен рівно один непорожній meta description`);
+      seoBudgetErrors++;
+      totalErrors++;
+    } else if (descriptionLength > 155) {
+      console.log(`  ❌ ${rel}: description має ${descriptionLength} символів (ліміт 155)`);
+      seoBudgetErrors++;
+      totalErrors++;
+    }
+  }
+  if (seoBudgetErrors === 0) {
+    console.log(`  ✅ ${htmlFiles.length} HTML-файлів: 0 title понад 60 і 0 description понад 155 символів`);
   }
 
   let overBudget = 0;
@@ -171,8 +263,8 @@ if (existsSync(distDir)) {
     name: "koztechie",
     short_name: "koztechie",
     description: "Текст без прикрас. Архівний вузол Євгенія Козловського.",
-    theme_color: "#fafafa",
-    background_color: "#fafafa",
+    theme_color: themeColors.paper,
+    background_color: themeColors.paper,
   };
   if (!existsSync(manifestFile)) {
     console.log("  ❌ site.webmanifest відсутній");
@@ -196,6 +288,40 @@ if (existsSync(distDir)) {
         manifestErrors++;
         totalErrors++;
       }
+      const pngIcons = Array.isArray(manifest.icons)
+        ? manifest.icons.filter((item) => item?.type === "image/png")
+        : [];
+      let hasLargePngIcon = false;
+      for (const pngIcon of pngIcons) {
+        const iconPath = pngIcon.src?.startsWith("/")
+          ? join(distDir, pngIcon.src.slice(1))
+          : "";
+        const sizeMatch = pngIcon.sizes?.match(/^(\d+)x(\d+)$/);
+        if (!iconPath || !sizeMatch || !existsSync(iconPath)) {
+          console.log(`  ❌ site.webmanifest: PNG-іконка має відсутній файл або некоректні sizes (${pngIcon.src || "без src"})`);
+          manifestErrors++;
+          totalErrors++;
+          continue;
+        }
+        const expectedWidth = Number(sizeMatch[1]);
+        const expectedHeight = Number(sizeMatch[2]);
+        const image = readFileSync(iconPath);
+        if (
+          image.toString("ascii", 1, 4) !== "PNG" ||
+          image.readUInt32BE(16) !== expectedWidth ||
+          image.readUInt32BE(20) !== expectedHeight
+        ) {
+          console.log(`  ❌ ${pngIcon.src}: фактичні розміри не збігаються з ${pngIcon.sizes}`);
+          manifestErrors++;
+          totalErrors++;
+        }
+        if (expectedWidth >= 192 && expectedHeight >= 192) hasLargePngIcon = true;
+      }
+      if (!hasLargePngIcon) {
+        console.log("  ❌ site.webmanifest: потрібна PNG-іконка щонайменше 192×192");
+        manifestErrors++;
+        totalErrors++;
+      }
     } catch (error) {
       console.log(`  ❌ site.webmanifest: невалідний JSON (${error.message})`);
       manifestErrors++;
@@ -213,8 +339,14 @@ if (existsSync(distDir)) {
     totalErrors++;
   };
   const homeTemplate = resolve("src/templates/home.njk");
-  if (existsSync(homeTemplate) && /\{%-?\s*block\s+og_description\b/.test(readFileSync(homeTemplate, "utf-8"))) {
-    templateError("home.njk: невикористаний block og_description");
+  if (existsSync(homeTemplate)) {
+    const source = readFileSync(homeTemplate, "utf-8");
+    if (/\{%-?\s*block\s+og_description\b/.test(source)) {
+      templateError("home.njk: невикористаний block og_description");
+    }
+    if (/letter-cta|letter-note|cta_text|cta_note|ctaHref/.test(source)) {
+      templateError("home.njk: герой не має окремого CTA або примітки про відповідь");
+    }
   }
   const stringsDir = resolve("src/_data/strings");
   for (const lang of ["uk", "en"]) {
@@ -225,6 +357,9 @@ if (existsSync(distDir)) {
     }
     try {
       const data = JSON.parse(readFileSync(stringsFile, "utf-8"));
+      if (Object.hasOwn(data.home || {}, "cta_text") || Object.hasOwn(data.home || {}, "cta_note")) {
+        templateError(`strings.${lang}.home: ключі CTA не належать до архівної головної`);
+      }
       const browserTitle = data.home?.browser_title;
       if (typeof browserTitle !== "string" || !browserTitle.trim()) {
         templateError(`strings.${lang}.home.browser_title порожній`);
@@ -235,18 +370,115 @@ if (existsSync(distDir)) {
       templateError(`strings.${lang}.json: невалідний JSON (${error.message})`);
     }
   }
+  for (const [lang, relativePath] of [
+    ["uk", "index.html"],
+    ["en", join("en", "index.html")],
+  ]) {
+    const homePath = join(distDir, relativePath);
+    if (!existsSync(homePath)) {
+      templateError(`${lang}: dist головної відсутній`);
+      continue;
+    }
+    for (const error of auditHomeContactHierarchy(readFileSync(homePath, "utf-8"), lang)) {
+      templateError(`${lang}: home contact hierarchy: ${error}`);
+    }
+    for (const error of auditHomeConcept(readFileSync(homePath, "utf-8"), lang)) {
+      templateError(`${lang}: home concept: ${error}`);
+    }
+  }
   const postTemplate = resolve("src/templates/post.njk");
   if (!existsSync(postTemplate)
       || !/defaultPostImage\s*=\s*"\/og\/home-en-v2\.png"\s+if\s+lang\s*===\s*"en"/.test(readFileSync(postTemplate, "utf-8"))
       || !/\(og_image\s+if\s+og_image\s+else\s+defaultPostImage\)/.test(readFileSync(postTemplate, "utf-8"))) {
     templateError("post.njk: BlogPosting.image не має мовно-залежного дефолту");
   }
+  const signatureFiles = {
+    core: resolve("src/styles/core.css"),
+    layout: resolve("src/styles/layout.css"),
+    components: resolve("src/styles/components.css"),
+    post: resolve("src/templates/post.njk"),
+    poetry: resolve("src/templates/poetry.njk"),
+    practice: resolve("src/templates/case.njk"),
+  };
+  const signatureSources = Object.fromEntries(
+    Object.entries(signatureFiles).map(([key, path]) => [
+      key,
+      existsSync(path) ? readFileSync(path, "utf-8") : "",
+    ])
+  );
+  for (const error of auditCompositionSignature(signatureSources)) {
+    templateError(`composition signature: ${error}`);
+  }
+  const experienceFiles = {
+    layout: resolve("src/styles/layout.css"),
+    components: resolve("src/styles/components.css"),
+    home: resolve("src/templates/home.njk"),
+    list: resolve("src/templates/list.njk"),
+    post: resolve("src/templates/post.njk"),
+    practice: resolve("src/templates/case.njk"),
+    cemetery: resolve("src/templates/cemetery-entry.njk"),
+    poetry: resolve("src/templates/poetry.njk"),
+    page: resolve("src/templates/page.njk"),
+    now: resolve("src/templates/now.njk"),
+    project: resolve("src/templates/project.njk"),
+    stub: resolve("src/templates/stub.njk"),
+    notFound: resolve("src/404.njk"),
+  };
+  const experienceSources = Object.fromEntries(
+    Object.entries(experienceFiles).map(([key, path]) => [
+      key,
+      existsSync(path) ? readFileSync(path, "utf-8") : "",
+    ])
+  );
+  for (const error of auditPageExperience(experienceSources)) {
+    templateError(`page experience: ${error}`);
+  }
+  const designConceptSources = {
+    decisions: resolve("docs/DECISIONS.md"),
+    plan: resolve("docs/PLAN.md"),
+    agents: resolve("AGENTS.md"),
+    designSystem: resolve("docs/design-system.md"),
+    state: resolve("docs/STATE.md"),
+    wireframes: existsSync(resolve("docs/wireframes"))
+      ? readdirSync(resolve("docs/wireframes"))
+          .filter((file) => file.endsWith(".svg"))
+          .map((file) => ({
+            path: file,
+            source: readFileSync(resolve("docs/wireframes", file), "utf-8"),
+          }))
+      : [],
+  };
+  for (const [key, path] of Object.entries(designConceptSources)) {
+    if (key !== "wireframes") {
+      designConceptSources[key] = existsSync(path) ? readFileSync(path, "utf-8") : "";
+    }
+  }
+  for (const error of auditDesignMetaphor(designConceptSources)) {
+    templateError(`design concept: ${error}`);
+  }
+  const activeNavTemplatePath = resolve("src/templates/header.njk");
+  const activeNavCssPath = resolve("src/styles/layout.css");
+  const activeNavHtmlPath = join(distDir, "blog", "index.html");
+  for (const error of auditActiveNav({
+    template: existsSync(activeNavTemplatePath) ? readFileSync(activeNavTemplatePath, "utf-8") : "",
+    css: existsSync(activeNavCssPath) ? readFileSync(activeNavCssPath, "utf-8") : "",
+    html: existsSync(activeNavHtmlPath) ? readFileSync(activeNavHtmlPath, "utf-8") : "",
+  })) {
+    templateError(`active navigation: ${error}`);
+  }
+  const mobileNavHtmlPath = join(distDir, "blog", "index.html");
+  for (const error of auditMobileNav({
+    css: existsSync(activeNavCssPath) ? readFileSync(activeNavCssPath, "utf-8") : "",
+    html: existsSync(mobileNavHtmlPath) ? readFileSync(mobileNavHtmlPath, "utf-8") : "",
+  })) {
+    templateError(`mobile navigation: ${error}`);
+  }
   if (templateErrors === 0) {
-    console.log("  ✅ G-07: невикористані блоки відсутні, browser_title ≤60, OG fallback мовний");
+    console.log("  ✅ G-07: шаблони, title, OG, контакт, бренд, композиція, досвід сторінок і концепція дизайну");
   }
 
-  // 1b. Бюджет CSS (сумарно, brotli) — DECISIONS.md §39.4, TECH_STANDARDS §1
-  const distCSS = walkDir(distDir).filter((f) => f.endsWith(".css"));
+  // 1b. Бюджет активної CSS-пари (brotli) — DECISIONS.md §44.1, TECH_STANDARDS §1
+  const distCSS = selectActiveCssFiles(distDir, walkDir(distDir).filter((f) => f.endsWith(".css")));
   if (distCSS.length > 0) {
     let totalCSS = 0;
     for (const file of distCSS) {
@@ -256,11 +488,74 @@ if (existsSync(distDir)) {
     }
     const sizeKB = totalCSS / 1024;
     if (sizeKB > 15) {
-      console.log(`  ❌ CSS сумарно: ${sizeKB.toFixed(1)} КБ (бюджет 15 КБ)`);
+      console.log(`  ❌ Активний CSS: ${sizeKB.toFixed(1)} КБ (бюджет 15 КБ)`);
       totalErrors++;
     } else {
-      console.log(`  ✅ CSS сумарно: ${sizeKB.toFixed(1)} КБ (бюджет 15 КБ)`);
+      console.log(`  ✅ Активна CSS-пара: ${sizeKB.toFixed(1)} КБ (бюджет 15 КБ)`);
     }
+  }
+
+  // G-19. NICHLYST LCP image is eager/high priority and uses its small responsive source.
+  console.log("--- G-19 NICHLYST LCP IMAGE ---");
+  const lcpImageErrors = [];
+  const lcpVariants = [
+    ["uk", join(distDir, "nichlyst", "index.html")],
+    ["en", join(distDir, "en", "nichlyst", "index.html")],
+  ];
+  const imageAttribute = (tag, name) =>
+    tag.match(new RegExp(`\\b${name}="([^"]*)"`))?.[1] || "";
+  for (const [lang, pagePath] of lcpVariants) {
+    if (!existsSync(pagePath)) {
+      lcpImageErrors.push(`${lang}: NICHLYST HTML відсутній`);
+      continue;
+    }
+    const html = readFileSync(pagePath, "utf8");
+    const gallery = html.match(/<div class="nichlyst-gallery">([\s\S]*?)<\/div>/)?.[1] || "";
+    const figures = [...gallery.matchAll(/<figure>([\s\S]*?)<\/figure>/g)].map((match) => match[1]);
+    const firstTag = figures[0]?.match(/<img\b[^>]*>/)?.[0] || "";
+    if (figures.length !== 3 || !firstTag) {
+      lcpImageErrors.push(`${lang}: галерея має містити 3 figure та перше img`);
+      continue;
+    }
+    const required = {
+      src: "/nichlyst/first-knock.webp",
+      loading: "eager",
+      fetchpriority: "high",
+      decoding: "async",
+      srcset: "/nichlyst/first-knock-450.webp 450w, /nichlyst/first-knock-700.webp 700w, /nichlyst/first-knock.webp 900w",
+      sizes: "(max-width: 40rem) calc(100vw - 2rem), 40rem",
+    };
+    for (const [attribute, value] of Object.entries(required)) {
+      if (imageAttribute(firstTag, attribute) !== value) {
+        lcpImageErrors.push(`${lang}: LCP img має ${attribute}="${value}"`);
+      }
+    }
+    for (const [index, figure] of figures.slice(1).entries()) {
+      const tag = figure.match(/<img\b[^>]*>/)?.[0] || "";
+      if (imageAttribute(tag, "loading") !== "lazy") {
+        lcpImageErrors.push(`${lang}: кадр галереї ${index + 2} має залишатися loading="lazy"`);
+      }
+    }
+    for (const [width, filename] of [
+      [450, "first-knock-450.webp"],
+      [700, "first-knock-700.webp"],
+    ]) {
+      const variantPath = join(distDir, "nichlyst", filename);
+      if (!existsSync(variantPath)) {
+        lcpImageErrors.push(`${lang}: responsive ${width}w asset відсутній`);
+      } else {
+        const bytes = statSync(variantPath).size;
+        if (bytes < 13 * 1024 || bytes > 18 * 1024) {
+          lcpImageErrors.push(`${lang}: responsive ${width}w asset має ${bytes} байт, очікується 13–18 КіБ`);
+        }
+      }
+    }
+  }
+  if (lcpImageErrors.length) {
+    for (const error of lcpImageErrors) console.log(`  ❌ ${error}`);
+    totalErrors += lcpImageErrors.length;
+  } else {
+    console.log("  ✅ uk/en: перший кадр eager + high priority; 450w/700w 13–18 КіБ; решта кадрів lazy");
   }
 
   // 1c. style= атрибути — заборонені (TECH_STANDARDS §4)
@@ -297,6 +592,21 @@ if (existsSync(distDir)) {
   }
   if (assetErrors === 0) {
     console.log(`  ✅ Іконки на місці: ${requiredAssets.length} файлів`);
+  }
+  const appleIconPath = join(distDir, "apple-touch-icon.png");
+  if (existsSync(appleIconPath)) {
+    const appleIcon = readFileSync(appleIconPath);
+    if (
+      appleIcon.toString("ascii", 1, 4) !== "PNG" ||
+      appleIcon.readUInt32BE(16) !== 180 ||
+      appleIcon.readUInt32BE(20) !== 180
+    ) {
+      console.log("  ❌ apple-touch-icon.png: очікувався PNG розміром 180×180");
+      assetErrors++;
+      totalErrors++;
+    } else {
+      console.log("  ✅ apple-touch-icon.png має розмір 180×180");
+    }
   }
 
   const builtStylesDir = join(distDir, "styles");
@@ -354,7 +664,7 @@ if (existsSync(stylesDir)) {
 if (existsSync(join(stylesDir, "layout.css"))) {
   const layoutCss = readFileSync(join(stylesDir, "layout.css"), "utf-8")
     .replace(/\/\*[\s\S]*?\*\//g, "");
-  const hoverRule = layoutCss.match(/a:hover,\s*a:visited:hover\s*\{([^{}]*)\}/);
+  const hoverRule = layoutCss.match(/^\s*a:hover\s*\{([^{}]*)\}/m);
   const hoverDeclarations = hoverRule?.[1] || "";
   if (
     !/color\s*:\s*var\(--ink\)/.test(hoverDeclarations) ||
@@ -383,6 +693,25 @@ if (existsSync(join(stylesDir, "layout.css"))) {
   if (oldStateTokenErrors === 0) {
     console.log("  ✅ Стани не залежать від вилученого зеленого токена");
   }
+}
+if (existsSync(stylesDir)) {
+  let visitedStateErrors = 0;
+  for (const file of walkDir(stylesDir).filter((path) => path.endsWith(".css"))) {
+    const css = readFileSync(file, "utf-8").replace(/\/\*[\s\S]*?\*\//g, "");
+    for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const selector = match[1].trim();
+      if (!/:visited\b/.test(selector)) continue;
+      for (const declaration of match[2].split(";").map((item) => item.trim()).filter(Boolean)) {
+        const property = declaration.split(":", 1)[0].trim().toLowerCase();
+        if (property !== "color") {
+          console.log(`  ❌ :visited не може задавати «${property}» у ${file.slice(stylesDir.length + 1)} (${selector})`);
+          visitedStateErrors++;
+        }
+      }
+    }
+  }
+  if (visitedStateErrors) totalErrors += visitedStateErrors;
+  else console.log("  ✅ :visited не має не-color декларацій");
 }
 console.log("--- Chrome: пурпурне тло ---");
 const chromeSelector = /\.(?:site-header|site-footer|home-hero)\b/;
@@ -1281,7 +1610,7 @@ console.log("--- 7и. robots.txt і _headers ---");
   }
 
   if (!existsSync(headersPath)) {
-    console.log("  ❌ static/root/_headers відсутній (примусова заборона, PLAN 122)");
+      console.log("  ❌ static/root/_headers відсутній (декларативна політика noai, PLAN 122)");
     policyErrors++;
     totalErrors++;
   } else {
@@ -1637,6 +1966,46 @@ console.log("--- 7к. Лінки ---");
 }
 console.log("");
 
+// 7л-б. URL-и основної навігації шапки й підвалу не перетинаються (§4).
+console.log("--- 7л-б. Розділення навігації шапки та підвалу ---");
+{
+  let navErrors = 0;
+  const htmlFiles = walkDir(distDir).filter((file) => file.endsWith(".html"));
+  const navHrefs = (html, className) => {
+    const match = html.match(
+      new RegExp(`<nav\\b[^>]*class="${className}"[^>]*>([\\s\\S]*?)<\\/nav>`)
+    );
+    if (!match) return null;
+    return [...match[1].matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)]
+      .map(([, href]) => href)
+      .filter((href) => href.startsWith("/") && !href.startsWith("//"))
+      .map((href) => {
+        const path = href.split(/[?#]/, 1)[0];
+        const ukPath = path === "/en/" ? "/" : path.startsWith("/en/") ? path.slice(3) : path;
+        return ukPath.endsWith("/") ? ukPath : `${ukPath}/`;
+      });
+  };
+  for (const file of htmlFiles) {
+    const html = readFileSync(file, "utf-8");
+    const header = navHrefs(html, "site-nav");
+    const footer = navHrefs(html, "footer-nav");
+    const rel = file.slice(distDir.length + 1);
+    if (!header || !footer) {
+      console.log(`  ❌ ${rel}: відсутня шапкова або підвальна навігація`);
+      navErrors++;
+      continue;
+    }
+    const duplicates = [...new Set(header.filter((href) => footer.includes(href)))];
+    if (duplicates.length) {
+      console.log(`  ❌ ${rel}: URL-и є в обох навігаціях: ${duplicates.join(", ")}`);
+      navErrors++;
+    }
+  }
+  if (navErrors) totalErrors += navErrors;
+  else console.log(`  ✅ ${htmlFiles.length} HTML-файлів: URL-и шапки й підвалу не перетинаються`);
+}
+console.log("");
+
 // 7л. Перемикач мов — крок 133. design-system.md §8.1, DECISIONS.md §19.5.
 // Кожна сторінка: .lang-switch, один span.current відповідної мови,
 // лінк іншої мови (hreflang ≠ мові сторінки) на існуючу ціль,
@@ -1917,8 +2286,9 @@ console.log("--- 7т. hreflang у sitemap ---");
           expected[lang] = origin + (lang === "uk" ? ukPath : enPath);
         }
       }
+      if (expected.uk) expected["x-default"] = expected.uk;
 
-      for (const lang of ["uk", "en"]) {
+      for (const lang of ["uk", "en", "x-default"]) {
         if (links[lang] !== expected[lang]) {
           fail(`${raw}: sitemap hreflang=${lang} має «${links[lang] || "відсутній"}», очікується «${expected[lang] || "відсутній"}»`);
         }
@@ -1942,10 +2312,13 @@ console.log("--- 7т. hreflang у sitemap ---");
         fail(`${raw}: noindex-сторінка потрапила до sitemap`);
       }
       const rendered = htmlLinks(html);
-      for (const lang of ["uk", "en"]) {
+      for (const lang of ["uk", "en", "x-default"]) {
         if (rendered[lang] !== expected[lang]) {
           fail(`${raw}: HTML hreflang=${lang} має «${rendered[lang] || "відсутній"}», очікується «${expected[lang] || "відсутній"}»`);
         }
+      }
+      if (Object.keys(links).sort().join(",") !== Object.keys(rendered).sort().join(",")) {
+        fail(`${raw}: набір sitemap hreflang не збігається з HTML`);
       }
     }
 
@@ -2206,7 +2579,7 @@ console.log("--- 7о. JSON-LD ---");
             if (node.image !== "https://koztechie.fyi/og/home-v2.png") {
               fail(`${rel}: Person.image ≠ default OG image (очікується https://koztechie.fyi/og/home-v2.png)`);
             }
-            if (typeof node.jobTitle !== "string" || !node.jobTitle.trim()) fail(`${rel}: Person.jobTitle порожній`);
+            if (Object.hasOwn(node, "jobTitle")) fail(`${rel}: Person.jobTitle не має позиціонувати головну як портфоліо`);
             const alt = node.alternateName;
             if (!Array.isArray(alt) || alt.length === 0) {
               fail(`${rel}: Person.alternateName не масив або порожній (решта форм — сюди, §9)`);
@@ -2354,6 +2727,18 @@ if (!existsSync(redirectsPath)) {
     // Звичайні редиректи — 301; локалізована 404-маршрутизація — єдиний 404.
     if (!/\s301!?$/.test(line) && line !== "/en/* /en/404.html 404") {
       console.log(`  ❌ Неприпустимий статус редиректу: «${line}»`);
+      redirectErrors++;
+    }
+  }
+  const redirectText = readFileSync(redirectsPath, "utf-8");
+  for (const requiredRule of [
+    "http://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!",
+    "https://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!",
+    "http://koztechie.fyi/* https://koztechie.fyi/:splat 301!",
+    "https://koztechie.netlify.app/* https://koztechie.fyi/:splat 301!",
+  ]) {
+    if (!redirectText.split("\n").some((line) => line.trim() === requiredRule)) {
+      console.log(`  ❌ Відсутнє правило канонізації www: «${requiredRule}»`);
       redirectErrors++;
     }
   }
@@ -2523,4 +2908,31 @@ function walkDir(dir) {
     // Тека не існує або недоступна
   }
   return results;
+}
+
+function parseHtmlAttributes(tag) {
+  const attributes = {};
+  for (const match of tag.matchAll(/([^\s=/>]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g)) {
+    attributes[match[1].toLowerCase()] = match[2] ?? match[3] ?? match[4] ?? "";
+  }
+  return attributes;
+}
+
+function decodeHtmlEntities(value) {
+  const named = { amp: "&", apos: "'", gt: ">", lt: "<", nbsp: "\u00a0", quot: '"' };
+  return value.replace(/&(#(?:x[0-9a-f]+|[0-9]+)|[a-z][a-z0-9]+);/gi, (entity, reference) => {
+    if (reference[0] !== "#") return named[reference.toLowerCase()] ?? entity;
+    const hexadecimal = reference[1]?.toLowerCase() === "x";
+    const codePoint = Number.parseInt(reference.slice(hexadecimal ? 2 : 1), hexadecimal ? 16 : 10);
+    if (!Number.isInteger(codePoint) || codePoint < 0 || codePoint > 0x10ffff) return entity;
+    try {
+      return String.fromCodePoint(codePoint);
+    } catch {
+      return entity;
+    }
+  });
+}
+
+function displayText(value) {
+  return decodeHtmlEntities(value.replace(/<[^>]*>/g, "")).replace(/\s+/g, " ").trim();
 }

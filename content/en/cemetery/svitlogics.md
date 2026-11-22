@@ -11,7 +11,7 @@ epitaph: "Не знайшов достатнього попиту, і конку
 summary: "This page is not translated yet. Read the original in Ukrainian."
 og_title: "Svitlogics (not translated) — koztechie"
 og_image: "/og/svitlogics-en-v2.png"
-og_image_alt: "koztechie — an archive card for Svitlogics with an entry number, project dates, and horizontal record lines."
+og_image_alt: "koztechie — an open Svitlogics layout with entry dates and a closed-project label."
 translation_status: partial
 noindex: true
 draft: false

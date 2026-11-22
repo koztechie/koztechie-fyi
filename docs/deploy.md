@@ -1,8 +1,14 @@
 # ДЕПЛОЙ: koztechie.fyi → Netlify (DNS, HTTPS)
 
-**Статус:** крок PLAN 157. Інструкція для виконання **вручну** — у сесії ШІ немає
-доступу до акаунта Netlify (OAuth) та панелі DNS реєстратора, отже ці кроки
-виконує автор. Усе інше (конфіг, збірка, перевірки) — підготовлено й перевірено.
+**Політика production:** **prod deploy = `.github/workflows/deploy.yml` only**.
+Локальний CLI, MCP та ручний Netlify deploy для production заборонені.
+`NETLIFY_AUTH_TOKEN` зберігається лише у GitHub Actions Secrets; локальний
+Netlify CLI має бути розавторизований. Workflow запускається push-ем у `main`
+або вручну через GitHub Actions `workflow_dispatch`, проходить статичну QA,
+деплоїть і перевіряє post-deploy smoke з автоматичним rollback при помилці.
+
+Розділи нижче зберігають історичні кроки первинного налаштування сайту; вони не
+дозволяють ручний production deploy і не замінюють цю політику.
 
 **Перевірено:** 2026-11-07. Команда збірки Netlify прогнана локально чисто
 (`npm ci --ignore-scripts && npm run build && npm run check` → 0 помилок).
@@ -21,7 +27,7 @@
 | DNS у Spaceship | ✅ виконано ШІ: apex **ALIAS → `apex-loadbalancer.netlify.com`**, `www` **CNAME → `koztechie.netlify.app`**; авторитетний `dig` підтверджує Netlify IP (`75.2.60.5`, `99.83.231.61`); старі A `34.216.117.25`/`54.149.79.189` більше не відповідають (перекриті ALIAS; у зоні API вони не видимі як ресурс-записи — це була підсистема перенаправлення) |
 | HTTPS | ✅ Let's Encrypt видано (~10 хв після DNS) — `https://koztechie.fyi/` = **HTTP/2 200**, `server: Netlify`; `http→301→https`; `www→301→apex` |
 | Верифікація (§6) | ✅ усі12 пунктів зелені: DNS, редиректи, `x-robots-tag: noai, noimageai` на `/poetry/`, HSTS, h1/паспорт `7 листопада`, robots.txt+Sitemap, feed, sitemap, 404 «Запис відсутній.», en + hreflang, canonical |
-| Git-інтеграція (автодеплой) | ⏳ рішення за автором: (а) Link to Git repository у панелі → push на `main` збирається сам; (б) деплої через MCP вручну |
+| Production deploy | ✅ лише `.github/workflows/deploy.yml`; GitHub Actions Secret `NETLIFY_AUTH_TOKEN`; локальний CLI розавторизований |
 | Далі за планом | 158: `pp.ua` → alias301 на основний домен (тримати до індексації `.fyi`). 160: заголовки CSP/Permissions-Policy/Referrer-Policy/X-Content-Type (HSTS уже є). Старий AWS-сервер (`34.216…`/`54.149…`) — вимкнути автором. Опціонально: прибрати залишок перенаправлення у панелі Spaceship (перекритий ALIAS, на резолюцію не впливає) |
 | Крок162: noindex не-production | ✅ конфіг виконано: `postbuild.mjs` додає `X-Robots-Tag: noindex` у `dist/_headers` за `CONTEXT` ≠ production (логіка протестована локально: preview/branch → ✓, production → без). ⏳ **Тест deploy preview — РОБИТЬ АВТОР:** підключити репо `koztechie/koztechie-fyi` у панелі (Site configuration → Build & deploy → Link to Git repository, гілка `main`) → після push на незвичну гілку або PR Netlify створить preview → `curl -sI <preview-url>/ | grep -i x-robots-tag` має показати `noindex`; production при цьому — без noindex (перевірено) |
 

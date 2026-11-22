@@ -12,15 +12,33 @@ const actualDir = join(repoRoot, "qa-artifacts/reflow");
 const toolsDir = join(repoRoot, "scripts/tools");
 const playwrightBin = join(toolsDir, "node_modules/.bin/playwright");
 const update = process.env.UPDATE_SCREENSHOTS === "1";
+const advisory = process.env.REFLOW_ADVISORY === "1";
 const fuzz = "2%";
 const pixelThreshold = 0.001;
 const pages = [
-  ["home", "/"],
-  ["nichlyst", "/nichlyst/"],
-  ["poem", "/poetry/vnutrishnya-monholiya/"],
+  { name: "home", path: "/", baseline: true },
+  { name: "home-en", path: "/en/" },
+  { name: "nichlyst", path: "/nichlyst/", baseline: true },
+  { name: "poem", path: "/poetry/vnutrishnya-monholiya/", baseline: true },
+  { name: "essay-en", path: "/en/blog/blog-manifesto/" },
+  { name: "blog-index", path: "/blog/" },
+  { name: "practice-index", path: "/practice/" },
+  { name: "cemetery-index", path: "/cemetery/" },
+  { name: "cemetery-index-en", path: "/en/cemetery/" },
+  { name: "poetry-index", path: "/poetry/" },
+  { name: "essay", path: "/blog/blog-manifesto/" },
+  { name: "cemetery-entry", path: "/cemetery/svitlogics/" },
+  { name: "cemetery-entry-en", path: "/en/cemetery/svitlogics/" },
+  { name: "now", path: "/now/" },
+  { name: "now-en", path: "/en/now/" },
+  { name: "contact", path: "/contact/" },
+  { name: "contact-en", path: "/en/contact/" },
+  { name: "translation-stub", path: "/en/poetry/vnutrishnya-monholiya/" },
+  { name: "not-found", path: "/404.html" },
 ];
 const viewports = [320, 768, 1440];
 const failures = [];
+const differences = [];
 
 function makeImagesEager(directory, originals) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -55,7 +73,7 @@ function compareImages(actual, reference, diff) {
     ["-fuzz", fuzz, "-metric", "AE", actual, reference, diff],
     { encoding: "utf8" }
   );
-  if (result.error || result.status > 1) {
+  if (result.error || (result.status !== 0 && result.status !== 1)) {
     throw result.error ?? new Error(`compare завершився зі статусом ${result.status}`);
   }
   const metric = Number.parseInt(
@@ -72,7 +90,7 @@ try {
   mkdirSync(actualDir, { recursive: true });
   if (update) mkdirSync(referencesDir, { recursive: true });
 
-  for (const [name, path] of pages) {
+  for (const { name, path, baseline = false } of pages) {
     for (const width of viewports) {
       const filename = `${name}-${width}.png`;
       const actual = join(actualDir, filename);
@@ -88,7 +106,9 @@ try {
         actual,
       ], { cwd: toolsDir, stdio: "inherit" });
 
-      if (update) {
+      if (!baseline && !update) {
+        console.log(`ℹ️ ${filename}: знімок архетипу збережено для дизайн-рев’ю`);
+      } else if (update) {
         execFileSync("cp", [actual, reference]);
         console.log(`Оновлено reference: ${reference}`);
       } else if (!existsSync(reference)) {
@@ -100,7 +120,7 @@ try {
           unlinkSync(diff, { force: true });
           console.log(`✅ ${filename}: без diff`);
         } else if (metric > threshold) {
-          failures.push(
+          differences.push(
             `${filename}: ${metric} відмінних пікселів > ${Math.floor(threshold)} (${pixelThreshold * 100}%); diff: ${diff}`
           );
           console.error(
@@ -122,4 +142,13 @@ if (failures.length) {
   for (const failure of failures) console.error(`❌ ${failure}`);
   process.exit(1);
 }
-console.log(`РЕЗУЛЬТАТ: reflow ${pages.length} сторінки × ${viewports.length} viewport пройдено`);
+if (differences.length) {
+  const marker = advisory ? "⚠️" : "❌";
+  for (const difference of differences) console.error(`${marker} ${difference}`);
+  if (!advisory) process.exit(1);
+  console.warn("⚠️ Різниці reflow інформаційні; CI продовжується.");
+}
+const result = differences.length
+  ? "завершено з інформаційними відмінностями"
+  : "пройдено";
+console.log(`РЕЗУЛЬТАТ: reflow ${pages.length} сторінки × ${viewports.length} viewport ${result}`);

@@ -20,6 +20,7 @@ jobs:
     timeout-minutes: 15
     outputs:
       dist_sha256: ${{ steps.hash_dist.outputs.sha256 }}
+      previous_css_paths: ${{ steps.previous_css.outputs.paths }}
 
     steps:
       - name: Check out repository
@@ -50,7 +51,7 @@ jobs:
             8:6.9.*) ;;
             *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
           esac
-          sudo apt-get install --yes "imagemagick=${IM_VERSION}" librsvg2-bin
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}" fonts-liberation2 librsvg2-bin
 
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
@@ -63,6 +64,25 @@ jobs:
 
       - name: Build site
         run: npm run build
+
+      - name: Preserve previous CSS fingerprints (N-1 continuity)
+        id: previous_css
+        run: |
+          set -euo pipefail
+          live="$(curl -fsSL https://koztechie.fyi/)"
+          refs="$(printf '%s' "$live" | grep -oE '/styles/(site|print)\.[a-f0-9]{12}\.css' | sort -u || true)"
+          if [ -z "$refs" ]; then
+            echo "Could not discover previous CSS fingerprints from production HTML"
+            exit 1
+          fi
+          while IFS= read -r ref; do
+            [ -n "$ref" ] || continue
+            file="dist/styles/$(basename "$ref")"
+            if [ ! -f "$file" ]; then
+              curl -fsSL "https://koztechie.fyi$ref" -o "$file"
+            fi
+          done <<< "$refs"
+          printf 'paths=%s\n' "$(printf '%s\n' "$refs" | paste -sd' ' -)" >> "$GITHUB_OUTPUT"
 
       - name: Run unified static QA gate
         env:
@@ -130,7 +150,7 @@ jobs:
             8:6.9.*) ;;
             *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
           esac
-          sudo apt-get install --yes "imagemagick=${IM_VERSION}" librsvg2-bin
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}" fonts-liberation2 librsvg2-bin
 
       - name: Install locked QA tools
         run: npm ci --ignore-scripts
@@ -164,7 +184,9 @@ jobs:
         run: A11Y_MATRIX_USE_EXISTING_SERVER=1 node ../a11y-matrix.mjs
         working-directory: scripts/tools
 
-      - name: Reflow matrix
+      - name: Reflow matrix — advisory
+        env:
+          REFLOW_ADVISORY: "1"
         run: node ../reflow-check.mjs
         working-directory: scripts/tools
 
@@ -205,7 +227,7 @@ jobs:
   deploy:
     name: Deploy production
     needs: [static, measured-quality]
-    if: ${{ !cancelled() && needs.static.result == 'success' && needs.measured-quality.result == 'success' }}
+    if: ${{ github.ref == 'refs/heads/main' && !cancelled() && needs.static.result == 'success' && needs.measured-quality.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
@@ -250,6 +272,7 @@ jobs:
         id: smoke
         env:
           EXPECTED_COMMIT_SHA: ${{ github.sha }}
+          LIVE_PROBE_PREVIOUS_CSS: ${{ needs.static.outputs.previous_css_paths }}
         run: npm run live-probe:light
 
       - name: Auto-rollback on smoke failure

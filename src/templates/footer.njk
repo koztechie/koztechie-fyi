@@ -1,8 +1,8 @@
 {#- footer.njk: паршал підвалу.
-    Крок 109. docs/design-system.md §9.7.
+    Крок 109. docs/design-system.md §4–5.
     Порядок (§9.7.3): навігація → копірайт · RSS · email → місце.
     Навігація перша: підвал починається з корисного, не з копірайту.
-     7 лінків: 5 орієнтаційних та 2 тимчасово порожні розділи.
+     6 лінків: 4 орієнтаційні, Практика й Доступність.
     Тексти — зі словників (кроки 117, 118). Хардкод заборонено. -#}
 {%- set strings = strings[lang] | default(strings.uk) -%}
 {#- Мовна навігація (крок 131): en-дерево з fallback на uk. -#}
@@ -11,13 +11,13 @@
 <div class="site-footer__inner">
   {#- Видимий підпис над навігацією (спек 2026-11-05): «Інші сторінки».
       Той самий рядок лишається aria-label навігації. -#}
-  <p class="footer-label">{{ strings.nav.footer_sections_label }}</p>
-  <nav class="footer-nav" aria-label="{{ strings.nav.footer_sections_label }}">
+  <div class="site-footer__directory">
+    <p class="footer-label">{{ strings.nav.footer_sections_label }}</p>
+    <nav class="footer-nav" aria-label="{{ strings.nav.footer_sections_label }}">
     {%- set nav = [
       { href: "/manifest/", key: "manifest" },
       { href: "/now/", key: "now" },
       { href: "/practice/", key: "practice" },
-      { href: "/poetry/", key: "poetry" },
       { href: "/colophon/", key: "colophon" },
       { href: "/contact/", key: "contact" },
       { href: "/accessibility/", key: "accessibility" }
@@ -30,9 +30,13 @@
     {%- endif -%}
     <a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a>
     {%- endfor %}
-  </nav>
-  <p>{{ strings.footer.copyright }} <span class="sep" aria-hidden="true"> · </span>{{ strings.site.name }}<span class="sep" aria-hidden="true"> · </span><a href="{% if isEnPage %}/en/feed.xml{% else %}/feed.xml{% endif %}">{{ strings.footer.rss }}</a><span class="sep" aria-hidden="true"> · </span><a href="mailto:{{ strings.footer.email | safe }}">{{ strings.footer.email | safe }}</a></p>
-  <p class="footer-place">{{ strings.footer.place }}</p>
+    </nav>
+  </div>
+  <div class="site-footer__notes">
+    <p>{{ strings.footer.copyright }} <span class="sep" aria-hidden="true"> · </span>{{ strings.site.name }}<span class="sep" aria-hidden="true"> · </span><a href="{% if isEnPage %}/en/feed.xml{% else %}/feed.xml{% endif %}">{{ strings.footer.rss }}</a><span class="sep" aria-hidden="true"> · </span><a href="mailto:{{ strings.footer.email | safe }}">{{ strings.footer.email | safe }}</a></p>
+    <p class="footer-place">{{ strings.footer.place }}</p>
+    <p class="footer-slogan">{{ strings.footer.slogan }}</p>
+  </div>
   {#- Посилання на приватність: поза головним меню, у футері (DECISIONS §17.2).
       Шлях: uk у корені, en з префіксом (§19.0). -#}
   <p class="footer-legal"><a href="{% if (lang | default('uk')) === 'en' %}/en/privacy/{% else %}/privacy/{% endif %}">{{ strings.footer.privacy }}</a></p>

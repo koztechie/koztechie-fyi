@@ -2,7 +2,7 @@
 title: "Privacy policy"
 lang: en
 layout: page.njk
-updated: 2026-11-15
+updated: 2026-11-20
 summary: "Privacy policy. A quick breakdown of why this site doesn't track you and how the NICHLYST game handles data."
 og_description: "Privacy policy. Long story short: this website doesn't collect any of your personal data."
 translation_status: complete
@@ -24,6 +24,8 @@ Last updated: <time datetime="2026-11-15">November 15, 2026</time>.
 ## What this site actually stores
 
 Nothing. This is a completely static website without a database.
+
+Google Search Console is verified through a DNS TXT record; the site has no GSC verification files, meta tags, scripts, or pixels. I use it only for indexing—not for traffic or visitor-behavior analytics.
 
 ## Your email address
 

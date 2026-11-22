@@ -7,7 +7,7 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
 
-# Примусова заборона ШІ-доступу (PLAN 122): X-Robots-Tag на рівні хостингу.
+# Декларативна політика noai (PLAN 122/313): X-Robots-Tag на рівні хостингу.
 # Ті самі шляхи, що в robots.txt: поезія та тексти авторські.
 
 /poetry/*

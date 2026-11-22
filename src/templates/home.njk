@@ -1,6 +1,6 @@
 {#- home.njk: лейаут головної.
     Структура за спеком автора: 2026-11-05 (фінальна редакція, §6).
-    Головна: герой (мета-рядок, теза, лід, лист) → Про автора і сайт (паспорт) →
+    Головна: теза, пояснення архіву, потім авторський мета-рядок → паспорт →
     Основні принципи (DECISIONS §1.7) → Що тут є → Останні записи →
     Головний проєкт (NICHLYST). Блок маніфесту прибрано (повтор теми).
     Паспорт рахується, не лежить у словнику: мови — з наявних мовних дерев,
@@ -36,8 +36,7 @@
       "alternateName": {{ schema.person.alternateName | json | safe }},
       "sameAs": {{ schema.person.sameAs | json | safe }},
       "url": {{ schema.siteUrl | json | safe }},
-      "image": {{ (schema.siteUrl + "og/home-v2.png") | json | safe }},
-      "jobTitle": {{ (strings.home.thesis_a ~ ", " ~ strings.home.thesis_b) | json | safe }}
+      "image": {{ (schema.siteUrl + "og/home-v2.png") | json | safe }}
     },
     {
       "@type": "WebSite",
@@ -56,53 +55,44 @@
 {%- set homeIsEn = (lang | default("uk")) === "en" -%}
 {%- set pageLang = lang | default("uk") -%}
 <article class="home">
-  {#- Герой: мета-рядок → теза → лід → єдиний заклик (теза 3). -#}
-  <div class="home-hero">
-    <p class="meta-line">
-      {%- for m in strings.home.meta -%}
-      {{ m }}{% if not loop.last %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
-      {%- endfor %}
-    </p>
-    <h1>{{ strings.home.thesis_a }}<span class="sep" aria-hidden="true"> · </span>{{ strings.home.thesis_b }}</h1>
-    <p class="home-lead">{{ strings.home.lead }}</p>
+  {#- Відкриття вузла: позиціонування й паспорт — одна композиція,
+      з незмінною послідовністю читання. -#}
+  <div class="home-opening">
+    <header class="home-hero">
+      <h1>{{ strings.home.thesis }}</h1>
+      <div class="home-hero__aside">
+        <p class="home-concept">{{ strings.home.concept }}</p>
+        <p class="home-lead">{{ strings.home.lead }}</p>
+      </div>
+      <p class="meta-line">
+        {%- for m in strings.home.meta -%}
+        {{ m }}{% if not loop.last %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
+        {%- endfor %}
+      </p>
+    </header>
 
-    {#- CTA лишається на /contact/: проміжна сторінка показує адресу,
-        очікуваний строк відповіді та умови зв'язку до відкриття пошти. -#}
-    {%- set ctaHref = "/contact/" -%}
-    {%- if homeIsEn -%}
-      {%- set ctaCand = "/en/contact/" -%}
-      {%- if collections.all | findByUrl(ctaCand) %}{% set ctaHref = ctaCand %}{% endif -%}
-    {%- endif -%}
-    <p class="letter-cta">
-      <a href="{{ ctaHref }}">{{ strings.home.cta_text }} <span aria-hidden="true">→</span></a>
-      <span class="letter-note">{{ strings.home.cta_note }}</span>
-    </p>
+    <section class="home-panel home-panel--passport" aria-labelledby="home-passport-h">
+      <h2 id="home-passport-h">{{ strings.home.passport_label }}</h2>
+      {%- set langList = [] -%}
+      {%- if collections.uk.length %}{% set langList = langList.concat([strings.home.lang_names.uk]) %}{% endif -%}
+      {%- if collections.en.length %}{% set langList = langList.concat([strings.home.lang_names.en]) %}{% endif -%}
+      <div class="passport h-card">
+        <dl>
+          <div class="row"><dt>{{ strings.home.pass_label_author }}</dt><dd class="p-name">{{ strings.home.pass_value_author }}</dd></div>
+          <div class="row"><dt>{{ strings.home.pass_label_alias }}</dt><dd class="p-nickname">{{ strings.home.pass_value_alias }}</dd></div>
+          <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>{{ langList | join(", ") }}</dd></div>
+          <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.publicPages.length }}</dd></div>
+          <div class="row"><dt>{{ strings.home.pass_label_size }}</dt><dd>{{ strings.home.pass_size }}</dd></div>
+          {%- if buildDate %}
+          <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{% if pageLang === "en" %}{{ buildDate | enDate }}{% else %}{{ buildDate | ukDate }}{{ strings.site.date_suffix }}{% endif %}</dd></div>
+          {%- endif %}
+        </dl>
+      </div>
+    </section>
   </div>
 
-  {#- Коротко про сайт: паспорт видимим заголовком (спек 2026-11-05).
-      Мови — назви тих дерев, що мають контент; сторінки — з колекцій;
-      дата — час збірки; розмір — ліміт §1. -#}
-  <section class="card" aria-labelledby="home-cabinet-h">
-    <h2 id="home-cabinet-h">{{ strings.home.passport_label }}</h2>
-    {%- set langList = [] -%}
-    {%- if collections.uk.length %}{% set langList = langList.concat([strings.home.lang_names.uk]) %}{% endif -%}
-    {%- if collections.en.length %}{% set langList = langList.concat([strings.home.lang_names.en]) %}{% endif -%}
-    <div class="passport h-card">
-      <dl>
-        <div class="row"><dt>{{ strings.home.pass_label_author }}</dt><dd class="p-name">{{ strings.home.pass_value_author }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_alias }}</dt><dd class="p-nickname">{{ strings.home.pass_value_alias }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>{{ langList | join(", ") }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.publicPages.length }}</dd></div>
-        <div class="row"><dt>{{ strings.home.pass_label_size }}</dt><dd>{{ strings.home.pass_size }}</dd></div>
-        {%- if buildDate %}
-        <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{% if pageLang === "en" %}{{ buildDate | enDate }}{% else %}{{ buildDate | ukDate }}{{ strings.site.date_suffix }}{% endif %}</dd></div>
-        {%- endif %}
-      </dl>
-    </div>
-  </section>
-
   {#- Основні принципи (DECISIONS §1.7). Нумерація 01–04. -#}
-  <section class="card" aria-labelledby="home-principles-h">
+  <section class="home-panel home-panel--principles" aria-labelledby="home-principles-h">
     <h2 id="home-principles-h">{{ strings.home.principles_title }}</h2>
     <ol class="home-principles" role="list">
       {%- for t in strings.home.principles %}
@@ -117,7 +107,7 @@
 
   {#- Що тут є: карта сайту за sitemap (9 розділів, без Головної).
       Описи — зі словників; лінки мовно-залежні: en-дерево з fallback на uk. -#}
-  <section class="card card--sections" aria-labelledby="home-sections-h">
+  <section class="home-panel home-panel--sections" aria-labelledby="home-sections-h">
     <h2 id="home-sections-h">{{ strings.home.sections_title }}</h2>
     <ul class="home-sections-list" role="list">
       {%- set sectionsNav = [
@@ -137,7 +127,7 @@
         {%- set cand = "/en" + item.href -%}
         {%- if collections.all | findByUrl(cand) %}{% set itemHref = cand %}{% endif -%}
       {%- endif %}
-       <li><a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a><span class="desc">{{ strings.home.sections_desc[item.key] }}</span></li>
+      <li><a href="{{ itemHref }}">{{ strings.nav[item.key] }}</a><span class="desc">{{ strings.home.sections_desc[item.key] }}</span></li>
       {%- endfor %}
     </ul>
   </section>
@@ -150,18 +140,18 @@
     {%- if (post.data.lang | default("uk")) === pageLang and latest.length < 3 %}{% set latest = latest.concat([post]) %}{% endif -%}
   {%- endfor -%}
   {%- if latest.length %}
-  <section class="card card--latest" aria-labelledby="home-latest-h">
+  <section class="home-panel home-panel--latest" aria-labelledby="home-latest-h">
     <h2 id="home-latest-h">{{ strings.home.latest_title }}</h2>
-    <ul class="archive-list" role="list">
+    <ol class="archive-list archive-list--latest">
       {%- for post in latest %}
       {%- set mins = post.templateContent | readingTime %}
       <li>
+        <span class="index-entry__number">{{ post.data.entry }}</span>
         <a href="{{ post.url }}">{{ post.data.title }}</a>
-        <span class="sep" aria-hidden="true"> · </span>
         <span class="entry-meta"><time datetime="{{ post.data.date.toISOString().slice(0, 10) }}">{% if pageLang === "en" %}{{ post.data.date | enDate }}{% else %}{{ post.data.date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time><span class="sep" aria-hidden="true"> · </span>{{ mins }}{{ strings.post.reading_unit }}</span>
       </li>
       {%- endfor %}
-    </ul>
+    </ol>
   </section>
   {%- endif %}
 
@@ -172,11 +162,11 @@
     {%- set nichlystCand = "/en/nichlyst/" -%}
     {%- if collections.all | findByUrl(nichlystCand) %}{% set nichlystHref = nichlystCand %}{% endif -%}
   {%- endif -%}
-  <section class="card card--nichlyst" data-world="night" aria-labelledby="home-nichlyst-h">
-    <h2 id="home-nichlyst-h">{{ strings.home.nichlyst_section_title }}</h2>
-    <h3>{{ strings.nav.nichlyst }}</h3>
+  <section class="home-panel home-panel--nichlyst" data-world="night" aria-labelledby="home-nichlyst-h">
+    <p class="home-project-index">{{ strings.home.nichlyst_section_title }}</p>
+    <h2 id="home-nichlyst-h">{{ strings.nav.nichlyst }}</h2>
     <p>{{ strings.home.nichlyst_text }}</p>
-    <p><a href="{{ nichlystHref }}">{{ strings.home.nichlyst_link }} <span aria-hidden="true">→</span></a></p>
+    <p><a href="{{ nichlystHref }}">{{ strings.home.nichlyst_link }} <span aria-hidden="true">↗</span></a></p>
   </section>
 </article>
 {% endblock %}

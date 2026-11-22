@@ -22,9 +22,11 @@ npm ci --ignore-scripts && npm run build && npm run check && npm run validate
    repository* → `koztechie/koztechie-fyi`, `main` — тоді push = автозбірка).
 2. **Домени:** `koztechie.fyi` — primary; `koztechie.pp.ua` — alias 301
    (`static/root/_redirects`; видалити після індексації `.fyi`).
-3. **DNS-провайдер:** Netlify DNS (NS1), зона `koztechie.fyi`. Перед будь-якою
-   зміною **експортувати всю зону** з Netlify DNS і зберегти архів поза git із
-   датою; якщо експорту немає — зберегти повний список записів.
+3. **DNS-провайдер:** Netlify DNS (NS1), зони `koztechie.fyi` і
+   `koztechie.pp.ua`. Перед будь-якою зміною **експортувати саме всю змінювану
+   зону** з Netlify DNS і зберегти архів поза git із датою; якщо експорту немає
+   — зберегти повний список записів. Для `.pp.ua` очікувані NS —
+   `dns1.p04.nsone.net`–`dns4.p04.nsone.net`.
 4. Перевірити авторитетні NS:
 
    ```bash

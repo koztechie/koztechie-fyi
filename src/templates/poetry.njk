@@ -16,18 +16,21 @@
 {% endblock %}
 
 {% block content %}
-<article class="entry">
-  <p class="entry-line">{{ strings.post.poem_entry_prefix }}{{ entry }}</p>
-  <h1>{{ title }}</h1>
-  {% if content_warning %}
-   <aside class="content-warning" role="note">
-    <p>{{ strings.post.warning_prefix }} {{ strings.post.warnings[content_warning] or content_warning }}.</p>
-  </aside>
-  {% endif %}
-  <p class="entry-meta">
-    <time datetime="{{ date.toISOString().slice(0, 10) }}">{% if (lang | default("uk")) === "en" %}{{ date | enDate }}{% else %}{{ date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
-  </p>
-  <div class="entry-body poetry">{{ content | trim | safe }}</div>
+<article class="poem-record">
+  <header class="poem-header">
+    <p class="entry-line"><span class="entry-line__label">{{ strings.post.poem_entry_prefix }}</span><span class="entry-line__number">{{ entry }}</span></p>
+    <h1>{{ title }}</h1>
+    {% if content_warning %}
+    <aside class="content-warning" role="note">
+      <p>{{ strings.post.warning_prefix }} {{ strings.post.warnings[content_warning] or content_warning }}.</p>
+    </aside>
+    {% endif %}
+    <p class="entry-meta">
+      <time datetime="{{ date.toISOString().slice(0, 10) }}">{% if (lang | default("uk")) === "en" %}{{ date | enDate }}{% else %}{{ date | ukDate }}{{ strings.site.date_suffix }}{% endif %}</time>
+    </p>
+  </header>
+
+  <div class="poem-body entry-body poetry">{{ content | trim | safe }}</div>
   {% if written or written_period %}
   <footer class="poem-colophon">
     <span class="poem-colophon__label">{{ strings.post.written_label }}</span>

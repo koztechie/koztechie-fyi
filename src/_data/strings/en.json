@@ -2,26 +2,24 @@
   "site": {
     "name": "koztechie",
     "name_en": "koztechie",
-    "title": "Personal blog and archive.",
+    "title": "The koztechie archive: projects, code, and writing.",
     "feed_title": "koztechie — English",
-    "bio_short": "Personal blog from Kyiv. Thoughts, notes, and projects. No clickbait, no vanity metrics.",
-    "og_image_alt": "koztechie — a light digital-archive card with framed signal markers and the site name.",
+    "bio_short": "The koztechie archive of projects, code, and writing.",
+    "og_image_alt": "koztechie — an archive of projects, code, and writing.",
     "date_suffix": ""
   },
   "home": {
-    "browser_title": "koztechie — Eugene Kozlovsky, AI-Assisted Developer",
-    "lead": "This is my personal website. It's a collection of my projects, code, and writing. I share what I'm working on in two languages, with no strict publishing schedule.",
+    "browser_title": "koztechie — an archive of projects, code, and writing",
+    "concept": "VUZOL-0 is the internal name for this digital node of records and testimony.",
+    "lead": "Sections and numbered indexes give these materials boundaries and a path through them. This archive preserves them instead of trying to keep readers scrolling.",
     "latest_title": "Latest entries",
     "sections_title": "What's here",
-    "thesis_a": "AI-Assisted Developer",
-    "thesis_b": "Systems Architect",
+    "thesis": "An archive of projects, decisions, and mistakes.",
     "doc_updated": "Updated",
     "meta": [
       "Eugene Kozlovsky",
       "Kyiv, Ukraine"
     ],
-    "cta_text": "Write a letter",
-    "cta_note": "Replies usually take a few days; delays may happen.",
     "passport_label": "About me and this site",
     "pass_label_lang": "Site languages",
     "pass_label_pages": "Public pages",
@@ -39,7 +37,7 @@
     "principles": [
       {
         "title": "Focus on the essence",
-        "text": "I share things I've actually verified in practice and don't pretend to be an expert in everything. No clickbait or made-up stories."
+        "text": "I share only what I've verified in practice, without overstating what I can do. No clickbait or made-up stories."
       },
       {
         "title": "A working space",
@@ -79,7 +77,10 @@
     "read_uk": "Read in Ukrainian",
     "prev": "Previous",
     "next": "Next",
-    "pagination_label": "Pagination"
+    "pagination_label": "Pagination",
+    "date_label": "Date",
+    "period_label": "Period",
+    "cause_label": "Reason"
   },
   "post": {
     "entry_prefix": "Post №",
@@ -134,7 +135,8 @@
   },
   "footer": {
     "rss": "RSS",
-    "place": "Made in Kyiv.",
+    "place": "Made in Kyiv. During air-raid alerts.",
+    "slogan": "Text without embellishment.",
     "made_in": "Made in Kyiv",
     "copyright": "© 2026 Eugene Kozlovsky",
     "email": "&#104;ello@koztechie.fyi",

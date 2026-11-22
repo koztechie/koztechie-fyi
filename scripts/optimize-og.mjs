@@ -34,6 +34,8 @@ function runImageMagick(args) {
 
 const tempDir = mkdtempSync(join(imageDir, ".optimize-"));
 const themeColors = readThemeColors();
+let optimizedCount = 0;
+try {
 const svgFiles = filesUnder(imageDir).filter((file) => file.endsWith(".svg"));
 for (const file of svgFiles) {
   const source = readFileSync(file, "utf8");
@@ -59,15 +61,15 @@ for (const file of svgFiles) {
 for (const svgFile of svgFiles) {
   const name = svgFile.slice(imageDir.length + 1).replace(/\.svg$/, "");
   const renderedFile = join(tempDir, `${name}-v2.png`);
-  const rendered = runImageMagick([
+  const rendered = run("rsvg-convert", [
+    "--output", renderedFile,
+    svgFile,
+  ]) || runImageMagick([
     svgFile,
     "-background", themeColors.paper,
     "-alpha", "remove",
     "-alpha", "off",
     renderedFile,
-  ]) || run("rsvg-convert", [
-    "--output", renderedFile,
-    svgFile,
   ]);
   if (!rendered) {
     throw new Error(`Для генерації OG-картки ${name} потрібен ImageMagick або librsvg.`);
@@ -85,8 +87,6 @@ const paletteColors = [...new Set(
 )];
 if (!paletteColors.length) throw new Error("У themes.css немає кольорів для палітри.");
 
-let optimizedCount = 0;
-try {
   for (const file of pngFiles) {
     const pngName = file.split("/").pop();
     const isNichlystCard = /^nichlyst-(uk|en)(?:-v2)?\.png$/i.test(pngName);
@@ -97,7 +97,10 @@ try {
         themeColors.ink,
         themeColors.night,
         themeColors["text-night"],
+        themeColors["text-dim"],
         themeColors["accent-night"],
+        themeColors["rule-soft-night"],
+        themeColors["rule-strong-night"],
       ])]
       : isHomeCard
         ? [...new Set([
@@ -105,7 +108,10 @@ try {
           themeColors.ink,
           themeColors["ink-dim"],
           themeColors["rule-soft"],
+          themeColors["rule-strong"],
           themeColors.accent,
+          themeColors.night,
+          themeColors["text-night"],
           themeColors["accent-night"],
         ])]
         : paletteColors;
@@ -238,9 +244,14 @@ manifest.theme_color = themeColors.paper;
 manifest.background_color = themeColors.paper;
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
-const faviconIco = resolve("dist/favicon.ico");
-const appleIcon = resolve("dist/apple-touch-icon.png");
-const iconTempDir = mkdtempSync(join(distDir, ".icons-"));
+  const faviconIco = resolve("dist/favicon.ico");
+  const appleIcon = resolve("dist/apple-touch-icon.png");
+  const manifestIcons = [
+    { size: 180, path: appleIcon },
+    { size: 192, path: resolve("dist/icon-192.png") },
+    { size: 512, path: resolve("dist/icon-512.png") },
+  ];
+  const iconTempDir = mkdtempSync(join(distDir, ".icons-"));
 try {
   const renderIcon = (size, path) => {
     const rawPath = join(iconTempDir, `raw-${size}.png`);
@@ -272,8 +283,21 @@ try {
     ]);
   };
   const iconPngs = [16, 32, 48].map((size) => join(iconTempDir, `favicon-${size}.png`));
-  if (!renderIcon(180, appleIcon) || ![16, 32, 48].every((size, index) => renderIcon(size, iconPngs[index]))) {
+  if (
+    !manifestIcons.every(({ size, path }) => renderIcon(size, path)) ||
+    ![16, 32, 48].every((size, index) => renderIcon(size, iconPngs[index]))
+  ) {
     throw new Error("Для генерації favicon потрібен ImageMagick або librsvg.");
+  }
+  for (const { size, path } of manifestIcons) {
+    const image = readFileSync(path);
+    if (
+      image.toString("ascii", 1, 4) !== "PNG" ||
+      image.readUInt32BE(16) !== size ||
+      image.readUInt32BE(20) !== size
+    ) {
+      throw new Error(`${path.slice(distDir.length + 1)}: очікувався PNG ${size}×${size}.`);
+    }
   }
   if (!runImageMagick([...iconPngs, faviconIco])) {
     throw new Error("Не вдалося зібрати favicon.ico з розмірів 16, 32 і 48 пікселів.");

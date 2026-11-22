@@ -5,6 +5,7 @@
 # `!` (force): без нього правило не спрацює на / — існує index.html (shadowing).
 # http-правила — підстраховка на випадок вимкнення Force HTTPS.
 
+https://koztechie.netlify.app/* https://koztechie.fyi/:splat 301!
 https://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
 http://www.koztechie.fyi/* https://koztechie.fyi/:splat 301!
 
@@ -18,3 +19,4 @@ https://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 http://koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 https://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
 http://www.koztechie.pp.ua/* https://koztechie.fyi/:splat 301!
+http://koztechie.fyi/* https://koztechie.fyi/:splat 301!

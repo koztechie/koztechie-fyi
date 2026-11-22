@@ -3,6 +3,8 @@
 
 const origin = (process.env.LIVE_PROBE_ORIGIN || "https://koztechie.fyi").replace(/\/$/, "");
 const timeoutMs = 4_500;
+const allowLegacyProvenance =
+  process.env.LIVE_PROBE_ALLOW_LEGACY_PROVENANCE === "1";
 const checks = [
   "/",
   "/en/",
@@ -102,8 +104,21 @@ if (
 
 const versionResponse = await get("/version.json");
 let deployedSha = "";
+const requestedSha = process.env.EXPECTED_COMMIT_SHA?.trim() || "";
+let skipLegacyProvenance = false;
 if (versionResponse?.status !== 200) {
-  fail(`/version.json: очікувався 200, отримано ${versionResponse?.status || "network"}`);
+  if (
+    versionResponse?.status === 404 &&
+    allowLegacyProvenance &&
+    !requestedSha
+  ) {
+    skipLegacyProvenance = true;
+    console.warn(
+      "ℹ️ /version.json відсутній у попередньому релізі; provenance-перевірку пропущено лише в legacy rollback-режимі",
+    );
+  } else {
+    fail(`/version.json: очікувався 200, отримано ${versionResponse?.status || "network"}`);
+  }
 } else {
   try {
     const version = await versionResponse.json();
@@ -113,14 +128,19 @@ if (versionResponse?.status !== 200) {
   }
 }
 
-const expectedSha = process.env.EXPECTED_COMMIT_SHA?.trim() || deployedSha;
-if (!/^[a-f0-9]{40}$/i.test(expectedSha)) {
-  fail(`Очікуваний commit SHA не задано або він невалідний: «${expectedSha || "порожній"}»`);
+const expectedSha = requestedSha || deployedSha;
+if (!skipLegacyProvenance) {
+  if (!/^[a-f0-9]{40}$/i.test(expectedSha)) {
+    fail(`Очікуваний commit SHA не задано або він невалідний: «${expectedSha || "порожній"}»`);
+  }
+  if (requestedSha && deployedSha !== requestedSha) {
+    fail(`/version.json SHA «${deployedSha || "відсутній"}» не збігається з очікуваним ${requestedSha}`);
+  }
 }
 
 for (const { path, html } of htmlPages) {
   const commitSha = html.match(/<meta\b(?=[^>]*\bname=["']x-commit["'])[^>]*\bcontent=["']([^"']*)["'][^>]*>/i)?.[1];
-  if (commitSha !== expectedSha) {
+  if (!skipLegacyProvenance && commitSha !== expectedSha) {
     fail(`${path}: x-commit «${commitSha || "відсутній"}» не збігається з ${expectedSha}`);
   }
 
@@ -147,7 +167,12 @@ for (const { path, html } of htmlPages) {
     stylesheetPaths.add(new URL(pageStylesheet, `${origin}/`).pathname);
   }
 
-  console.log(`✅ ${path}: x-commit ${commitSha === expectedSha ? "PASS" : "FAIL"}; виконуваних script ${executableTags.length}`);
+  const provenanceResult = skipLegacyProvenance
+    ? "пропущено (legacy rollback)"
+    : commitSha === expectedSha
+      ? "PASS"
+      : "FAIL";
+  console.log(`✅ ${path}: x-commit ${provenanceResult}; виконуваних script ${executableTags.length}`);
 }
 
 for (const path of stylesheetPaths) {
@@ -189,8 +214,27 @@ if (!stylesheetPath) {
   }
 }
 
-const [indexResponse, missingResponse, feedResponse] = await Promise.all([
+const previousCss = (process.env.LIVE_PROBE_PREVIOUS_CSS || "")
+  .split(/\s+/)
+  .filter(Boolean);
+for (const path of previousCss) {
+  if (!/^\/styles\/(?:site|print)\.[a-f0-9]{12}\.css$/.test(path)) {
+    fail(`LIVE_PROBE_PREVIOUS_CSS містить невалідний CSS fingerprint: ${path}`);
+    continue;
+  }
+  const response = await get(path);
+  if (response?.status !== 200) {
+    fail(`${path}: попередній CSS fingerprint має залишатися доступним (очікувався 200, отримано ${response?.status || "network"})`);
+  } else {
+    console.log(`✅ ${path}: попередній CSS fingerprint доступний`);
+  }
+}
+
+const [indexResponse, blogIndexResponse, enIndexResponse, direct404Response, missingResponse, feedResponse] = await Promise.all([
   get("/index.html", { redirect: "manual" }),
+  get("/blog/index.html", { redirect: "manual" }),
+  get("/en/index.html", { redirect: "manual" }),
+  get("/404.html", { redirect: "manual" }),
   get("/__missing__"),
   get("/feed.xml"),
 ]);
@@ -204,6 +248,28 @@ if (indexResponse?.status !== 301) {
   } else {
     console.log("✅ /index.html: 301 → /");
   }
+}
+
+for (const [path, response, location] of [
+  ["/blog/index.html", blogIndexResponse, "/blog/"],
+  ["/en/index.html", enIndexResponse, "/en/"],
+]) {
+  if (response?.status !== 301) {
+    fail(`${path}: очікувався 301, отримано ${response?.status || "network"}`);
+    continue;
+  }
+  const actual = response.headers.get("location") || "";
+  if (new URL(actual, `${origin}/`).pathname !== location) {
+    fail(`${path}: Location має вести на ${location}, отримано ${actual || "відсутній"}`);
+  } else {
+    console.log(`✅ ${path}: 301 → ${location}`);
+  }
+}
+
+if (direct404Response?.status !== 404) {
+  fail(`/404.html: очікувався 404, отримано ${direct404Response?.status || "network"}`);
+} else {
+  console.log("✅ /404.html: 404");
 }
 
 if (missingResponse?.status !== 404) {
@@ -222,6 +288,30 @@ if (
   );
 } else {
   console.log("✅ /feed.xml: application/rss+xml");
+}
+
+if (origin === "https://koztechie.fyi") {
+  for (const [path, expected] of [
+    ["/", "https://koztechie.fyi/"],
+    ["/en/", "https://koztechie.fyi/en/"],
+    ["/blog/blog-manifesto/?probe=t63", "https://koztechie.fyi/blog/blog-manifesto/?probe=t63"],
+  ]) {
+    try {
+      const mirrorResponse = await fetch(`https://koztechie.netlify.app${path}`, {
+        redirect: "manual",
+        headers: { "user-agent": "koztechie.fyi light-live-probe/1.0" },
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      const location = mirrorResponse.headers.get("location") || "";
+      if (mirrorResponse.status !== 301 || new URL(location).href !== expected) {
+        fail(`https://koztechie.netlify.app${path}: очікувався 301 → ${expected}, отримано ${mirrorResponse.status} → ${location || "без Location"}`);
+      } else {
+        console.log(`✅ https://koztechie.netlify.app${path}: 301 → ${expected}`);
+      }
+    } catch (error) {
+      fail(`https://koztechie.netlify.app${path}: ${error.message}`);
+    }
+  }
 }
 
 if (failures.length) {

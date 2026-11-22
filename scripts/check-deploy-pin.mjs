@@ -22,6 +22,9 @@ if (toolsLock.packages?.["node_modules/netlify-cli"]?.version !== expectedVersio
 if (!/npx\s+--prefix\s+scripts\/tools\s+netlify\s+deploy\b/.test(workflow)) {
   errors.push("deploy.yml має викликати Netlify CLI через npx --prefix scripts/tools");
 }
+if (!/if:\s*\$\{\{\s*github\.ref\s*==\s*'refs\/heads\/main'\s*&&/.test(workflow)) {
+  errors.push("production deploy має бути заблокований для workflow_dispatch з ref, відмінним від main");
+}
 if (/npx\s+--yes\s+netlify-cli\b/.test(workflow)) {
   errors.push("deploy.yml не повинен використовувати глобальний npx --yes netlify-cli");
 }

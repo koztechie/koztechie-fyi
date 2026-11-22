@@ -1,19 +1,24 @@
 ---
 title: "NICHLYST"
 lang: uk
-layout: page.njk
+layout: project.njk
 structured_data: nichlyst
-updated: 2026-11-15
+updated: 2026-11-20
+content_warning: [війна, травма]
 summary: "NICHLYST — сюжетна гра для Android про збирання та збереження людських свідчень."
 og_description: "Сюжетна гра для Android про збирання та збереження пам'яті від Євгенія Козловського."
 og_title: "NICHLYST — koztechie"
 og_image: "/og/nichlyst-uk-v2.png"
-og_image_alt: "koztechie — нічна картка NICHLYST із назвою гри, рожевим маркером сигналу та лініями запису."
+og_image_alt: "koztechie — темне поле NICHLYST із назвою гри та теракотовою лінією."
 translation_status: complete
 draft: false
 ---
 
 NICHLYST — це сюжетна гра для Android про роботу з пам'яттю та збереження свідчень. Щодня до вас приходять люди зі своїми історіями: ваше завдання — вислуховувати їх, фіксувати свідчення та оберігати їх від зіпсуття.
+
+<aside class="content-disclaimer" role="note">
+  <p>Усі локації, країни та персонажі повністю вигадані.</p>
+</aside>
 
 ## Що це за гра
 
@@ -27,7 +32,11 @@ NICHLYST — це сюжетна гра для Android про роботу з п
 
 <div class="nichlyst-gallery">
   <figure>
-    <img src="/nichlyst/first-knock.webp" width="900" height="883" alt="Перший день гри: свідчення Хоми та три варіанти відповіді архівіста." loading="lazy" decoding="async">
+    <img src="/nichlyst/first-knock.webp" width="900" height="883"
+      alt="Перший день гри: свідчення Хоми та три варіанти відповіді архівіста."
+      loading="eager" fetchpriority="high" decoding="async"
+      srcset="/nichlyst/first-knock-450.webp 450w, /nichlyst/first-knock-700.webp 700w, /nichlyst/first-knock.webp 900w"
+      sizes="(max-width: 40rem) calc(100vw - 2rem), 40rem">
     <figcaption>День 1. Перше свідчення й вибір відповіді. <a href="/nichlyst/first-knock.webp" download aria-label="Завантажити кадр: день 1, перше свідчення (WebP, 27 КБ)">Завантажити кадр</a></figcaption>
   </figure>
   <figure>

@@ -7,7 +7,7 @@ date: 2026-10-25
 updated: 2026-11-15
 summary: "The rules and principles of this blog: no clickbait, no strict schedule, just thoughts and notes."
 og_image: "/og/blog-manifesto-en-v2.png"
-og_image_alt: "koztechie — a light Blog Manifesto card with a graphic index, dark band, and accent line."
+og_image_alt: "koztechie — an open Blog Manifesto layout with a dark header and a terracotta line."
 translation_status: complete
 tags: ["manifesto"]
 draft: false

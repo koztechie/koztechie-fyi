@@ -65,4 +65,12 @@ execFileSync(
   ],
   { stdio: "inherit" },
 );
-execFileSync("npm", ["run", "live-probe:light"], { stdio: "inherit" });
+execFileSync("npm", ["run", "live-probe:light"], {
+  stdio: "inherit",
+  env: {
+    ...process.env,
+    EXPECTED_COMMIT_SHA: "",
+    LIVE_PROBE_PREVIOUS_CSS: "",
+    LIVE_PROBE_ALLOW_LEGACY_PROVENANCE: "1",
+  },
+});

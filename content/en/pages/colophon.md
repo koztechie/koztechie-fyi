@@ -20,7 +20,7 @@ All fonts are system fonts; no font files are downloaded.
 
 ## Tools
 
-- **Eleventy 3.1.7** — static site generator.
+- **Eleventy 3.1.8** — static site generator.
 - **Node.js 22** — build environment runtime.
 - **Vanilla CSS** — hand-written styles without frameworks or preprocessors.
 - **Git** — version control.
@@ -44,15 +44,15 @@ match:
 
 | Foreground | Background | Contrast |
 |---|---|---|
-| `--ink` | `--paper` | 17.95:1 |
-| `--ink-dim` | `--paper` | 7.26:1 |
-| `--accent` | `--paper` | 9.40:1 |
-| `--rule-strong` | `--paper` | 3.31:1 |
-| `--text-night` | `--night` | 17.12:1 |
-| `--text-dim` | `--night` | 7.60:1 |
-| `--accent-night` | `--night` | 8.29:1 |
-| `--rule-strong (night)` | `--night` | 3.44:1 |
-| `--paper` | `--accent` | 9.40:1 |
+| `--ink` | `--paper` | 14.43:1 |
+| `--ink-dim` | `--paper` | 8.04:1 |
+| `--accent` | `--paper` | 7.23:1 |
+| `--rule-strong` | `--paper` | 4.34:1 |
+| `--text-night` | `--night` | 14.92:1 |
+| `--text-dim` | `--night` | 8.33:1 |
+| `--accent-night` | `--night` | 8.15:1 |
+| `--rule-strong (night)` | `--night` | 4.16:1 |
+| `--paper` | `--accent` | 7.23:1 |
 
 <!-- PALETTE-RATIOS:END -->
 

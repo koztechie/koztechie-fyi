@@ -1,5 +1,6 @@
 export default {
   lang: "en",
+  layout: "poetry.njk",
   eleventyComputed: {
     permalink: (data) => {
       // Чернетки не генеруються (content-model §7.6: «Зніми draft: true»).
