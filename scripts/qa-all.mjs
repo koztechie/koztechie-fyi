@@ -27,6 +27,9 @@ console.log("\n=== QA: voice-lint morphology fixture ===");
 execFileSync("npm", ["run", "test:voice-lint"], { stdio: "inherit" });
 console.log("\n=== QA: homepage contact hierarchy fixture ===");
 execFileSync("npm", ["run", "test:home-contact"], { stdio: "inherit" });
+
+console.log("\n=== QA: homepage contact visual priority fixture ===");
+execFileSync("npm", ["run", "test:home-contact-visual"], { stdio: "inherit" });
 console.log("\n=== QA: homepage concept fixture ===");
 execFileSync("npm", ["run", "test:home-concept"], { stdio: "inherit" });
 console.log("\n=== QA: composition signature fixture ===");
