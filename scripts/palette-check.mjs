@@ -139,6 +139,27 @@ for (const [file, language] of [
   }
 }
 
+// Verify the actual deploy artifact too: a source-side table check alone
+// cannot detect an old or mismatched dist being published.
+for (const [file, language] of [
+  ["dist/colophon/index.html", "uk"],
+  ["dist/en/colophon/index.html", "en"],
+]) {
+  if (!existsSync(resolve(file))) {
+    fail(`${file}: сторінку колофона не знайдено у зібраному dist.`);
+    continue;
+  }
+  const html = readFileSync(resolve(file), "utf8");
+  const block = html.match(/<!-- PALETTE-RATIOS:START -->([\s\S]*?)<!-- PALETTE-RATIOS:END -->/)?.[1];
+  const cells = [...(block || "").matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)]
+    .map(([, cell]) => cell.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").trim());
+  const actualRatios = cells.filter((_, index) => index % 3 === 2);
+  const expectedRatios = paletteRatioRows(baseColors).map((row) => `${row[2]}:1`);
+  if (!block || JSON.stringify(actualRatios) !== JSON.stringify(expectedRatios)) {
+    fail(`${file}: таблиця в dist не відповідає коефіцієнтам поточних токенів themes.css.`);
+  }
+}
+
 for (const row of paletteRatioRows(baseColors)) {
   console.log(`  ${row[0]} на ${row[1]}: ${row[2]}:1`);
 }

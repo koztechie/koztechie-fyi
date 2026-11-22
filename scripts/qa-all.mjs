@@ -11,6 +11,10 @@ if (!netlify.includes('ignore = "exit 0"')) {
 }
 
 const commands = ["check", "plan-lint", "facts-sync", "validate", "size", "voice-lint", "linkcheck"];
+console.log("\n=== QA: active navigation fixture ===");
+execFileSync("npm", ["run", "test:active-nav"], { stdio: "inherit" });
+console.log("\n=== QA: mobile navigation fixture ===");
+execFileSync("npm", ["run", "test:mobile-nav"], { stdio: "inherit" });
 console.log("\n=== QA: check-runbook-commands ===");
 execFileSync("node", ["scripts/check-runbook-commands.mjs"], { stdio: "inherit" });
 console.log("\n=== QA: check-deploy-pin ===");
@@ -25,6 +29,12 @@ console.log("\n=== QA: homepage contact hierarchy fixture ===");
 execFileSync("npm", ["run", "test:home-contact"], { stdio: "inherit" });
 console.log("\n=== QA: homepage concept fixture ===");
 execFileSync("npm", ["run", "test:home-concept"], { stdio: "inherit" });
+console.log("\n=== QA: composition signature fixture ===");
+execFileSync("npm", ["run", "test:composition-signature"], { stdio: "inherit" });
+console.log("\n=== QA: page experience fixture ===");
+execFileSync("npm", ["run", "test:page-experience"], { stdio: "inherit" });
+console.log("\n=== QA: design metaphor consistency fixture ===");
+execFileSync("npm", ["run", "test:design-metaphor"], { stdio: "inherit" });
 console.log("\n=== QA: facts-sync seeded mismatch fixture ===");
 execFileSync("npm", ["run", "test:facts-sync"], { stdio: "inherit" });
 console.log("\n=== QA: live-probe provenance and rollback fixture ===");

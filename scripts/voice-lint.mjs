@@ -199,13 +199,13 @@ if (args.length === 0) {
       lang: "uk",
       file: resolve("src/_data/strings/uk.json"),
       homeContent: resolve("content/uk/index.md"),
-      canonical: "Архів проєктів, коду й текстів.",
+      canonical: "Архів проєктів, рішень і помилок.",
     },
     {
       lang: "en",
       file: resolve("src/_data/strings/en.json"),
       homeContent: resolve("content/en/index.md"),
-      canonical: "An archive of projects, code, and writing.",
+      canonical: "An archive of projects, decisions, and mistakes.",
     },
   ];
   let archiveErrors = 0;

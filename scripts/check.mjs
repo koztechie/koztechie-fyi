@@ -12,6 +12,11 @@ import { readThemeColors } from "./theme-colors.mjs";
 import { getBuildEpoch, getBuildSha } from "./build-provenance.mjs";
 import { auditHomeContactHierarchy } from "./home-contact-contract.mjs";
 import { auditHomeConcept } from "./home-concept-contract.mjs";
+import { auditCompositionSignature } from "./composition-signature-contract.mjs";
+import { auditPageExperience } from "./page-experience-contract.mjs";
+import { auditDesignMetaphor } from "./design-metaphor-contract.mjs";
+import { auditActiveNav } from "./active-nav-contract.mjs";
+import { auditMobileNav } from "./mobile-nav-contract.mjs";
 
 const distDir = resolve(process.argv[2] || "dist");
 const stylesDir = resolve("src/styles");
@@ -387,8 +392,89 @@ if (existsSync(distDir)) {
       || !/\(og_image\s+if\s+og_image\s+else\s+defaultPostImage\)/.test(readFileSync(postTemplate, "utf-8"))) {
     templateError("post.njk: BlogPosting.image не має мовно-залежного дефолту");
   }
+  const signatureFiles = {
+    core: resolve("src/styles/core.css"),
+    layout: resolve("src/styles/layout.css"),
+    components: resolve("src/styles/components.css"),
+    post: resolve("src/templates/post.njk"),
+    poetry: resolve("src/templates/poetry.njk"),
+    practice: resolve("src/templates/case.njk"),
+  };
+  const signatureSources = Object.fromEntries(
+    Object.entries(signatureFiles).map(([key, path]) => [
+      key,
+      existsSync(path) ? readFileSync(path, "utf-8") : "",
+    ])
+  );
+  for (const error of auditCompositionSignature(signatureSources)) {
+    templateError(`composition signature: ${error}`);
+  }
+  const experienceFiles = {
+    layout: resolve("src/styles/layout.css"),
+    components: resolve("src/styles/components.css"),
+    home: resolve("src/templates/home.njk"),
+    list: resolve("src/templates/list.njk"),
+    post: resolve("src/templates/post.njk"),
+    practice: resolve("src/templates/case.njk"),
+    cemetery: resolve("src/templates/cemetery-entry.njk"),
+    poetry: resolve("src/templates/poetry.njk"),
+    page: resolve("src/templates/page.njk"),
+    now: resolve("src/templates/now.njk"),
+    project: resolve("src/templates/project.njk"),
+    stub: resolve("src/templates/stub.njk"),
+    notFound: resolve("src/404.njk"),
+  };
+  const experienceSources = Object.fromEntries(
+    Object.entries(experienceFiles).map(([key, path]) => [
+      key,
+      existsSync(path) ? readFileSync(path, "utf-8") : "",
+    ])
+  );
+  for (const error of auditPageExperience(experienceSources)) {
+    templateError(`page experience: ${error}`);
+  }
+  const designConceptSources = {
+    decisions: resolve("docs/DECISIONS.md"),
+    plan: resolve("docs/PLAN.md"),
+    agents: resolve("AGENTS.md"),
+    designSystem: resolve("docs/design-system.md"),
+    state: resolve("docs/STATE.md"),
+    wireframes: existsSync(resolve("docs/wireframes"))
+      ? readdirSync(resolve("docs/wireframes"))
+          .filter((file) => file.endsWith(".svg"))
+          .map((file) => ({
+            path: file,
+            source: readFileSync(resolve("docs/wireframes", file), "utf-8"),
+          }))
+      : [],
+  };
+  for (const [key, path] of Object.entries(designConceptSources)) {
+    if (key !== "wireframes") {
+      designConceptSources[key] = existsSync(path) ? readFileSync(path, "utf-8") : "";
+    }
+  }
+  for (const error of auditDesignMetaphor(designConceptSources)) {
+    templateError(`design concept: ${error}`);
+  }
+  const activeNavTemplatePath = resolve("src/templates/header.njk");
+  const activeNavCssPath = resolve("src/styles/layout.css");
+  const activeNavHtmlPath = join(distDir, "blog", "index.html");
+  for (const error of auditActiveNav({
+    template: existsSync(activeNavTemplatePath) ? readFileSync(activeNavTemplatePath, "utf-8") : "",
+    css: existsSync(activeNavCssPath) ? readFileSync(activeNavCssPath, "utf-8") : "",
+    html: existsSync(activeNavHtmlPath) ? readFileSync(activeNavHtmlPath, "utf-8") : "",
+  })) {
+    templateError(`active navigation: ${error}`);
+  }
+  const mobileNavHtmlPath = join(distDir, "blog", "index.html");
+  for (const error of auditMobileNav({
+    css: existsSync(activeNavCssPath) ? readFileSync(activeNavCssPath, "utf-8") : "",
+    html: existsSync(mobileNavHtmlPath) ? readFileSync(mobileNavHtmlPath, "utf-8") : "",
+  })) {
+    templateError(`mobile navigation: ${error}`);
+  }
   if (templateErrors === 0) {
-    console.log("  ✅ G-07: template hygiene, browser title ≤60, OG fallback, ієрархія контактів і концепція головної");
+    console.log("  ✅ G-07: шаблони, title, OG, контакт, бренд, композиція, досвід сторінок і концепція дизайну");
   }
 
   // 1b. Бюджет активної CSS-пари (brotli) — DECISIONS.md §44.1, TECH_STANDARDS §1

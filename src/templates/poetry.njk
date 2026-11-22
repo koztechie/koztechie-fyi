@@ -18,7 +18,7 @@
 {% block content %}
 <article class="poem-record">
   <header class="poem-header">
-    <p class="entry-line">{{ strings.post.poem_entry_prefix }}{{ entry }}</p>
+    <p class="entry-line"><span class="entry-line__label">{{ strings.post.poem_entry_prefix }}</span><span class="entry-line__number">{{ entry }}</span></p>
     <h1>{{ title }}</h1>
     {% if content_warning %}
     <aside class="content-warning" role="note">

@@ -21,6 +21,9 @@
   --measure: 44rem;
   --container: 100rem;
   --rail: 16rem;
+  --serial-rail: 4.5rem;
+  --serial-gap: clamp(1rem, 2.5vw, 2rem);
+  --serial-mark: clamp(1.75rem, 3.5vw, 2.75rem);
   --tap: 44px;
 
   /* Шкала відступів. */

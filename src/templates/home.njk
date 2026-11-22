@@ -1,6 +1,6 @@
 {#- home.njk: лейаут головної.
     Структура за спеком автора: 2026-11-05 (фінальна редакція, §6).
-    Головна: герой (мета-рядок, теза, лід без CTA) → Про автора і сайт (паспорт) →
+    Головна: теза, пояснення архіву, потім авторський мета-рядок → паспорт →
     Основні принципи (DECISIONS §1.7) → Що тут є → Останні записи →
     Головний проєкт (NICHLYST). Блок маніфесту прибрано (повтор теми).
     Паспорт рахується, не лежить у словнику: мови — з наявних мовних дерев,
@@ -59,16 +59,16 @@
       з незмінною послідовністю читання. -#}
   <div class="home-opening">
     <header class="home-hero">
-      <p class="meta-line">
-        {%- for m in strings.home.meta -%}
-        {{ m }}{% if not loop.last %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
-        {%- endfor %}
-      </p>
       <h1>{{ strings.home.thesis }}</h1>
       <div class="home-hero__aside">
         <p class="home-concept">{{ strings.home.concept }}</p>
         <p class="home-lead">{{ strings.home.lead }}</p>
       </div>
+      <p class="meta-line">
+        {%- for m in strings.home.meta -%}
+        {{ m }}{% if not loop.last %}<span class="sep" aria-hidden="true"> · </span>{% endif %}
+        {%- endfor %}
+      </p>
     </header>
 
     <section class="home-panel home-panel--passport" aria-labelledby="home-passport-h">

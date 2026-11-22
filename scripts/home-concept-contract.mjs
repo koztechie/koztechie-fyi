@@ -4,11 +4,23 @@ function textOf(markup = "") {
 
 export function auditHomeConcept(html, lang) {
   const errors = [];
+  const thesisMatch = html.match(/<h1>([\s\S]*?)<\/h1>/);
+  const metaMatch = html.match(/<p class="meta-line">([\s\S]*?)<\/p>/);
   const conceptMatch = html.match(/<p class="home-concept">([\s\S]*?)<\/p>/);
   const leadMatch = html.match(/<p class="home-lead">([\s\S]*?)<\/p>/);
+  const thesis = textOf(thesisMatch?.[1]);
   const concept = textOf(conceptMatch?.[1]);
   const lead = textOf(leadMatch?.[1]);
 
+  const expectedThesis = lang === "en"
+    ? "An archive of projects, decisions, and mistakes."
+    : "Архів проєктів, рішень і помилок.";
+  if (!thesisMatch || thesis !== expectedThesis) {
+    errors.push("головний h1 має коротко називати зміст і відмінність архіву");
+  }
+  if (metaMatch && thesisMatch && html.indexOf(metaMatch[0]) < html.indexOf(thesisMatch[0])) {
+    errors.push("авторські метадані не повинні випереджати тезу архіву");
+  }
   if (!conceptMatch) errors.push("контекстне пояснення ВУЗОЛ-0 відсутнє");
   if (!leadMatch) errors.push("пояснення індексної моделі відсутнє");
 

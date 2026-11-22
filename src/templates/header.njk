@@ -2,7 +2,7 @@
     Крок 108. docs/design-system.md §4–5.
     Логотип — текст, не картинка (§9.6.4).
     Активний розділ — aria-current="page" (крок 110, §9.6.3).
-    Активний розділ — моно-мітка з контрастною CSS-заливкою, не в розмітці.
+    Активний розділ — контрастна моноширинна мітка [ НАЗВА ]; стиль визначає CSS.
     Перемикач мови — §8.1 (крок 111).
     Тексти — зі словників (кроки 117, 118). Хардкод заборонено. -#}
 {%- set strings = strings[lang] | default(strings.uk) -%}
@@ -35,7 +35,7 @@
       {%- if collections.all | findByUrl(cand) %}{% set itemHref = cand %}{% endif -%}
     {%- endif -%}
     {%- set active = cur === item.href or (item.href !== "/" and cur.indexOf(item.href) === 0) %}
-    <a href="{{ itemHref }}"{% if active %} aria-current="page"{% endif %}><span>{{ strings.nav[item.key] }}</span></a>
+    <a href="{{ itemHref }}"{% if active %} aria-current="page"{% endif %}><span class="site-nav__label">{{ strings.nav[item.key] }}</span></a>
     {%- endfor %}
   </nav>
   {#- Мітка «УКР / ENG» (§8.1.2). УКР завжди перша (§8.1.1). Поточна мова —

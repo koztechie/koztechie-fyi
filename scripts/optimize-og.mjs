@@ -34,6 +34,8 @@ function runImageMagick(args) {
 
 const tempDir = mkdtempSync(join(imageDir, ".optimize-"));
 const themeColors = readThemeColors();
+let optimizedCount = 0;
+try {
 const svgFiles = filesUnder(imageDir).filter((file) => file.endsWith(".svg"));
 for (const file of svgFiles) {
   const source = readFileSync(file, "utf8");
@@ -85,8 +87,6 @@ const paletteColors = [...new Set(
 )];
 if (!paletteColors.length) throw new Error("У themes.css немає кольорів для палітри.");
 
-let optimizedCount = 0;
-try {
   for (const file of pngFiles) {
     const pngName = file.split("/").pop();
     const isNichlystCard = /^nichlyst-(uk|en)(?:-v2)?\.png$/i.test(pngName);
