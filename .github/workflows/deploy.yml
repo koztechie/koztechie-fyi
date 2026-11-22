@@ -51,7 +51,7 @@ jobs:
             8:6.9.*) ;;
             *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
           esac
-          sudo apt-get install --yes "imagemagick=${IM_VERSION}" librsvg2-bin
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}" fonts-liberation2 librsvg2-bin
 
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
@@ -150,7 +150,7 @@ jobs:
             8:6.9.*) ;;
             *) echo "Unsupported ImageMagick candidate: $IM_VERSION"; exit 1 ;;
           esac
-          sudo apt-get install --yes "imagemagick=${IM_VERSION}" librsvg2-bin
+          sudo apt-get install --yes "imagemagick=${IM_VERSION}" fonts-liberation2 librsvg2-bin
 
       - name: Install locked QA tools
         run: npm ci --ignore-scripts
