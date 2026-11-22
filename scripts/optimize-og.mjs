@@ -61,15 +61,15 @@ for (const file of svgFiles) {
 for (const svgFile of svgFiles) {
   const name = svgFile.slice(imageDir.length + 1).replace(/\.svg$/, "");
   const renderedFile = join(tempDir, `${name}-v2.png`);
-  const rendered = runImageMagick([
+  const rendered = run("rsvg-convert", [
+    "--output", renderedFile,
+    svgFile,
+  ]) || runImageMagick([
     svgFile,
     "-background", themeColors.paper,
     "-alpha", "remove",
     "-alpha", "off",
     renderedFile,
-  ]) || run("rsvg-convert", [
-    "--output", renderedFile,
-    svgFile,
   ]);
   if (!rendered) {
     throw new Error(`Для генерації OG-картки ${name} потрібен ImageMagick або librsvg.`);
