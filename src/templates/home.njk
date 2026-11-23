@@ -75,7 +75,6 @@
       <div class="passport">
         <dl>
           <div class="row"><dt>{{ strings.home.pass_label_entries }}</dt><dd>{{ collections.archiveEntries.length }}</dd></div>
-          <div class="row"><dt>{{ strings.home.pass_label_size }}</dt><dd>{{ strings.home.pass_size }}</dd></div>
           {%- if buildDate %}
           <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{% if pageLang === "en" %}{{ buildDate | enDate }}{% else %}{{ buildDate | ukDate }}{{ strings.site.date_suffix }}{% endif %}</dd></div>
           {%- endif %}
