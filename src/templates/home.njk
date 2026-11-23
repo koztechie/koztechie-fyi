@@ -3,8 +3,8 @@
     Головна: теза, пояснення архіву, потім авторський мета-рядок → паспорт →
     Основні принципи (DECISIONS §1.7) → Що тут є → Останні записи →
     Головний проєкт (NICHLYST). Блок маніфесту прибрано (повтор теми).
-    Дані паспорта: сторінки — з колекцій, дата — максимум date/updated,
-    бюджет — TECH_STANDARDS §1. Модулі нумеруються CSS counters.
+    Дані паспорта: записи — канонічні українські матеріали, дата — максимум
+    date/updated, бюджет — TECH_STANDARDS §1. Модулі — CSS counters.
     Тексти — зі словників. Хардкод заборонено (крок 118). -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
@@ -74,7 +74,7 @@
       <h2 id="home-passport-h">{{ strings.home.passport_label }}</h2>
       <div class="passport">
         <dl>
-          <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.publicPages.length }}</dd></div>
+          <div class="row"><dt>{{ strings.home.pass_label_entries }}</dt><dd>{{ collections.archiveEntries.length }}</dd></div>
           <div class="row"><dt>{{ strings.home.pass_label_size }}</dt><dd>{{ strings.home.pass_size }}</dd></div>
           {%- if buildDate %}
           <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{% if pageLang === "en" %}{{ buildDate | enDate }}{% else %}{{ buildDate | ukDate }}{{ strings.site.date_suffix }}{% endif %}</dd></div>

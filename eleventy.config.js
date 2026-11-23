@@ -71,6 +71,18 @@ export default function (eleventyConfig) {
       .filter((item) => item.data.draft !== true && item.data.date && item.url)
       .sort((a, b) => new Date(b.data.date) - new Date(a.data.date))
   );
+  // Логічні авторські матеріали рахуємо один раз у канонічній українській
+  // версії; index.md — навігаційні сторінки, а переклади не дублюють записи.
+  eleventyConfig.addCollection("archiveEntries", (api) =>
+    api
+      .getFilteredByGlob("content/uk/{blog,practice,cemetery,poetry}/*.md")
+      .filter(
+        (item) =>
+          item.data.draft !== true &&
+          item.url &&
+          !item.inputPath.endsWith("/index.md")
+      )
+  );
 
   // Мовні колекції (крок 117): контент за мовою для sitemap/RSS/hreflang.
   // Спаджений за датою спадно; сторінки без дати — в кінець.
