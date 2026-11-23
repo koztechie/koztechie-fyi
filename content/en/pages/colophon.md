@@ -71,7 +71,11 @@ The two language feeds include every published entry from the Blog, Practice, Po
 
 ## Page-weight budget
 
-The limit is 50 KiB per page. `scripts/size-budget.mjs` compresses each file separately with Brotli (quality 11), then adds that page’s HTML size to the combined size of CSS and JS files in `dist/`. Images and other media are excluded. This is a reproducible estimate, not the exact byte count of a specific network request.
+Each page must stay within **50 KiB after Brotli** (quality 11).
+`scripts/size-budget.mjs` compresses each file separately, then adds that page’s
+HTML size to the combined size of CSS and JS files in `dist/`. Images and other
+media are excluded. This is a reproducible estimate, not the exact byte count
+of a specific network request.
 
 ## Hardware
 

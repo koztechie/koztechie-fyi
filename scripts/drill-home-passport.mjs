@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import { auditHomePassport } from "./home-passport-contract.mjs";
+import { auditHomePassport, auditPageBudgetColophon } from "./home-passport-contract.mjs";
 
 const frame = (title, rows) => `
   <section class="home-panel home-panel--passport">
@@ -12,12 +12,10 @@ const frame = (title, rows) => `
 
 const ukRows = [
   ["Записів в архіві", "5"],
-  ["Бюджет сторінки", "≤ 50 КіБ, Brotli"],
   ["Оновлено", "23 листопада 2026 року"],
 ];
 const enRows = [
   ["Archive entries", "5"],
-  ["Page budget", "≤ 50 KiB, Brotli"],
   ["Updated", "November 23, 2026"],
 ];
 
@@ -27,13 +25,36 @@ assert(
   auditHomePassport(frame("Про сайт", [
     ["Публічних сторінок", "32"],
     ...ukRows.slice(1),
-  ]), "uk").some((error) => error.includes("кількість записів"))
+  ]), "uk").some((error) => error.includes("лічильник записів"))
 );
 assert(
   auditHomePassport(frame("About this site", [
     ["Public pages", "32"],
     ...enRows.slice(1),
-  ]), "en").some((error) => error.includes("кількість записів"))
+  ]), "en").some((error) => error.includes("лічильник записів"))
+);
+assert(
+  auditHomePassport(frame("Про сайт", [
+    ...ukRows,
+    ["Бюджет сторінки", "≤ 50 КіБ, Brotli"],
+  ]), "uk").some((error) => error.includes("лише лічильник"))
+);
+assert.deepEqual(
+  auditPageBudgetColophon(
+    "<h2>Бюджет ваги сторінки</h2><p>Ліміт — 50 КіБ. Brotli (якість 11).</p>",
+    "uk"
+  ),
+  []
+);
+assert.deepEqual(
+  auditPageBudgetColophon(
+    "<h2>Page-weight budget</h2><p>Limit: 50 KiB per page. Brotli (quality 11).</p>",
+    "en"
+  ),
+  []
+);
+assert(
+  auditPageBudgetColophon("<h2>Page-weight budget</h2><p>Fast pages.</p>", "en").length > 0
 );
 assert(
   auditHomePassport(frame("Про автора і сайт", ukRows), "uk")
@@ -43,7 +64,7 @@ assert(
   auditHomePassport(frame("Про сайт", [
     ...ukRows,
     ["Псевдонім", "koztechie"],
-  ]), "uk").some((error) => error.includes("рівно три"))
+  ]), "uk").some((error) => error.includes("лише лічильник"))
 );
 assert(
   auditHomePassport(frame("About this site", [
@@ -52,4 +73,4 @@ assert(
   ]), "en").some((error) => error.includes("дублювати автора"))
 );
 
-console.log("✅ home-passport drill: сайтова трійка дозволена; авторські повтори й зайвий рядок відхилено.");
+console.log("✅ home-passport drill: паспорт без технічного бюджету; Brotli-ліміт у двомовному колофоні.");
