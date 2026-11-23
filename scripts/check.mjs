@@ -12,6 +12,7 @@ import { readThemeColors } from "./theme-colors.mjs";
 import { getBuildEpoch, getBuildSha } from "./build-provenance.mjs";
 import { auditHomeContactHierarchy } from "./home-contact-contract.mjs";
 import { auditHomeConcept } from "./home-concept-contract.mjs";
+import { auditHomePassport } from "./home-passport-contract.mjs";
 import { auditCompositionSignature } from "./composition-signature-contract.mjs";
 import { auditPageExperience } from "./page-experience-contract.mjs";
 import { auditDesignMetaphor } from "./design-metaphor-contract.mjs";
@@ -385,6 +386,9 @@ if (existsSync(distDir)) {
     for (const error of auditHomeConcept(readFileSync(homePath, "utf-8"), lang)) {
       templateError(`${lang}: home concept: ${error}`);
     }
+    for (const error of auditHomePassport(readFileSync(homePath, "utf-8"), lang)) {
+      templateError(`${lang}: home passport: ${error}`);
+    }
   }
   const postTemplate = resolve("src/templates/post.njk");
   if (!existsSync(postTemplate)
@@ -474,7 +478,7 @@ if (existsSync(distDir)) {
     templateError(`mobile navigation: ${error}`);
   }
   if (templateErrors === 0) {
-    console.log("  ✅ G-07: шаблони, title, OG, контакт, бренд, композиція, досвід сторінок і концепція дизайну");
+  console.log("  ✅ G-07: шаблони, title, OG, контакт, паспорт, бренд, композиція, досвід сторінок і концепція дизайну");
   }
 
   // 1b. Бюджет активної CSS-пари (brotli) — DECISIONS.md §44.1, TECH_STANDARDS §1

@@ -20,17 +20,8 @@
       "Євгеній Козловський",
       "Київ, Україна"
     ],
-    "passport_label": "Про автора і сайт",
-    "pass_label_lang": "Мови сайту",
+    "passport_label": "Про сайт",
     "pass_label_pages": "Публічних сторінок",
-    "pass_label_author": "Автор",
-    "pass_value_author": "Євгеній Козловський",
-    "pass_label_alias": "Псевдонім",
-    "pass_value_alias": "koztechie",
-    "lang_names": {
-      "uk": "українська",
-      "en": "англійська"
-    },
     "pass_label_size": "Бюджет сторінки",
     "pass_size": "≤ 50 КіБ, Brotli",
     "principles_title": "Основні принципи",

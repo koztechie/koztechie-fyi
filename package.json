@@ -29,6 +29,7 @@
     "test:home-contact": "node scripts/drill-home-contact.mjs",
     "test:home-contact-visual": "node scripts/drill-home-contact-visual.mjs",
     "test:home-concept": "node scripts/drill-home-concept.mjs",
+    "test:home-passport": "node scripts/drill-home-passport.mjs",
     "test:composition-signature": "node scripts/drill-composition-signature.mjs",
     "test:page-experience": "node scripts/drill-page-experience.mjs",
     "test:design-metaphor": "node scripts/drill-design-metaphor.mjs",
