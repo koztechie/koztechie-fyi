@@ -2,13 +2,16 @@
 title: "Зараз"
 lang: uk
 layout: now.njk
-updated: 2026-11-22
-summary: "Над чим я зараз працюю: розробка особистого сайту koztechie.fyi та гри NICHLYST."
+updated: 2026-11-23
+summary: "Над чим я зараз працюю: підготовка подання на хакатон Relate by Neo4j, розробка особистого сайту koztechie.fyi та гри NICHLYST."
 og_description: "Сторінка «Зараз». Над чим я працюю саме в цей час."
 translation_status: complete
 draft: false
 season: "листопад 2026 року"
 working_on:
+  - label: "Relate by Neo4j Hackathon"
+    url: "https://github.com/koztechie/cascade"
+    detail: "— готую подання на хакатон (дедлайн 11 грудня): граф наслідків змін для e-commerce каталогів — «що зламається, якщо це змінити?», одне файл-сховище, сім запитів Cypher, п’ять read-only MCP-інструментів для агентів. Верхівку README, пітч і опис для Devpost завершено; далі демо-відео й подання."
   - label: "koztechie.fyi"
     url: "/"
     detail: "— випустив R3.0 у production через GitHub Actions: обов’язкові статичні й вимірювальні гейти, post-deploy smoke та G-01 пройшли. Усунув прогалину дизайн-системи: визначив ієрархію уваги для типів сторінок, додав регресійні гейти й розширив reflow-рев’ю до 19 маршрутів на трьох ширинах. Ручний AT-аудит лишається окремою незавершеною роботою."
