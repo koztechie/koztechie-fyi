@@ -32,6 +32,8 @@ console.log("\n=== QA: homepage contact visual priority fixture ===");
 execFileSync("npm", ["run", "test:home-contact-visual"], { stdio: "inherit" });
 console.log("\n=== QA: homepage concept fixture ===");
 execFileSync("npm", ["run", "test:home-concept"], { stdio: "inherit" });
+console.log("\n=== QA: homepage passport fixture ===");
+execFileSync("npm", ["run", "test:home-passport"], { stdio: "inherit" });
 console.log("\n=== QA: composition signature fixture ===");
 execFileSync("npm", ["run", "test:composition-signature"], { stdio: "inherit" });
 console.log("\n=== QA: page experience fixture ===");

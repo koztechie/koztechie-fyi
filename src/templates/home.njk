@@ -73,14 +73,8 @@
 
     <section class="home-panel home-panel--passport" aria-labelledby="home-passport-h">
       <h2 id="home-passport-h">{{ strings.home.passport_label }}</h2>
-      {%- set langList = [] -%}
-      {%- if collections.uk.length %}{% set langList = langList.concat([strings.home.lang_names.uk]) %}{% endif -%}
-      {%- if collections.en.length %}{% set langList = langList.concat([strings.home.lang_names.en]) %}{% endif -%}
-      <div class="passport h-card">
+      <div class="passport">
         <dl>
-          <div class="row"><dt>{{ strings.home.pass_label_author }}</dt><dd class="p-name">{{ strings.home.pass_value_author }}</dd></div>
-          <div class="row"><dt>{{ strings.home.pass_label_alias }}</dt><dd class="p-nickname">{{ strings.home.pass_value_alias }}</dd></div>
-          <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>{{ langList | join(", ") }}</dd></div>
           <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.publicPages.length }}</dd></div>
           <div class="row"><dt>{{ strings.home.pass_label_size }}</dt><dd>{{ strings.home.pass_size }}</dd></div>
           {%- if buildDate %}
