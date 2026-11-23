@@ -11,18 +11,30 @@ const frame = (title, rows) => `
   </section>`;
 
 const ukRows = [
-  ["Публічних сторінок", "32"],
+  ["Записів в архіві", "5"],
   ["Бюджет сторінки", "≤ 50 КіБ, Brotli"],
   ["Оновлено", "23 листопада 2026 року"],
 ];
 const enRows = [
-  ["Public pages", "32"],
+  ["Archive entries", "5"],
   ["Page budget", "≤ 50 KiB, Brotli"],
   ["Updated", "November 23, 2026"],
 ];
 
 assert.deepEqual(auditHomePassport(frame("Про сайт", ukRows), "uk"), []);
 assert.deepEqual(auditHomePassport(frame("About this site", enRows), "en"), []);
+assert(
+  auditHomePassport(frame("Про сайт", [
+    ["Публічних сторінок", "32"],
+    ...ukRows.slice(1),
+  ]), "uk").some((error) => error.includes("кількість записів"))
+);
+assert(
+  auditHomePassport(frame("About this site", [
+    ["Public pages", "32"],
+    ...enRows.slice(1),
+  ]), "en").some((error) => error.includes("кількість записів"))
+);
 assert(
   auditHomePassport(frame("Про автора і сайт", ukRows), "uk")
     .some((error) => error.includes("описувати сайт"))
