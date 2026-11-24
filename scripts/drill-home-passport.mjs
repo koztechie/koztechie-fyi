@@ -12,15 +12,27 @@ const frame = (title, rows) => `
 
 const ukRows = [
   ["Записів в архіві", "5"],
-  ["Оновлено", "23 листопада 2026 року"],
+  ["Останнє оновлення архіву", "23 листопада 2026 року"],
 ];
 const enRows = [
   ["Archive entries", "5"],
-  ["Updated", "November 23, 2026"],
+  ["Archive last updated", "November 23, 2026"],
 ];
 
 assert.deepEqual(auditHomePassport(frame("Про сайт", ukRows), "uk"), []);
 assert.deepEqual(auditHomePassport(frame("About this site", enRows), "en"), []);
+assert(
+  auditHomePassport(frame("Про сайт", [
+    ["Записів в архіві", "5"],
+    ["Оновлено", "23 листопада 2026 року"],
+  ]), "uk").some((error) => error.includes("останнього оновлення архіву"))
+);
+assert(
+  auditHomePassport(frame("About this site", [
+    ["Archive entries", "5"],
+    ["Updated", "November 23, 2026"],
+  ]), "en").some((error) => error.includes("називати дату"))
+);
 assert(
   auditHomePassport(frame("Про сайт", [
     ["Публічних сторінок", "32"],
@@ -73,4 +85,4 @@ assert(
   ]), "en").some((error) => error.includes("дублювати автора"))
 );
 
-console.log("✅ home-passport drill: паспорт без технічного бюджету; Brotli-ліміт у двомовному колофоні.");
+console.log("✅ home-passport drill: запис, дата архіву й винесений до колофона Brotli-бюджет перевірено двома мовами.");

@@ -18,13 +18,13 @@ export function auditHomePassport(html, lang) {
   const rows = [...section.matchAll(/<div class="row">\s*<dt>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>\s*<\/div>/g)]
     .map((match) => [textOf(match[1]), textOf(match[2])]);
   const expectedLabels = lang === "en"
-    ? ["Archive entries", "Updated"]
-    : ["Записів в архіві", "Оновлено"];
+    ? ["Archive entries", "Archive last updated"]
+    : ["Записів в архіві", "Останнє оновлення архіву"];
   if (rows.length !== expectedLabels.length) {
-    errors.push("паспорт має містити лише лічильник записів і дату оновлення");
+    errors.push("паспорт має містити лише лічильник записів і дату останнього оновлення архіву");
   }
   if (JSON.stringify(rows.map(([label]) => label)) !== JSON.stringify(expectedLabels)) {
-    errors.push("паспорт має містити лічильник записів і дату оновлення");
+    errors.push("паспорт має містити лічильник записів і називати дату останнього оновлення архіву");
   }
   if (!/^\d+$/.test(rows[0]?.[1] ?? "") || Number(rows[0]?.[1]) < 1) {
     errors.push("лічильник записів має бути додатним цілим числом");
