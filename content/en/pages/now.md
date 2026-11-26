@@ -17,5 +17,5 @@ working_on:
     detail: "— released R3.0 to production through GitHub Actions: required static and measured gates, post-deploy smoke, and G-01 passed. Closed a design-system gap: defined the attention hierarchy for page types, added regression gates, and expanded reflow review to 19 routes at three viewport widths. The manual AT audit remains separate and unfinished."
   - label: "NICHLYST"
     url: "/en/nichlyst/"
-    detail: "— resolved the two P0 contradictions in the story architecture: endings now stay inside the credibility rules the scenario itself sets, and every ending declares its terminality, so a physical death can never be followed by more play. That also re-opened the postscript arc (Days 16–40) behind the Day-15 epilogue and fixed save persistence across relaunches. All 61 tests pass; next, the game page and press kit."
+    detail: "— resolved the three P0 contradictions in the story architecture: endings stay inside the credibility rules the scenario itself sets; every ending declares its terminality, so a physical death can never be followed by more play; and the Day 25 refusal now really closes the route it promises to seal. That re-opened the postscript arc (Days 16–40) behind the Day-15 epilogue and fixed save persistence across relaunches. All 62 tests pass; next, the game page and press kit."
 ---
