@@ -15,24 +15,13 @@
     "latest_title": "Latest entries",
     "sections_title": "What's here",
     "thesis": "An archive of projects, decisions, and mistakes.",
-    "doc_updated": "Updated",
+    "doc_updated": "Archive last updated",
     "meta": [
       "Eugene Kozlovsky",
       "Kyiv, Ukraine"
     ],
-    "passport_label": "About me and this site",
-    "pass_label_lang": "Site languages",
-    "pass_label_pages": "Public pages",
-    "pass_label_author": "Author",
-    "pass_value_author": "Eugene Kozlovsky",
-    "pass_label_alias": "Handle",
-    "pass_value_alias": "koztechie",
-    "lang_names": {
-      "uk": "Ukrainian",
-      "en": "English"
-    },
-    "pass_label_size": "Page budget",
-    "pass_size": "≤ 50 KiB, Brotli",
+    "passport_label": "About this site",
+    "pass_label_entries": "Archive entries",
     "principles_title": "Core principles",
     "principles": [
       {

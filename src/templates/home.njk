@@ -3,9 +3,9 @@
     Головна: теза, пояснення архіву, потім авторський мета-рядок → паспорт →
     Основні принципи (DECISIONS §1.7) → Що тут є → Останні записи →
     Головний проєкт (NICHLYST). Блок маніфесту прибрано (повтор теми).
-    Паспорт рахується, не лежить у словнику: мови — з наявних мовних дерев,
-    сторінки — з колекцій, дата — максимум date/updated. Обсяг — ліміт
-    TECH_STANDARDS §1. Модулі нумеруються CSS counters.
+    Дані паспорта: записи — канонічні українські матеріали, дата останнього
+    оновлення архіву — максимум date/updated; бюджет — у колофоні.
+    Модулі — CSS counters.
     Тексти — зі словників. Хардкод заборонено (крок 118). -#}
 {% extends "base.njk" %}
 {%- set strings = strings[lang] | default(strings.uk) %}
@@ -73,16 +73,9 @@
 
     <section class="home-panel home-panel--passport" aria-labelledby="home-passport-h">
       <h2 id="home-passport-h">{{ strings.home.passport_label }}</h2>
-      {%- set langList = [] -%}
-      {%- if collections.uk.length %}{% set langList = langList.concat([strings.home.lang_names.uk]) %}{% endif -%}
-      {%- if collections.en.length %}{% set langList = langList.concat([strings.home.lang_names.en]) %}{% endif -%}
-      <div class="passport h-card">
+      <div class="passport">
         <dl>
-          <div class="row"><dt>{{ strings.home.pass_label_author }}</dt><dd class="p-name">{{ strings.home.pass_value_author }}</dd></div>
-          <div class="row"><dt>{{ strings.home.pass_label_alias }}</dt><dd class="p-nickname">{{ strings.home.pass_value_alias }}</dd></div>
-          <div class="row"><dt>{{ strings.home.pass_label_lang }}</dt><dd>{{ langList | join(", ") }}</dd></div>
-          <div class="row"><dt>{{ strings.home.pass_label_pages }}</dt><dd>{{ collections.publicPages.length }}</dd></div>
-          <div class="row"><dt>{{ strings.home.pass_label_size }}</dt><dd>{{ strings.home.pass_size }}</dd></div>
+          <div class="row"><dt>{{ strings.home.pass_label_entries }}</dt><dd>{{ collections.archiveEntries.length }}</dd></div>
           {%- if buildDate %}
           <div class="row"><dt>{{ strings.home.doc_updated }}</dt><dd class="hl">{% if pageLang === "en" %}{{ buildDate | enDate }}{% else %}{{ buildDate | ukDate }}{{ strings.site.date_suffix }}{% endif %}</dd></div>
           {%- endif %}

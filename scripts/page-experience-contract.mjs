@@ -35,6 +35,20 @@ export function auditPageExperience({
       has(layout, /\.home-panel--passport\s*\{/),
     "головна має зберігати орієнтацію, паспорт та відмінний ритм розділів"
   );
+  const homeHeadingRules = [
+    ...layout.matchAll(/\.home-hero h1\s*\{([^{}]*)\}/g),
+  ].map(([, body]) => body);
+  require(
+    homeHeadingRules.length > 0 &&
+      /width:\s*min\(100%,\s*48rem\)/.test(homeHeadingRules[0]) &&
+      /text-wrap:\s*balance/.test(homeHeadingRules[0]) &&
+      /overflow-wrap:\s*normal/.test(homeHeadingRules[0]) &&
+      /hyphens:\s*auto/.test(homeHeadingRules[0]) &&
+      !homeHeadingRules.some((body) =>
+        /(?:max-width|width):\s*[\d.]+ch\b|overflow-wrap:\s*anywhere/.test(body)
+      ),
+    "H1 головної має балансувати цілі слова в адаптивному полі, без вузької ch-ширини й довільних розривів"
+  );
 
   require(
     has(list, /index-entry__facts/) &&

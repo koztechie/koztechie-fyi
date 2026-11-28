@@ -14,7 +14,7 @@ working_on:
     detail: "— preparing my entry for the hackathon (deadline 11 December): a change-impact graph for e-commerce catalogs — “what breaks if we change this?”, a single store file, seven Cypher queries, five read-only MCP tools for agents. README top, pitch and Devpost description are done; next up are the demo video and submission."
   - label: "koztechie.fyi"
     url: "/en/"
-    detail: "— released R3.0 to production through GitHub Actions: required static and measured gates, post-deploy smoke, and G-01 passed. Closed a design-system gap: defined the attention hierarchy for page types, added regression gates, and expanded reflow review to 19 routes at three viewport widths. The manual AT audit remains separate and unfinished."
+    detail: "— released R3.10 to production through GitHub Actions: static and measured gates, post-deploy smoke, and G-01 passed. Closed a design-system gap: defined the attention hierarchy for page types, added regression gates, and expanded reflow review to 19 routes at three viewport widths. The manual AT audit remains separate and unfinished."
   - label: "NICHLYST"
     url: "/en/nichlyst/"
     detail: "— resolved the four P0 contradictions in the story architecture: endings keep to the credibility rules the scenario itself sets; every ending declares its terminality, so a physical death cannot be followed by more play; the Day 25 refusal really closes the route it promises to seal; and events keep physical reality, subjective experience, archival testimony and the outside world apart. That re-opened the postscript arc (Days 16–40) behind the Day-15 epilogue, fixed save persistence across relaunches, and put the Node's origin canon into the lore bible. All 64 tests pass; next, the game page and press kit."

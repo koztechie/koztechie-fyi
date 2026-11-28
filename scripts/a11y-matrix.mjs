@@ -5,6 +5,10 @@ import { createServer } from "node:http";
 import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from "node:fs";
 import { extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  auditHomeContactVisualPriority,
+  HOME_CONTACT_VISUAL_PROPERTIES,
+} from "./home-contact-visual-contract.mjs";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const distDir = join(repoRoot, "dist");
@@ -158,6 +162,24 @@ try {
           };
           return queries[modeName] ? window.matchMedia(queries[modeName]).matches : true;
         }, mode.name);
+        let homeContactVisual = null;
+        if ((urlPath === "/" || urlPath === "/en/")
+            && ["default", "reflow-320"].includes(mode.name)) {
+          const contactPath = urlPath === "/en/" ? "/en/contact/" : "/contact/";
+          const links = await page.evaluate((properties) =>
+            [...document.querySelectorAll(".home-sections-list a[href]")].map((anchor) => {
+              const style = getComputedStyle(anchor);
+              return {
+                path: new URL(anchor.href).pathname,
+                style: Object.fromEntries(
+                  properties.map((property) => [property, style[property]])
+                ),
+              };
+            }),
+            HOME_CONTACT_VISUAL_PROPERTIES
+          );
+          homeContactVisual = auditHomeContactVisualPriority(links, contactPath);
+        }
         const overflow = await page.evaluate(() => {
           if (document.documentElement.scrollWidth <= document.documentElement.clientWidth) return false;
           const width = document.documentElement.clientWidth;
@@ -195,7 +217,7 @@ try {
           }
           return null;
         });
-        if (result.violations.length || overflow || focusOk || !mediaOk) {
+        if (result.violations.length || overflow || focusOk || !mediaOk || homeContactVisual?.length) {
           failures.push({
             file: remote ? urlPath : relative(repoRoot, file),
             mode: mode.name,
@@ -203,6 +225,7 @@ try {
             overflow,
             focusOk,
             mediaOk,
+            homeContactVisual,
           });
         }
       } catch (error) {
