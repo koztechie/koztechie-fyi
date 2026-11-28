@@ -33,7 +33,7 @@
       <li>
         <span class="now-work-list__index" aria-hidden="true">{{ "0" + loop.index }}</span>
         <div class="now-work-list__body">
-          <a href="{{ w.url }}">{{ w.label }}</a>
+          <a href="{{ w.url }}"{% if w.url and w.url.indexOf("github.com") > -1 %} rel="me"{% endif %}>{{ w.label }}</a>
           <p>{{ w.detail }}</p>
         </div>
       </li>
